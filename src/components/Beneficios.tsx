@@ -31,18 +31,22 @@ export default function Beneficios() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {beneficios.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="flex flex-col items-center text-center p-6 bg-orange-50 rounded-xl shadow hover:shadow-md transition"
-            >
-              {item.icon}
-              <h3 className="mt-4 text-lg font-semibold text-orange-700">{item.titulo}</h3>
-              <p className="text-sm text-gray-700 mt-2">{item.descricao}</p>
-            </motion.div>
+            motion<HTMLDivElement>('div')({
+              key: index,
+              initial: { opacity: 0, y: 30 },
+              whileInView: { opacity: 1, y: 0 },
+              viewport: { once: true },
+              transition: { duration: 0.4, delay: index * 0.1 },
+              className:
+                'flex flex-col items-center text-center p-6 bg-orange-50 rounded-xl shadow hover:shadow-md transition',
+              children: (
+                <>
+                  {item.icon}
+                  <h3 className="mt-4 text-lg font-semibold text-orange-700">{item.titulo}</h3>
+                  <p className="text-sm text-gray-700 mt-2">{item.descricao}</p>
+                </>
+              ),
+            })
           ))}
         </div>
       </div>
