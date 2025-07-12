@@ -5,7 +5,7 @@ import WhatsappButton from '@/components/WhatsappButton'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Solar Invest Solutions',
+  title: 'SolarInvest Solutions',
   description: 'Energia solar inteligente e acessível.',
 }
 

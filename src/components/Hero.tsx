@@ -18,7 +18,7 @@ export default function Hero() {
               Energia solar inteligente para sua casa ou condomínio
             </h1>
             <p className="mt-4 text-base sm:text-lg text-gray-700">
-              Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a Solar Invest Solutions.
+              Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
             </p>
             <a
               href="/contato"

@@ -10,11 +10,11 @@ export default function Sobre() {
     <section className="min-h-screen bg-orange-50 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto text-center">
         <h1 className="text-3xl sm:text-4xl font-bold text-orange-700 mb-6">
-          Sobre a Solar Invest
+          Sobre a SolarInvest
         </h1>
 
         <p className="text-gray-700 text-base sm:text-lg mb-10 leading-relaxed">
-          A Solar Invest Solutions nasceu com o propósito de democratizar o acesso à energia solar no Brasil.
+          A SolarInvest Solutions nasceu com o propósito de democratizar o acesso à energia solar no Brasil.
           Nossa missão é levar soluções sustentáveis, acessíveis e personalizadas a residências, condomínios e pequenos negócios,
           reduzindo custos e promovendo autonomia energética.
         </p>

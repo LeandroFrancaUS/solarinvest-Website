@@ -9,7 +9,7 @@ export default function Home() {
       <Beneficios />
       <ComoFunciona />
       <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-yellow-100 to-orange-200 text-gray-800">
-        <h1 className="text-4xl font-bold">Bem-vindo à Solar Invest Solutions</h1>
+        <h1 className="text-4xl font-bold">Bem-vindo à SolarInvest Solutions</h1>
         <p className="mt-4 text-lg">
           Energia solar inteligente, acessível e sustentável para o seu futuro.
         </p>

@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Coluna 1: Logo + Descrição */}
         <div>
-          <h2 className="text-2xl font-bold text-orange-500 mb-2">Solar Invest</h2>
+          <h2 className="text-2xl font-bold text-orange-500 mb-2">SolarInvest</h2>
           <p className="text-sm text-gray-300">
             Soluções inteligentes em energia solar para residências, condomínios e pequenas empresas.
           </p>
@@ -42,7 +42,7 @@ export default function Footer() {
       </div>
 
       <div className="text-center text-sm text-gray-400 mt-12 border-t border-gray-700 pt-6">
-        &copy; {new Date().getFullYear()} Solar Invest Solutions. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} SolarInvest Solutions. Todos os direitos reservados.
       </div>
     </footer>
   );

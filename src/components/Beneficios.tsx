@@ -26,7 +26,7 @@ export default function Beneficios() {
     <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-3xl sm:text-4xl font-bold text-orange-700 mb-12">
-          Por que escolher a Solar Invest?
+          Por que escolher a SolarInvest?
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
