@@ -41,13 +41,14 @@ export default function ComoFunciona() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="bg-white p-6 rounded-xl shadow flex flex-col items-center text-center hover:shadow-md transition"
             >
-              <div className="text-white bg-orange-600 w-10 h-10 flex items-center justify-center rounded-full font-bold mb-4">
-                {passo.etapa}
+              <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center text-center hover:shadow-md transition">
+                <div className="text-white bg-orange-600 w-10 h-10 flex items-center justify-center rounded-full font-bold mb-4">
+                  {passo.etapa}
+                </div>
+                <h3 className="text-lg font-semibold text-orange-700">{passo.titulo}</h3>
+                <p className="text-sm text-gray-600 mt-2">{passo.descricao}</p>
               </div>
-              <h3 className="text-lg font-semibold text-orange-700">{passo.titulo}</h3>
-              <p className="text-sm text-gray-600 mt-2">{passo.descricao}</p>
             </motion.div>
           ))}
         </div>
