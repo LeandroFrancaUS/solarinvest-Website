@@ -1,65 +1,77 @@
 'use client';
 
 import { motion } from 'framer-motion';
-export const metadata = {
-  title: 'Como Funciona | Solar Invest Solutions',
-  description: 'Entenda como funciona o sistema solar híbrido da Solar Invest: autonomia, economia e sustentabilidade sem complicações.',
-  keywords: [
-    'como funciona energia solar',
-    'sistema híbrido',
-    'painel solar explicado',
-    'off-grid solar',
-    'economia de energia',
-  ],
-};
+import { FaRegFileAlt, FaClipboardCheck, FaTools, FaPiggyBank } from 'react-icons/fa';
 
 export default function ComoFunciona() {
-  const passos = [
+  // Lista de etapas com ícone, título e descrição
+  const etapas = [
     {
-      etapa: '1',
-      titulo: 'Diagnóstico gratuito',
-      descricao: 'Analisamos seu consumo e identificamos a melhor solução solar para sua realidade.',
+      icon: <FaRegFileAlt size={36} className="text-orange-500" />,
+      titulo: 'Análise de Conta',
+      descricao: 'Você nos envia sua conta de luz e realizamos uma análise gratuita e personalizada do seu consumo.',
     },
     {
-      etapa: '2',
-      titulo: 'Proposta personalizada',
-      descricao: 'Você recebe uma proposta clara, com economia real — sem investimento inicial obrigatório.',
+      icon: <FaClipboardCheck size={36} className="text-orange-500" />,
+      titulo: 'Proposta Ideal',
+      descricao: 'Apresentamos a solução mais econômica e sustentável, de acordo com seu perfil e localização.',
     },
     {
-      etapa: '3',
-      titulo: 'Instalação completa',
-      descricao: 'Nossa equipe cuida de tudo: equipamentos, instalação, homologação e ativação.',
+      icon: <FaTools size={36} className="text-orange-500" />,
+      titulo: 'Instalação Técnica',
+      descricao: 'Nossa equipe especializada cuida de toda a instalação com agilidade, segurança e qualidade.',
     },
     {
-      etapa: '4',
-      titulo: 'Economia imediata',
-      descricao: 'Você já começa a economizar na conta de luz com energia solar limpa e confiável.',
+      icon: <FaPiggyBank size={36} className="text-orange-500" />,
+      titulo: 'Economia Imediata',
+      descricao: 'Com a energia solar ativa, você já começa a economizar na sua próxima fatura de energia.',
     },
   ];
 
   return (
-    <section className="bg-orange-50 py-16 px-4 sm:px-6 lg:px-8">
+    <section className="bg-white py-20 px-6 md:px-16 lg:px-28">
       <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-12">
-          Como funciona?
-        </h2>
+        {/* Título principal com animação */}
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-5xl font-extrabold text-orange-600 mb-6"
+        >
+          Como Funciona
+        </motion.h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {passos.map((passo, index) => (
+        {/* Texto de apoio */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-16"
+        >
+          Entenda como a Solar Invest transforma sua conta de energia em economia real, com um processo simples, rápido e eficiente.
+        </motion.p>
+
+        {/* Etapas com ícones e animações */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+          {etapas.map((etapa, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              transition={{ duration: 0.4, delay: index * 0.2 }}
+              className="bg-orange-50 p-6 rounded-xl shadow hover:shadow-md transition text-center"
             >
-              <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center text-center hover:shadow-md transition">
-                <div className="text-white bg-orange-600 w-10 h-10 flex items-center justify-center rounded-full font-bold mb-4">
-                  {passo.etapa}
-                </div>
-                <h3 className="text-lg font-semibold text-orange-700">{passo.titulo}</h3>
-                <p className="text-sm text-gray-600 mt-2">{passo.descricao}</p>
-              </div>
+              {/* Ícone */}
+              <div className="mb-4 flex justify-center">{etapa.icon}</div>
+
+              {/* Título */}
+              <h3 className="text-xl font-semibold text-orange-700 mb-2">{etapa.titulo}</h3>
+
+              {/* Descrição */}
+              <p className="text-gray-700 text-sm">{etapa.descricao}</p>
             </motion.div>
           ))}
         </div>

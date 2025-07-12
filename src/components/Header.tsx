@@ -13,7 +13,7 @@ export default function Header() {
   const [submenuOpen, setSubmenuOpen] = useState(false);
 
   // Referência para detectar clique fora do submenu
-  const submenuRef = useRef<HTMLUListElement | null>(null);
+  const submenuRef = useRef<HTMLLIElement | null>(null);
 
   // Alternar menu mobile
   const toggleMenu = () => setMenuOpen(!menuOpen);

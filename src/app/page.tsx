@@ -1,6 +1,6 @@
 import Hero from '@/components/Hero'
 import Beneficios from '@/components/Beneficios'
-import ComoFunciona from '@/components/ComoFunciona'
+import ComoFunciona from '@/app/comofunciona/page'
 export const metadata = {
   title: 'Energia Solar Inteligente | Solar Invest Solutions',
   description: 'Economize com energia solar híbrida, off-grid e sustentável. Soluções acessíveis para residências, negócios e comunidades remotas.',
