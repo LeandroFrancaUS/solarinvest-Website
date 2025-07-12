@@ -1,3 +1,15 @@
+export const metadata = {
+  title: 'Soluções em Energia Solar | Solar Invest Solutions',
+  description: 'Conheça nossas soluções solares para residências, condomínios, comunidades e áreas remotas. Energia limpa, estável e econômica.',
+  keywords: [
+    'soluções energia solar',
+    'solar para condomínios',
+    'solar rural',
+    'projeto solar',
+    'sistema solar com bateria',
+    'solar para comunidades',
+  ],
+};
 export default function Solucoes() {
   const tipos = [
     {

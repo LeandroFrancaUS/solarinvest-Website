@@ -1,6 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
+export const metadata = {
+  title: 'Como Funciona | Solar Invest Solutions',
+  description: 'Entenda como funciona o sistema solar híbrido da Solar Invest: autonomia, economia e sustentabilidade sem complicações.',
+  keywords: [
+    'como funciona energia solar',
+    'sistema híbrido',
+    'painel solar explicado',
+    'off-grid solar',
+    'economia de energia',
+  ],
+};
 
 export default function ComoFunciona() {
   const passos = [

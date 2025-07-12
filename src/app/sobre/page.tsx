@@ -1,3 +1,15 @@
+export const metadata = {
+  title: 'Sobre Nós | Solar Invest Solutions',
+  description: 'Somos uma empresa comprometida com o futuro energético sustentável. Conheça nossa história e missão com energia solar.',
+  keywords: [
+    'sobre solar invest',
+    'quem somos',
+    'empresa energia solar',
+    'história solar invest',
+    'missão energia limpa',
+  ],
+};
+
 export default function Sobre() {
   const valores = [
     "Compromisso com o cliente e com o planeta",

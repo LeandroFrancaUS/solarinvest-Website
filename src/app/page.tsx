@@ -1,6 +1,22 @@
 import Hero from '@/components/Hero'
 import Beneficios from '@/components/Beneficios'
 import ComoFunciona from '@/components/ComoFunciona'
+export const metadata = {
+  title: 'Energia Solar Inteligente | Solar Invest Solutions',
+  description: 'Economize com energia solar híbrida, off-grid e sustentável. Soluções acessíveis para residências e comunidades remotas.',
+  keywords: [
+    'energia solar',
+    'solar invest',
+    'painel solar',
+    'off-grid',
+    'energia renovável',
+    'fotovoltaica',
+    'híbrida',
+    'comunidade solar',
+  ],
+  authors: [{ name: 'Solar Invest Solutions' }],
+  creator: 'Solar Invest Solutions',
+};
 
 export default function Home() {
   return (

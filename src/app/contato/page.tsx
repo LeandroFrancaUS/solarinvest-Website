@@ -1,6 +1,17 @@
 'use client';
 
 import { ChangeEvent, FormEvent, useState } from 'react';
+export const metadata = {
+  title: 'Fale Conosco | Solar Invest Solutions',
+  description: 'Entre em contato com nossa equipe e tire suas dúvidas sobre energia solar para sua casa ou comunidade.',
+  keywords: [
+    'contato solar invest',
+    'fale conosco',
+    'atendimento energia solar',
+    'suporte solar',
+    'consultoria solar',
+  ],
+};
 
 export default function Contato() {
   const [form, setForm] = useState({ nome: '', email: '', mensagem: '' });
