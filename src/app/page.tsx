@@ -2,9 +2,9 @@
 
 import Hero from '@/components/Hero';
 import Beneficios from '@/components/Beneficios';
-import ComoFunciona from '@/components/ComoFunciona'; // Corrigido: agora importa o componente diretamente
+import ComoFunciona from '@/components/ComoFunciona';
 
-// 🔍 SEO Metadata para motores de busca
+// 🔍 SEO Metadata
 export const metadata = {
   title: 'Energia Solar Inteligente | Solar Invest Solutions',
   description:
@@ -28,24 +28,26 @@ export const metadata = {
 export default function Home() {
   return (
     <>
-      {/* 🟠 Seção inicial com vídeo ou imagem hero */}
+      {/* 🎥 Vídeo ou imagem hero */}
       <Hero />
 
-      {/* 🟠 Seção de benefícios da SolarInvest */}
+      {/* 🌞 Benefícios da solução solar */}
       <Beneficios />
 
-      {/* 🟠 Seção explicativa do processo em etapas */}
+      {/* ⚙️ Etapas de como funciona */}
       <ComoFunciona />
 
-      {/* 🟠 Seção final com mensagem institucional */}
-      <main className="min-h-screen px-4 sm:px-6 md:px-8 py-16 bg-gradient-to-br from-yellow-100 to-orange-200 text-gray-800">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-bold">Bem-vindo à Solar Invest Solutions</h1>
-          <p className="mt-4 text-lg">
+      {/* 🟡 Mensagem final com padding ajustado */}
+      <section className="bg-gradient-to-br from-yellow-100 to-orange-200 text-gray-800 px-4 sm:px-6 lg:px-8 py-12 sm:py-20 mt-12 sm:mt-16">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold">
+            Bem-vindo à Solar Invest Solutions
+          </h1>
+          <p className="mt-4 text-base sm:text-lg">
             Energia solar inteligente, acessível e sustentável para o seu futuro.
           </p>
         </div>
-      </main>
+      </section>
     </>
   );
 }
