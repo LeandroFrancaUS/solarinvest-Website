@@ -3,7 +3,7 @@
 import { FaWhatsapp } from 'react-icons/fa';
 
 export default function WhatsappButton() {
-  const numero = '62981704303'; // Altere para seu número real com DDI + DDD
+  const numero = '5562981704303'; // Altere para seu número real com DDI + DDD
 
   return (
     <a

@@ -28,7 +28,7 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold mb-1">Fale conosco</h3>
           <div className="flex items-center gap-4 mt-2">
-            <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.me/5562981704303" target="_blank" rel="noopener noreferrer">
               <FaWhatsapp className="text-2xl text-green-400 hover:text-green-500" />
             </a>
             <a href="https://instagram.com/solarinvest" target="_blank" rel="noopener noreferrer">
