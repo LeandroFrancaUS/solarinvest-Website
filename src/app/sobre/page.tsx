@@ -41,7 +41,7 @@ export default function Sobre() {
           <div>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">🔭 Visão</h2>
             <p className="text-gray-600">
-              Ser referência nacional em soluções solares inteligentes para comunidades e residências.
+              Ser referência nacional e internacional em soluções solares inteligentes para comunidades e residências.
             </p>
           </div>
         </div>
