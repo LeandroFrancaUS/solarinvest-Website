@@ -31,7 +31,7 @@ export default function Footer() {
             <a href="https://wa.me/5562981704303" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
               <FaWhatsapp className="text-2xl text-green-400 hover:text-green-500" />
             </a>
-            <a href="https://instagram.com/solarinvest" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <a href="https://instagram.com/solarinvest.br" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <FaInstagram className="text-2xl text-pink-400 hover:text-pink-500" />
             </a>
             <a href="https://linkedin.com/company/solarinvest" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
