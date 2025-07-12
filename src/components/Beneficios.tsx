@@ -37,11 +37,12 @@ export default function Beneficios() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="flex flex-col items-center text-center p-6 bg-orange-50 rounded-xl shadow hover:shadow-md transition"
             >
-              {item.icon}
-              <h3 className="mt-4 text-lg font-semibold text-orange-700">{item.titulo}</h3>
-              <p className="text-sm text-gray-700 mt-2">{item.descricao}</p>
+              <div className="flex flex-col items-center text-center p-6 bg-orange-50 rounded-xl shadow hover:shadow-md transition">
+                {item.icon}
+                <h3 className="mt-4 text-lg font-semibold text-orange-700">{item.titulo}</h3>
+                <p className="text-sm text-gray-700 mt-2">{item.descricao}</p>
+              </div>
             </motion.div>
           ))}
         </div>
