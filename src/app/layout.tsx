@@ -8,7 +8,7 @@ import { Analytics } from '@vercel/analytics/next'; // ✅ Analytics de uso e tr
 
 import type { Metadata } from 'next';
 
-// 🔍 SEO Metadata global
+// 🔍 SEO Metadata global now
 export const metadata: Metadata = {
   title: 'SolarInvest Solutions',
   description: 'Energia solar inteligente e acessível.',
