@@ -2,48 +2,36 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // ✅ Import do componente otimizado de imagem do Next.js
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
 export default function Header() {
-  // 🔄 Estado para controlar se o menu mobile está aberto
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // 🔄 Estado do menu mobile
+  const [submenuOpen, setSubmenuOpen] = useState(false); // 🔽 Estado do submenu mobile
+  const submenuRef = useRef<HTMLLIElement | null>(null); // 📍 Referência ao submenu
 
-  // 🔽 Estado para controlar se o submenu "Soluções" está aberto no mobile
-  const [submenuOpen, setSubmenuOpen] = useState(false);
+  const toggleMenu = () => setMenuOpen(!menuOpen); // 🔁 Alterna o menu mobile
+  const toggleSubmenu = () => setSubmenuOpen(!submenuOpen); // 🔁 Alterna o submenu
 
-  // 📍 Referência ao submenu para detectar clique fora dele
-  const submenuRef = useRef<HTMLLIElement | null>(null);
-
-  // 🔁 Alterna o menu mobile (abre ou fecha)
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-
-  // 🔁 Alterna o submenu "Soluções" (abre ou fecha)
-  const toggleSubmenu = () => setSubmenuOpen(!submenuOpen);
-
-  // 🧠 Fecha o submenu ao clicar fora dele
+  // 🧠 Fecha o submenu ao clicar fora
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        submenuRef.current &&
-        !submenuRef.current.contains(event.target as Node)
-      ) {
+      if (submenuRef.current && !submenuRef.current.contains(event.target as Node)) {
         setSubmenuOpen(false);
       }
     }
 
-    // Só adiciona o event listener quando o submenu está aberto
     if (submenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
-    // Limpa o listener ao desmontar ou quando submenu fecha
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [submenuOpen]);
 
-  // 🌐 Lista de links principais do menu
+  // 🌐 Links principais
   const navLinks = [
     { name: 'Início', href: '/' },
     { name: 'Como Funciona', href: '/comofunciona' },
@@ -61,27 +49,32 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
-      {/* 🔶 Container principal do header */}
+      {/* 🔶 Container principal */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        {/* 🟠 Logo e nome da empresa */}
+        {/* 🟠 Logo + Nome */}
         <Link href="/" className="flex items-center gap-2 text-orange-600 font-bold text-xl">
-          <img src="/logo-solarinvest.svg" alt="Logo SolarInvest" className="w-8 h-8" />
+          <Image
+            src="/logo.png" // ✅ Caminho correto do logo na pasta public
+            alt="Logo SolarInvest"
+            width={32}
+            height={32}
+            priority // 🔄 Carrega logo com prioridade para melhorar LCP
+          />
           SolarInvest
         </Link>
 
-        {/* 📱 Botão hamburguer para abrir menu mobile */}
+        {/* 📱 Botão menu mobile */}
         <button className="md:hidden text-gray-800" onClick={toggleMenu}>
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        {/* 🖥️ Menu de navegação para desktop */}
+        {/* 🖥️ Menu desktop */}
         <nav className="hidden md:flex gap-6 text-gray-800">
           {navLinks.map((link, idx) =>
             link.submenu ? (
-              // 🌟 Item com submenu
+              // 🌟 Link com submenu
               <div key={idx} className="relative group">
                 <button className="hover:text-orange-600">{link.name}</button>
-                {/* 🔽 Submenu ao passar o mouse */}
                 <div className="absolute left-0 mt-2 bg-white rounded shadow-md opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none group-hover:pointer-events-auto">
                   {link.submenu.map((sublink, subIdx) => (
                     <Link
@@ -95,7 +88,7 @@ export default function Header() {
                 </div>
               </div>
             ) : (
-              // 🔗 Links simples
+              // 🔗 Link simples
               <Link key={idx} href={link.href} className="hover:text-orange-600">
                 {link.name}
               </Link>
@@ -104,7 +97,7 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* 📱 Menu mobile com animação */}
+      {/* 📱 Menu mobile animado */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -117,7 +110,6 @@ export default function Header() {
               {navLinks.map((link, idx) =>
                 link.submenu ? (
                   <li key={idx} ref={submenuRef}>
-                    {/* 🔘 Botão para submenu no mobile */}
                     <button
                       onClick={toggleSubmenu}
                       className="w-full text-left text-gray-800 font-medium"
@@ -125,7 +117,6 @@ export default function Header() {
                       {link.name}
                     </button>
 
-                    {/* 🎬 Submenu animado (mobile) */}
                     <AnimatePresence>
                       {submenuOpen && (
                         <motion.ul
@@ -153,7 +144,6 @@ export default function Header() {
                     </AnimatePresence>
                   </li>
                 ) : (
-                  // 🔗 Link simples no mobile
                   <li key={idx}>
                     <Link
                       href={link.href}
