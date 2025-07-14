@@ -2,43 +2,55 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
-// Componente que exibe um vídeo do YouTube com carregamento leve e otimizado
-export default function LiteYouTube({ videoId }: { videoId: string }) {
-  // Estado para controlar se o vídeo está em reprodução
+type Props = {
+  videoId: string;
+};
+
+export default function LiteYouTube({ videoId }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Lida com o clique para começar a reprodução
-  const handlePlay = () => setIsPlaying(true);
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
 
   return (
-    <div className="relative w-full aspect-video rounded-xl shadow overflow-hidden">
+    <motion.div
+      className="relative w-full aspect-video rounded-xl shadow overflow-hidden"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
       {!isPlaying ? (
-        // 📷 Thumbnail otimizada com botão de play
+        // 🖼️ Miniatura do vídeo com botão de play
         <button
           onClick={handlePlay}
-          className="w-full h-full relative flex items-center justify-center group"
+          className="relative w-full h-full flex items-center justify-center group"
+          aria-label="Assistir vídeo"
         >
-          {/* Imagem com otimização do Next.js */}
+          {/* ✅ Miniatura do vídeo carregada com next/image para performance */}
           <Image
             src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-            alt="Prévia do vídeo"
+            alt="Miniatura do vídeo"
             fill
             className="object-cover"
-            priority // 📌 Garante carregamento prioritário
+            priority
           />
-          {/* Ícone de play estilizado */}
-          <svg
-            className="w-16 h-16 text-white z-10 group-hover:scale-110 transition-transform"
-            fill="currentColor"
-            viewBox="0 0 84 84"
-          >
-            <circle cx="42" cy="42" r="42" fill="rgba(0,0,0,0.5)" />
-            <polygon points="33,26 33,58 58,42" fill="white" />
-          </svg>
+
+          {/* ▶️ Botão de play sobreposto */}
+          <div className="z-10 w-20 h-20 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition group-hover:scale-110">
+            <svg
+              className="w-10 h-10 text-white"
+              fill="currentColor"
+              viewBox="0 0 84 84"
+            >
+              <polygon points="33,26 33,58 58,42" fill="white" />
+            </svg>
+          </div>
         </button>
       ) : (
-        // ▶️ Iframe do vídeo após clique
+        // ▶️ Iframe do vídeo YouTube quando em reprodução
         <iframe
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
           title="Vídeo do YouTube"
@@ -46,9 +58,11 @@ export default function LiteYouTube({ videoId }: { videoId: string }) {
           allowFullScreen
           loading="lazy"
           className="w-full h-full"
-          style={{ border: '0' }}
         />
       )}
-    </div>
+    </motion.div>
   );
 }
+
+// 🧾 Adiciona nome para facilitar debug e mensagens do React DevTools
+LiteYouTube.displayName = 'LiteYouTube';
