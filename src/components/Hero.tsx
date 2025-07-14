@@ -40,7 +40,7 @@ export default function Hero() {
           <div className="aspect-w-16 aspect-h-9 w-full rounded-xl shadow overflow-hidden">
             <iframe
               src="https://youtu.be/UXA3Td8KgmY"
-              title="Apresentação SolarInvest"
+              //title="Apresentação SolarInvest"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               style={{ border: '0' }} // ✅ Substituição do atributo deprecated 'frameBorder'
