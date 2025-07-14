@@ -9,5 +9,7 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
-}
+  plugins: [
+    require('@tailwindcss/aspect-ratio'), // ✅ Plugin para vídeos responsivos
+  ],
+};
