@@ -36,7 +36,7 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {/* 🖼️ Wrapper para manter proporção 16:9 usando o plugin aspect-ratio */}
+          {/*Wrapper para manter proporção 16:9 usando o plugin aspect-ratio */}
           <div className="aspect-w-16 aspect-h-9 w-full rounded-xl shadow overflow-hidden">
             <iframe
               src="https://youtu.be/UXA3Td8KgmY"
