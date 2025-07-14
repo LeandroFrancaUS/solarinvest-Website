@@ -38,12 +38,11 @@ export default function Hero() {
         >
           <video
             src="/solarinvest-apresentacao.mp4"
-            className="w-full max-w-full h-auto rounded-xl shadow"
             autoPlay
             muted
             loop
             playsInline
-            controls
+            className="w-full max-w-full h-auto rounded-xl shadow"
           />
         </motion.div>
       </div>
