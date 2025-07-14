@@ -39,7 +39,7 @@ export default function Hero() {
           {/* 🖼️ Wrapper para manter proporção 16:9 usando o plugin aspect-ratio */}
           <div className="aspect-w-16 aspect-h-9 w-full rounded-xl shadow overflow-hidden">
             <iframe
-              src="https://www.youtube.com/embed/UXA3Td8KgmY"
+              src="https://youtu.be/UXA3Td8KgmY"
               title="Apresentação SolarInvest"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
