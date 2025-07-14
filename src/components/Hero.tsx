@@ -53,11 +53,10 @@ export default function Hero() {
         >
           <video
             src="/solarinvest-apresentacao-web.mp4"
-            controls
-            autoPlay
-            muted
-            playsInline
-            loop
+            muted // 🔇 necessário para autoplay funcionar em mobile
+            autoPlay // ▶️ inicia automaticamente
+            playsInline // 📱 necessário para iOS não forçar fullscreen
+            controls // 🎛️ exibe controles (só funciona com muted em autoplay)
             className="w-full max-w-full h-auto rounded-xl shadow"
           />
         </motion.div>
@@ -80,10 +79,10 @@ export default function Hero() {
           {/* ▶️ Vídeo miniatura */}
           <video
             src="/solarinvest-apresentacao-web.mp4"
-            controls
-            autoPlay
             muted
+            autoPlay
             playsInline
+            controls
             className="w-full h-auto"
           />
         </div>
