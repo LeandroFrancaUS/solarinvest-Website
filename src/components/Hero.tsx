@@ -37,7 +37,8 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <video
-            src="/solarinvest-apresentacao.mp4"
+            //src="/solarinvest-apresentacao.mp4"
+            src="https://www.w3schools.com/html/mov_bbb.mp4"
             autoPlay
             muted
             loop
