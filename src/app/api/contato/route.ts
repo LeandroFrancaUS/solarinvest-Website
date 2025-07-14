@@ -3,39 +3,45 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// ✅ Inicializa o serviço Resend com a variável de ambiente
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY;
 
-// 🔐 Define remetente personalizado (necessita validação no painel do Resend)
-const remetente = 'Contato SolarInvest <contato@solarinvest.info>'; // Deve estar validado no painel da Resend
+// Garante que a API key esteja presente para evitar erros em runtime
+if (!resendApiKey) {
+  console.error('❌ RESEND_API_KEY não definida. Verifique .env.local ou as variáveis no Vercel.');
+}
+
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 export async function POST(req: Request) {
-  const { nome, email, mensagem } = await req.json();
-
   try {
+    const { nome, email, mensagem } = await req.json();
+
+    if (!nome || !email || !mensagem) {
+      return NextResponse.json({ error: 'Todos os campos são obrigatórios.' }, { status: 400 });
+    }
+
+    if (!resend) {
+      return NextResponse.json({ error: 'Serviço de e-mail indisponível.' }, { status: 500 });
+    }
+
     const data = await resend.emails.send({
-      from: remetente,
+      from: 'Contato SolarInvest <contato@solarinvest.info>',
       to: ['brsolarinvest@gmail.com'],
-      subject: 'Nova mensagem via site SolarInvest',
+      subject: 'Novo contato via site SolarInvest',
       html: `
-        <div style="font-family: Arial, sans-serif; color: #333; padding: 20px;">
-          <h2 style="color: #E15800;">📬 Nova mensagem recebida</h2>
-          <p><strong>👤 Nome:</strong> ${nome}</p>
-          <p><strong>✉️ Email:</strong> ${email}</p>
-          <p><strong>📝 Mensagem:</strong></p>
-          <div style="margin-top: 10px; padding: 15px; background: #f9f9f9; border-left: 4px solid #E15800;">
-            ${mensagem.replace(/\n/g, '<br/>')}
-          </div>
-          <hr style="margin-top: 30px;" />
-          <p style="font-size: 12px; color: #999;">Site: <a href="https://solarinvest.info">solarinvest.info</a></p>
+        <div style="font-family: sans-serif; font-size: 16px;">
+          <p><strong>Nome:</strong> ${nome}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Mensagem:</strong><br />${mensagem.replace(/\n/g, '<br>')}</p>
         </div>
       `,
     });
 
-    console.log('[✔️ Email enviado com sucesso]', data);
+    console.log('✅ E-mail enviado:', data);
     return NextResponse.json({ success: true });
+
   } catch (error) {
-    console.error('[❌ Erro ao enviar email]', error);
-    return NextResponse.json({ success: false, error }, { status: 500 });
+    console.error('❌ Erro ao enviar e-mail:', error);
+    return NextResponse.json({ error: 'Erro ao enviar e-mail.' }, { status: 500 });
   }
 }
