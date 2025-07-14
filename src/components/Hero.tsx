@@ -36,14 +36,14 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {/*Wrapper para manter proporção 16:9 usando o plugin aspect-ratio */}
+          {/* 📐 Wrapper para manter proporção 16:9 usando plugin aspect-ratio do Tailwind */}
           <div className="aspect-w-16 aspect-h-9 w-full rounded-xl shadow overflow-hidden">
             <iframe
-              src="https://youtu.be/UXA3Td8KgmY"
+              src="https://www.youtube.com/embed/UXA3Td8KgmY"
               title="Apresentação SolarInvest"
-              frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
+              style={{ border: '0' }} // ✅ Substituição do atributo deprecated 'frameBorder'
               className="w-full h-full"
             />
           </div>
