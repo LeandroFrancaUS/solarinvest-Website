@@ -29,7 +29,7 @@ export default function ComoFunciona() {
   ];
 
   return (
-    <section className="bg-white py-20 px-6 md:px-16 lg:px-28">
+    <section className="bg-white min-h-screen pt-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto text-center">
         {/* Título principal com animação */}
         <motion.h2
@@ -37,7 +37,7 @@ export default function ComoFunciona() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-extrabold text-orange-600 mb-6"
+          className="text-4xl sm:text-5xl font-bold text-gray-900 text-center mb-12"
         >
           Como Funciona
         </motion.h2>

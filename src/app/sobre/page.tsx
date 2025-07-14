@@ -4,17 +4,17 @@ import { motion } from 'framer-motion';
 
 export default function SobrePage() {
   return (
-    <main className="min-h-screen bg-white py-16 px-4 md:px-8">
+    <main className="bg-white min-h-screen pt-24 px-4 sm:px-6 lg:px-8">
       <section className="max-w-5xl mx-auto text-center">
         {/* 🎯 Título com animação */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-heading font-bold text-orange-600 mb-6"
-        >
-          Sobre a SolarInvest
-        </motion.h1>
+                className="text-4xl sm:text-5xl font-bold text-gray-900 text-center mb-12"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                Sobre a SolarInvest
+              </motion.h1>
 
         {/* 💬 Texto de introdução */}
         <motion.p
