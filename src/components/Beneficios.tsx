@@ -1,49 +1,58 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { FaBolt, FaLeaf, FaWallet } from 'react-icons/fa';
-
-const beneficios = [
-  {
-    titulo: 'Economia Garantida',
-    descricao: 'Reduza drasticamente sua conta de luz com nossas soluções inteligentes e sustentáveis.',
-    icon: <FaWallet className="text-4xl text-orange-600" />,
-  },
-  {
-    titulo: 'Energia Sustentável',
-    descricao: 'Contribua com o meio ambiente usando fontes renováveis e limpas.',
-    icon: <FaLeaf className="text-4xl text-orange-600" />,
-  },
-  {
-    titulo: 'Fornecimento Ininterrupto',
-    descricao: 'Garanta energia mesmo durante apagões com sistemas híbridos e off-grid.',
-    icon: <FaBolt className="text-4xl text-orange-600" />,
-  },
-];
+import { CheckCircleIcon, ShieldCheckIcon, BoltIcon } from '@heroicons/react/24/outline';
 
 export default function Beneficios() {
+  // 🎯 Lista dos benefícios oferecidos
+  const beneficios = [
+    {
+      titulo: 'Economia na Conta de Luz',
+      descricao: 'Reduza seus custos mensais com energia e ganhe previsibilidade financeira.',
+      icone: CheckCircleIcon,
+    },
+    {
+      titulo: 'Segurança Contra Apagões',
+      descricao: 'Tenha fornecimento contínuo de energia, mesmo em quedas da rede.',
+      icone: ShieldCheckIcon,
+    },
+    {
+      titulo: 'Sustentabilidade e Valorização',
+      descricao: 'Contribua com o meio ambiente e aumente o valor do seu imóvel.',
+      icone: BoltIcon,
+    },
+  ];
+
   return (
-    <section className="py-20 bg-white px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold text-orange-700 mb-12">
+    <section className="w-full bg-white py-16 px-4">
+      <div className="max-w-7xl mx-auto text-center">
+        {/* 🧱 Título da seção */}
+        <h2 className="text-3xl sm:text-4xl font-bold text-orange-500 mb-4">
           Por que escolher a SolarInvest?
         </h2>
+        <p className="text-gray-700 text-base sm:text-lg mb-12 max-w-2xl mx-auto">
+          Oferecemos benefícios reais para sua casa ou empresa com energia solar inteligente e acessível.
+        </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {beneficios.map((item, index) => (
-            <motion.div
+        {/* 📦 Grid dos cards de benefícios */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          {beneficios.map((beneficio, index) => (
+            <div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              className="bg-orange-50 border border-orange-100 rounded-2xl p-6 shadow hover:shadow-md transition"
             >
-              <div className="flex flex-col items-center text-center p-6 bg-orange-50 rounded-xl shadow hover:shadow-md transition">
-                {item.icon}
-                <h3 className="mt-4 text-lg font-semibold text-orange-700">{item.titulo}</h3>
-                <p className="text-sm text-gray-700 mt-2">{item.descricao}</p>
-              </div>
-            </motion.div>
+              {/* Ícone ilustrativo */}
+              <beneficio.icone className="h-10 w-10 text-orange-500 mb-4 mx-auto" />
+
+              {/* Título do benefício */}
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {beneficio.titulo}
+              </h3>
+
+              {/* Descrição */}
+              <p className="text-sm text-gray-700">
+                {beneficio.descricao}
+              </p>
+            </div>
           ))}
         </div>
       </div>

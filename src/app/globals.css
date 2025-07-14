@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 🎨 Variáveis de cor para temas claro/escuro */
+/* 🌐 Variáveis de cor para temas claro/escuro */
 :root {
   --foreground-rgb: 17, 24, 39;
   --background-start-rgb: 255, 255, 255;
@@ -17,9 +17,15 @@
   }
 }
 
-/* 🌐 Estilos base do corpo */
+/* 🌀 Scroll suave ao navegar por âncoras como #hero */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 🌍 Estilo base do body com fonte e cores */
 body {
   @apply font-sans text-gray-900 bg-white;
+
   background: linear-gradient(
     to bottom,
     transparent,
@@ -27,16 +33,23 @@ body {
   ) rgb(var(--background-start-rgb));
 }
 
-/* 🧱 Títulos personalizados */
+/* 🧱 Tipografia padronizada para títulos */
 h1, h2, h3, h4 {
   @apply font-heading font-bold text-gray-900;
 }
 
-/* 🧩 Links e botões */
+/* 🔗 Estilo global para links */
 a {
-  @apply text-primary hover:text-primary-dark transition-colors;
+  @apply transition-colors;
 }
 
+/* ✅ Remove contornos (box) ao clicar em links ou botões */
+a:focus, button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* 🧩 Botões com estilo moderno */
 button {
   @apply font-semibold rounded-lg shadow hover:shadow-md transition-all;
 }

@@ -1,57 +1,63 @@
-export const metadata = {
-  title: 'Soluções em Energia Solar | Solar Invest Solutions',
-  description: 'Conheça nossas soluções solares para residências, condomínios, comunidades e áreas remotas. Energia limpa, estável e econômica.',
-  keywords: [
-    'soluções energia solar',
-    'solar para condomínios',
-    'solar rural',
-    'projeto solar',
-    'sistema solar com bateria',
-    'solar para comunidades',
-  ],
-};
-export default function Solucoes() {
-  const tipos = [
-    {
-      id: 'on-grid',
-      nome: 'On-grid',
-      descricao: 'Conectado à rede elétrica. Ideal para quem busca economia imediata na conta de luz, sem se desconectar da distribuidora. Mais comum em áreas urbanas.',
-      cor: 'from-green-100 to-green-200',
-    },
-    {
-      id: 'hibrida',
-      nome: 'Híbrida',
-      descricao: 'Combina energia solar com baterias e rede elétrica. Garante funcionamento mesmo em caso de apagão. Equilíbrio entre autonomia e custo-benefício.',
-      cor: 'from-yellow-100 to-yellow-200',
-    },
-    {
-      id: 'off-grid',
-      nome: 'Off-grid',
-      descricao: '100% independente da rede elétrica. Utiliza baterias para armazenar energia. Ideal para áreas remotas ou condomínios autossuficientes.',
-      cor: 'from-red-100 to-orange-200',
-    },
-  ];
+'use client';
 
+import { motion } from 'framer-motion';
+
+export default function SolucoesPage() {
   return (
-    <section className="min-h-screen bg-white py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold text-orange-700 mb-12">
-          Nossas Soluções em Energia Solar
-        </h1>
+    <main className="min-h-screen bg-white py-16 px-4 md:px-8">
+      <section className="max-w-6xl mx-auto text-center">
+        {/* 🎯 Título com animação */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-5xl font-heading font-bold text-orange-600 mb-6"
+        >
+          Nossas Soluções
+        </motion.h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {tipos.map((tipo) => (
-            <div
-              key={tipo.id}
-              id={tipo.id}
-              className={`p-6 rounded-xl shadow bg-gradient-to-br ${tipo.cor} text-left hover:scale-[1.02] transition-transform`}
-            >
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">{tipo.nome}</h2>
-              <p className="text-sm sm:text-base text-gray-700">{tipo.descricao}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+        {/* 💬 Subtítulo animado */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-lg text-gray-700 max-w-2xl mx-auto mb-12"
+        >
+          Atendemos diferentes perfis de clientes com soluções solares personalizadas, eficientes e acessíveis para transformar sua relação com a energia.
+        </motion.p>
+
+        {/* 🧱 Cards animados */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-12"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          {/* 🏠 Residencial */}
+          <div className="bg-orange-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all text-left">
+            <h2 className="text-xl font-bold text-orange-500 mb-2">Residencial</h2>
+            <p className="text-gray-700">
+              Energia solar para casas, apartamentos e condomínios. Reduza sua conta e invista em sustentabilidade com segurança e autonomia.
+            </p>
+          </div>
+
+          {/* 🏢 Comercial */}
+          <div className="bg-orange-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all text-left">
+            <h2 className="text-xl font-bold text-orange-500 mb-2">Comercial</h2>
+            <p className="text-gray-700">
+              Projetos para empresas e comércios que buscam economia, previsibilidade e valorização da marca com energia limpa.
+            </p>
+          </div>
+
+          {/* 🌱 Rural e Off-Grid */}
+          <div className="bg-orange-50 rounded-xl p-6 shadow-md hover:shadow-lg transition-all text-left">
+            <h2 className="text-xl font-bold text-orange-500 mb-2">Rural e Off-Grid</h2>
+            <p className="text-gray-700">
+              Soluções completas para áreas remotas com energia contínua, mesmo sem acesso à rede elétrica tradicional.
+            </p>
+          </div>
+        </motion.div>
+      </section>
+    </main>
   );
 }

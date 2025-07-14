@@ -1,60 +1,58 @@
-export const metadata = {
-  title: 'Sobre Nós | Solar Invest Solutions',
-  description: 'Somos uma empresa comprometida com o futuro energético sustentável. Conheça nossa história e missão com energia solar.',
-  keywords: [
-    'sobre solar invest',
-    'quem somos',
-    'empresa energia solar',
-    'história solar invest',
-    'missão energia limpa',
-  ],
-};
+'use client';
 
-export default function Sobre() {
-  const valores = [
-    "Compromisso com o cliente e com o planeta",
-    "Tecnologia acessível e eficiente",
-    "Transparência em cada etapa do processo",
-    "Soluções que se adaptam a cada realidade",
-  ];
+import { motion } from 'framer-motion';
 
+export default function SobrePage() {
   return (
-    <section className="min-h-screen bg-orange-50 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold text-orange-700 mb-6">
+    <main className="min-h-screen bg-white py-16 px-4 md:px-8">
+      <section className="max-w-5xl mx-auto text-center">
+        {/* 🎯 Título com animação */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-4xl md:text-5xl font-heading font-bold text-orange-600 mb-6"
+        >
           Sobre a SolarInvest
-        </h1>
+        </motion.h1>
 
-        <p className="text-gray-700 text-base sm:text-lg mb-10 leading-relaxed">
-          A SolarInvest Solutions nasceu com o propósito de democratizar o acesso à energia solar no Brasil.
-          Nossa missão é levar soluções sustentáveis, acessíveis e personalizadas a residências, condomínios e pequenos negócios,
-          reduzindo custos e promovendo autonomia energética.
-        </p>
+        {/* 💬 Texto de introdução */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-lg text-gray-700 max-w-3xl mx-auto mb-8"
+        >
+          A SolarInvest nasceu com o propósito de democratizar o acesso à energia solar no Brasil.
+          Nosso compromisso é oferecer soluções inteligentes, acessíveis e sustentáveis, permitindo que famílias e empresas economizem e contribuam para um futuro mais limpo.
+        </motion.p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">🌞 Missão</h2>
-            <p className="text-gray-600">
-              Tornar a energia solar uma realidade viável para todos, com soluções sob medida, simples e transparentes.
-            </p>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">🔭 Visão</h2>
-            <p className="text-gray-600">
-              Ser referência nacional e internacional em soluções solares inteligentes para comunidades e residências.
-            </p>
-          </div>
-        </div>
+        {/* ✅ Bloco institucional animado */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="bg-orange-50 rounded-xl shadow-md p-6 text-left mx-auto"
+        >
+          <h2 className="text-2xl font-bold text-orange-500 mb-4">Nossa Missão</h2>
+          <p className="text-gray-700 mb-4">
+            Tornar a energia solar uma realidade para todos, promovendo economia, autonomia energética e redução do impacto ambiental.
+          </p>
 
-        <div className="mt-12 text-left">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">💡 Nossos valores</h2>
-          <ul className="list-disc list-inside text-gray-600 space-y-2 text-sm sm:text-base">
-            {valores.map((valor, idx) => (
-              <li key={idx}>{valor}</li>
-            ))}
+          <h2 className="text-2xl font-bold text-orange-500 mb-4">Nossa Visão</h2>
+          <p className="text-gray-700 mb-4">
+            Ser referência em soluções fotovoltaicas no Brasil, com foco em inovação, transparência e excelência no atendimento.
+          </p>
+
+          <h2 className="text-2xl font-bold text-orange-500 mb-4">Nossos Valores</h2>
+          <ul className="list-disc list-inside text-gray-700 space-y-1">
+            <li>Transparência e ética em cada etapa</li>
+            <li>Compromisso com resultados reais</li>
+            <li>Respeito ao meio ambiente e às pessoas</li>
+            <li>Inovação constante e melhoria contínua</li>
           </ul>
-        </div>
-      </div>
-    </section>
+        </motion.div>
+      </section>
+    </main>
   );
 }
