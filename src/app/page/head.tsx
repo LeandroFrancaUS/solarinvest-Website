@@ -1,23 +1,26 @@
+// src/app/head.tsx
+
 export default function Head() {
   return (
     <>
-      <title>Energia Solar Inteligente | SolarInvest Solutions</title>
-      <meta name="description" content="Soluções solares híbridas, off-grid e sustentáveis para comunidades." />
-      <meta name="keywords" content="energia solar, solar invest, solarinvest, solar, híbrida, off-grid, fotovoltaica, economia de energia" />
-      <meta name="author" content="SolarInvest Solutions" />
+      <title>SolarInvest Solutions</title>
+      <meta name="description" content="Energia solar inteligente e acessível para residências, condomínios e empresas." />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="icon" href="/favicon.ico" />
 
-      {/* Open Graph / Facebook */}
+      {/* 🔁 Preload do thumbnail em alta resolução para performance */}
+      <link
+        rel="preload"
+        as="image"
+        href="https://img.youtube.com/vi/UXA3Td8KgmY/maxresdefault.jpg"
+      />
+
+      {/* 🗂️ SEO base */}
+      <meta name="theme-color" content="#ffffff" />
       <meta property="og:title" content="SolarInvest Solutions" />
-      <meta property="og:description" content="Energia solar inteligente para todos." />
-      <meta property="og:image" content="https://solarinvest.info/images/og-image.jpg" />
-      <meta property="og:url" content="https://solarinvest.info" />
+      <meta property="og:description" content="Energia solar inteligente, com economia, segurança e sustentabilidade." />
+      <meta property="og:image" content="https://img.youtube.com/vi/UXA3Td8KgmY/maxresdefault.jpg" />
       <meta property="og:type" content="website" />
-
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="SolarInvest Solutions" />
-      <meta name="twitter:description" content="Energia solar para sua casa, negócio ou comunidade." />
-      <meta name="twitter:image" content="https://solarinvest.info/images/og-image.jpg" />
     </>
   );
 }

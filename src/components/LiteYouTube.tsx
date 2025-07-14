@@ -1,18 +1,26 @@
-// src/components/LiteYouTube.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
+import type { FC } from 'react';
 
-export default function LiteYouTube({ videoId }: { videoId: string }) {
+type LiteYouTubeProps = {
+  videoId: string;
+};
+
+/**
+ * Player leve de YouTube com lazy-load
+ */
+const LiteYouTube: FC<LiteYouTubeProps> = memo(({ videoId }) => {
   const [loaded, setLoaded] = useState(false);
   const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
   return (
     <div className="relative w-full aspect-video rounded-xl shadow overflow-hidden bg-black">
-      {!loaded && (
+      {!loaded ? (
         <button
           onClick={() => setLoaded(true)}
           className="w-full h-full flex items-center justify-center"
+          aria-label="Assistir vídeo"
         >
           <img
             src={thumbnail}
@@ -30,8 +38,7 @@ export default function LiteYouTube({ videoId }: { videoId: string }) {
             </svg>
           </div>
         </button>
-      )}
-      {loaded && (
+      ) : (
         <iframe
           className="absolute inset-0 w-full h-full"
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
@@ -43,4 +50,6 @@ export default function LiteYouTube({ videoId }: { videoId: string }) {
       )}
     </div>
   );
-}
+});
+
+export default LiteYouTube;
