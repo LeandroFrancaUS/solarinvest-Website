@@ -11,6 +11,12 @@ const ContentSecurityPolicy = `
 `;
 
 module.exports = {
+  // ✅ Liberação de domínios externos para next/image
+  images: {
+    domains: ['img.youtube.com', 'i.ytimg.com'],
+  },
+
+  // ✅ Headers de segurança (CSP, referrer, etc.)
   async headers() {
     return [
       {
@@ -37,6 +43,7 @@ module.exports = {
     ];
   },
 
+  // 🔀 Reescrita de rotas (ex: sitemap)
   async rewrites() {
     return [
       {

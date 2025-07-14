@@ -1,41 +1,45 @@
+// src/app/contato/page.tsx
+
 'use client';
 
-import { motion } from 'framer-motion';
 import ContatoForm from '@/components/ContatoForm';
+import { motion } from 'framer-motion';
 
 export default function ContatoPage() {
   return (
-    <main className="min-h-screen bg-white py-16 px-4 md:px-8">
-      <section className="max-w-3xl mx-auto text-center">
-        {/* 🎯 Título com animação */}
+    <main className="min-h-screen bg-white pt-28 pb-20 px-4">
+      <div className="max-w-5xl mx-auto text-center space-y-10">
+
+        {/* 🧭 Título com animação de entrada */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          className="text-4xl sm:text-5xl font-bold text-orange-600 leading-tight"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-heading font-bold text-orange-600 mb-6"
         >
-          Fale com a gente
+          Fale com a SolarInvest
         </motion.h1>
 
-        {/* 💬 Subtítulo animado */}
+        {/* ✏️ Descrição opcional */}
         <motion.p
+          className="text-gray-700 max-w-2xl mx-auto text-base sm:text-lg"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg text-gray-700 max-w-2xl mx-auto mb-10"
         >
-          Está pronto para transformar sua energia em economia? Preencha o formulário abaixo e entraremos em contato rapidamente.
+          Preencha o formulário abaixo e entraremos em contato rapidamente para entender sua necessidade e oferecer a melhor solução solar para sua residência ou empresa.
         </motion.p>
 
-        {/* 📩 Formulário animado */}
+        {/* 📩 Formulário de contato */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          className="mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <ContatoForm />
         </motion.div>
-      </section>
+      </div>
     </main>
   );
 }

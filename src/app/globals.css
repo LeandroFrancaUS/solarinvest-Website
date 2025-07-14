@@ -22,10 +22,9 @@ html {
   scroll-behavior: smooth;
 }
 
-/* 🌍 Estilo base do body com fonte e cores */
+/* 🌍 Estilo base do corpo */
 body {
   @apply font-sans text-gray-900 bg-white;
-
   background: linear-gradient(
     to bottom,
     transparent,
@@ -33,12 +32,12 @@ body {
   ) rgb(var(--background-start-rgb));
 }
 
-/* 🧱 Tipografia padronizada para títulos */
+/* 🧱 Títulos com fonte elegante */
 h1, h2, h3, h4 {
   @apply font-heading font-bold text-gray-900;
 }
 
-/* 🔗 Estilo global para links */
+/* 🔗 Links padrão com transição suave */
 a {
   @apply transition-colors;
 }
@@ -49,7 +48,22 @@ a:focus, button:focus {
   box-shadow: none;
 }
 
-/* 🧩 Botões com estilo moderno */
+/* 🧩 Botões modernos */
 button {
   @apply font-semibold rounded-lg shadow hover:shadow-md transition-all;
+}
+
+/* 🎯 Menus inativos */
+nav a {
+  @apply text-gray-800;
+}
+
+/* 🟧 Menus ativos — cor laranja + underline */
+nav a.active {
+  @apply text-orange-500 font-bold underline decoration-orange-400 underline-offset-8;
+}
+
+/* 🔸 Efeito hover nos menus */
+nav a:hover {
+  @apply underline decoration-orange-400 underline-offset-8;
 }

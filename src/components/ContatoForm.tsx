@@ -1,111 +1,117 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+
+// ✅ Tipagem dos dados do formulário
+interface FormData {
+  nome: string;
+  email: string;
+  mensagem: string;
+}
 
 export default function ContatoForm() {
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    mensagem: '',
-  });
+  // 🧠 Estado do formulário
+  const [form, setForm] = useState<FormData>({ nome: '', email: '', mensagem: '' });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  const [enviado, setEnviado] = useState(false); // ✅ Para feedback visual
-
-  // 🔄 Atualiza campos do formulário
+  // 🔁 Atualiza o formulário conforme o usuário digita
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 📩 Envia formulário para API
+  // 📤 Envia os dados para a API
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatus('sending');
 
     try {
-      const res = await fetch('/api/contato', {
+      const response = await fetch('/api/contato', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(form),
       });
 
-      if (res.ok) {
-        setEnviado(true);
-        setFormData({ nome: '', email: '', mensagem: '' });
+      if (response.ok) {
+        setStatus('success');
+        setForm({ nome: '', email: '', mensagem: '' }); // 🧽 Limpa os campos
       } else {
-        alert('Erro ao enviar. Tente novamente mais tarde.');
+        setStatus('error');
       }
     } catch (err) {
       console.error('Erro ao enviar:', err);
-      alert('Erro inesperado ao enviar o formulário.');
+      setStatus('error');
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto text-left"
+      className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow space-y-6 text-left"
     >
-      {/* ✅ Mensagem de sucesso */}
-      {enviado && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded text-sm">
-          Obrigado pelo contato! Responderemos em breve.
-        </div>
-      )}
-
-      {/* 📛 Nome */}
-      <div>
-        <label htmlFor="nome" className="block font-semibold text-gray-800 mb-1">
-          Nome
+      {/* 📛 Campo Nome */}
+      <div className="flex flex-col">
+        <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">
+          Nome completo
         </label>
         <input
           type="text"
-          id="nome"
           name="nome"
-          required
-          value={formData.nome}
+          id="nome"
+          value={form.nome}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          required
+          className="rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:ring-orange-500 focus:border-orange-500"
         />
       </div>
 
-      {/* 📧 Email */}
-      <div>
-        <label htmlFor="email" className="block font-semibold text-gray-800 mb-1">
+      {/* 📧 Campo E-mail */}
+      <div className="flex flex-col">
+        <label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1">
           E-mail
         </label>
         <input
           type="email"
-          id="email"
           name="email"
-          required
-          value={formData.email}
+          id="email"
+          value={form.email}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          required
+          className="rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:ring-orange-500 focus:border-orange-500"
         />
       </div>
 
-      {/* ✍️ Mensagem */}
-      <div>
-        <label htmlFor="mensagem" className="block font-semibold text-gray-800 mb-1">
+      {/* 💬 Campo Mensagem */}
+      <div className="flex flex-col">
+        <label htmlFor="mensagem" className="text-sm font-medium text-gray-700 mb-1">
           Mensagem
         </label>
         <textarea
-          id="mensagem"
           name="mensagem"
-          required
+          id="mensagem"
           rows={5}
-          value={formData.mensagem}
+          value={form.mensagem}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
-        ></textarea>
+          required
+          className="rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:ring-orange-500 focus:border-orange-500"
+        />
       </div>
 
-      {/* 📤 Botão de envio */}
+      {/* 🔘 Botão de envio */}
       <button
         type="submit"
-        className="bg-orange-600 hover:bg-orange-500 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+        disabled={status === 'sending'}
+        className="w-full bg-orange-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-orange-500 transition"
       >
-        Enviar Mensagem
+        {status === 'sending' ? 'Enviando...' : 'Enviar mensagem'}
       </button>
+
+      {/* 🟢 Feedback visual */}
+      {status === 'success' && (
+        <p className="text-green-600 text-sm">Mensagem enviada com sucesso! Entraremos em contato em breve.</p>
+      )}
+      {status === 'error' && (
+        <p className="text-red-600 text-sm">Erro ao enviar. Por favor, tente novamente mais tarde.</p>
+      )}
     </form>
   );
 }

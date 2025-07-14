@@ -1,55 +1,52 @@
 'use client';
 
-import { useState, memo } from 'react';
-import type { FC } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-type LiteYouTubeProps = {
-  videoId: string;
-};
+// Componente leve para carregar vídeos do YouTube sob demanda
+export default function LiteYouTube({ videoId }: { videoId: string }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [hasPlayed, setHasPlayed] = useState(false);
 
-/**
- * Player leve de YouTube com lazy-load
- */
-const LiteYouTube: FC<LiteYouTubeProps> = memo(({ videoId }) => {
-  const [loaded, setLoaded] = useState(false);
-  const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  // ✅ Quando o botão é clicado, ativa o vídeo
+  const playVideo = () => {
+    if (iframeRef.current && !hasPlayed) {
+      iframeRef.current.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      setHasPlayed(true);
+    }
+  };
 
   return (
-    <div className="relative w-full aspect-video rounded-xl shadow overflow-hidden bg-black">
-      {!loaded ? (
+    <div className="relative w-full aspect-video rounded-xl shadow overflow-hidden">
+      {!hasPlayed && (
         <button
-          onClick={() => setLoaded(true)}
-          className="w-full h-full flex items-center justify-center"
-          aria-label="Assistir vídeo"
+          onClick={playVideo}
+          className="absolute inset-0 w-full h-full bg-black bg-opacity-40 flex items-center justify-center transition hover:bg-opacity-50"
+          aria-label="Reproduzir vídeo"
         >
+          {/* 📷 Thumbnail de alta resolução */}
           <img
-            src={thumbnail}
-            alt="Prévia do vídeo"
-            className="absolute inset-0 w-full h-full object-cover"
+            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+            alt="Miniatura do vídeo"
+            className="w-full h-full object-cover absolute inset-0"
           />
-          <div className="z-10">
-            <svg
-              className="w-20 h-20 text-white"
-              fill="currentColor"
-              viewBox="0 0 84 84"
-            >
-              <circle cx="42" cy="42" r="42" fill="rgba(0,0,0,0.5)" />
-              <polygon points="33,26 33,58 58,42" fill="white" />
-            </svg>
-          </div>
+          {/* ▶️ Ícone de play sobreposto */}
+          <svg className="w-20 h-20 text-white z-10" fill="currentColor" viewBox="0 0 84 84">
+            <circle cx="42" cy="42" r="42" fill="rgba(0,0,0,0.6)" />
+            <polygon points="33,26 33,58 58,42" fill="white" />
+          </svg>
         </button>
-      ) : (
-        <iframe
-          className="absolute inset-0 w-full h-full"
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-          title="Apresentação SolarInvest"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
       )}
+
+      {/* 🎬 Iframe que carrega apenas após o clique */}
+      <iframe
+        ref={iframeRef}
+        title="Vídeo de apresentação"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        loading="lazy"
+        className="w-full h-full"
+        style={{ border: 'none' }}
+      />
     </div>
   );
-});
-
-export default LiteYouTube;
+}

@@ -1,65 +1,49 @@
 'use client';
 
-import Link from 'next/link';
-import { FaWhatsapp, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaInstagram, FaWhatsapp } from 'react-icons/fa';
 
+/**
+ * Rodapé moderno e profissional da SolarInvest.
+ * Exibe redes sociais, informações de contato e direitos autorais.
+ */
 export default function Footer() {
   return (
-    <footer className="bg-[#0B1622] text-gray-300 pt-12 pb-8 px-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-
-        {/* 🔆 Descrição da empresa */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-orange-500">SolarInvest</h2>
-          <p className="text-sm leading-relaxed max-w-sm">
-            Soluções inteligentes em energia solar para residências, condomínios e pequenas empresas.
-          </p>
-          <p className="text-sm text-gray-400">
-            Cidade: Anápolis – GO<br />
-            Tel:(62) 98170-4303
-          </p>
+    <footer className="bg-gray-900 text-white py-8">
+      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        {/* 🏢 Nome da empresa e aviso de direitos autorais */}
+        <div className="text-center md:text-left text-sm">
+          <p className="font-semibold text-lg">SolarInvest</p>
+          <p className="text-gray-400">© {new Date().getFullYear()} SolarInvest. Todos os direitos reservados.</p>
         </div>
 
-        {/* 🔗 Links de navegação */}
-        <div className="flex flex-col space-y-2 text-sm">
-          <Link href="/" className="hover:text-orange-400 transition">Início</Link>
-          <Link href="/solucoes" className="hover:text-orange-400 transition">Soluções</Link>
-          <Link href="/sobre" className="hover:text-orange-400 transition">Sobre</Link>
-          <Link href="/contato" className="hover:text-orange-400 transition">Contato</Link>
+        {/* 📍 Localização e telefone */}
+        <div className="text-sm text-center">
+          <p>Anápolis - GO</p>
+          <p>Telefone: (62) 98170-4303</p>
         </div>
 
-        {/* 🌐 Redes sociais com ícones coloridos */}
-        <div className="flex items-start md:justify-end space-x-6 pt-1">
-          <a
-            href="https://wa.me/5562981704303"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp"
-          >
-            <FaWhatsapp size={24} className="text-green-400 hover:text-green-300 transition" />
-          </a>
+        {/* 🌐 Ícones das redes sociais */}
+        <div className="flex gap-4">
           <a
             href="https://www.instagram.com/solarinvest.br/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
+            className="text-white hover:text-orange-400 transition"
           >
-            <FaInstagram size={24} className="text-pink-400 hover:text-pink-300 transition" />
+            <FaInstagram size={24} />
           </a>
           <a
-            href="https://www.linkedin.com"
+            href="https://wa.me/5562981704303"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="LinkedIn"
+            aria-label="WhatsApp"
+            className="text-white hover:text-green-400 transition"
           >
-            <FaLinkedin size={24} className="text-blue-400 hover:text-blue-300 transition" />
+            <FaWhatsapp size={24} />
           </a>
         </div>
-      </div>
-
-      {/* 📌 Rodapé inferior */}
-      <div className="mt-10 border-t border-gray-800 pt-4 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} SolarInvest. Todos os direitos reservados.
       </div>
     </footer>
   );

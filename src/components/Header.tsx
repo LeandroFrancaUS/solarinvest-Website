@@ -1,106 +1,97 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
-import clsx from 'clsx';
+import { useState } from 'react';
+import Image from 'next/image';
 
+/**
+ * Cabeçalho fixo com logo, nome da empresa e navegação adaptativa.
+ * Inclui destaque para a rota ativa e botão hambúrguer no mobile.
+ */
 export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // 🔁 Fecha o menu mobile automaticamente ao mudar de rota
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
-  const navigation = [
-    { name: 'Início', href: '/' },
-    { name: 'Como Funciona', href: '/comofunciona' },
-    { name: 'Soluções', href: '/solucoes' },
-    { name: 'Sobre', href: '/sobre' },
-    { name: 'Contato', href: '/contato' },
+  const navItems = [
+    { label: 'Início', href: '/' },
+    { label: 'Como Funciona', href: '/comofunciona' },
+    { label: 'Soluções', href: '/solucoes' },
+    { label: 'Sobre', href: '/sobre' },
+    { label: 'Contato', href: '/contato' },
   ];
 
-  return (
-    <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-white/70 to-orange-50/30 backdrop-blur-xl shadow-md border-b border-orange-100">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+  const isActive = (href: string) => pathname === href;
 
-        {/* 🔆 Logo + nome fixo e profissional */}
-        <Link
-          href="/#hero"
-          scroll={true}
-          className="flex items-center gap-3 transition-colors duration-200"
-        >
+  return (
+    <header className="fixed top-0 z-50 w-full backdrop-blur bg-white/80 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        {/* 🌞 Logo + nome da empresa */}
+        <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
             alt="Logo SolarInvest"
             width={32}
             height={32}
-            className="w-8 h-8 object-contain"
+            priority
           />
-          <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">
+          <span className="text-xl font-semibold text-gray-800 tracking-tight">
             SolarInvest
           </span>
         </Link>
 
-        {/* 🖥️ Menu Desktop */}
-        <nav className="hidden md:flex gap-6 items-center text-sm">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={clsx(
-                  'inline-flex items-center px-2 py-1 text-base transition-colors duration-200 focus:outline-none focus:ring-0',
-                  {
-                    '!text-orange-400 font-bold underline underline-offset-4 decoration-orange-400': isActive,
-                    'text-gray-800 hover:text-orange-400 hover:underline hover:underline-offset-4 hover:decoration-orange-400': !isActive,
-                  }
-                )}
-              >
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-
         {/* 📱 Botão do menu mobile */}
         <button
+          className="md:hidden text-gray-700 focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-orange-500 focus:outline-none"
           aria-label="Abrir menu"
         >
-          {menuOpen ? <X size={28} /> : <Menu size={28} />}
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {menuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
         </button>
+
+        {/* 🖥️ Menu desktop */}
+        <nav className="hidden md:flex gap-6">
+          {navItems.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`transition-all font-medium text-sm tracking-wide ${
+                isActive(href)
+                  ? 'text-orange-500 font-bold underline underline-offset-8'
+                  : 'text-gray-700 hover:text-orange-500 hover:underline'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
-      {/* 📱 Menu mobile dropdown visível quando aberto */}
+      {/* 📱 Menu mobile expandido */}
       {menuOpen && (
-        <nav className="md:hidden bg-white shadow-md border-t border-orange-100 z-40">
-          <ul className="flex flex-col space-y-3 px-4 py-4">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={clsx(
-                      'inline-flex items-center text-base transition-colors duration-200 focus:outline-none focus:ring-0',
-                      {
-                        '!text-orange-400 font-bold underline underline-offset-4 decoration-orange-400': isActive,
-                        'text-gray-800 hover:text-orange-400 hover:underline hover:underline-offset-4 hover:decoration-orange-400': !isActive,
-                      }
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              );
-            })}
+        <nav className="md:hidden bg-white shadow-md border-t border-gray-200 px-4 pb-4 pt-2">
+          <ul className="flex flex-col space-y-2">
+            {navItems.map(({ label, href }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`block px-2 py-1 rounded transition-all ${
+                    isActive(href)
+                      ? 'text-orange-500 font-bold underline underline-offset-8'
+                      : 'text-gray-700 hover:text-orange-500'
+                  }`}
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
       )}
