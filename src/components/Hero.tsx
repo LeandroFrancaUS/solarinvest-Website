@@ -84,7 +84,6 @@ export default function Hero() {
             autoPlay
             muted
             playsInline
-            loop
             className="w-full h-auto"
           />
         </div>
