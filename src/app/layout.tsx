@@ -1,37 +1,38 @@
-import './globals.css'; // 🧩 Estilos globais aplicados em toda a aplicação
+// src/app/layout.tsx
 
-import Header from '@/components/Header'; // 🔝 Cabeçalho com menu responsivo
-import Footer from '@/components/Footer'; // 🔻 Rodapé com contatos e redes sociais
+import './globals.css'; // 🎨 Estilos globais do projeto
+import Header from '@/components/Header'; // 🔝 Cabeçalho fixo
+import Footer from '@/components/Footer'; // 🔻 Rodapé fixo
 import WhatsappButton from '@/components/WhatsappButton'; // 📱 Botão flutuante de WhatsApp
+import type { Metadata } from 'next'; // ✅ Tipagem para SEO metadata
 
-import type { Metadata } from 'next';
-
-/**
- * 🔍 SEO metadata global — aparece em todas as páginas
- */
+// 🔍 SEO metadata padrão (usado em todas as páginas)
 export const metadata: Metadata = {
   title: 'SolarInvest Solutions',
-  description: 'Energia solar inteligente e acessível.',
+  description: 'Energia solar inteligente, acessível e sustentável.',
 };
 
-/**
- * 🌐 Layout raiz (envolve todas as rotas do app)
- * Contém estrutura HTML padrão e componentes fixos
- */
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// 🌐 Layout raiz da aplicação, usado em todas as páginas
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="pt-BR">
-      <body className="font-sans text-gray-900 bg-white">
-        {/* ⬆️ Cabeçalho fixo com logo e menu */}
+      <body className="font-sans text-gray-900 bg-white overflow-x-hidden">
+        {/* 🔝 Cabeçalho visível em todas as páginas */}
         <Header />
 
-        {/* 🧱 Conteúdo dinâmico da página */}
-        {children}
+        {/* 🧱 Conteúdo dinâmico da página atual */}
+        <main className="min-h-screen px-4 sm:px-6 lg:px-8">
+          {children}
+        </main>
 
-        {/* ⬇️ Rodapé padrão com informações da empresa */}
+        {/* 🔻 Rodapé fixo no final da página */}
         <Footer />
 
-        {/* 💬 Botão de WhatsApp fixo na tela */}
+        {/* 📱 Botão flutuante para contato rápido */}
         <WhatsappButton />
       </body>
     </html>
