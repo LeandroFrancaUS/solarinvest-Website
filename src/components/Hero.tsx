@@ -42,6 +42,7 @@ export default function Hero() {
             autoPlay
             muted
             loop
+            playsInline
             controls
           />
         </motion.div>
