@@ -1,10 +1,11 @@
-@tailwind base; 
-@tailwind components; 
-@tailwind utilities; 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* 🎨 Variáveis de cor para temas claro/escuro */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
+  --foreground-rgb: 17, 24, 39;
+  --background-start-rgb: 255, 255, 255;
   --background-end-rgb: 255, 255, 255;
 }
 
@@ -16,12 +17,26 @@
   }
 }
 
+/* 🌐 Estilos base do corpo */
 body {
-  color: rgb(var(--foreground-rgb));
+  @apply font-sans text-gray-900 bg-white;
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  ) rgb(var(--background-start-rgb));
+}
+
+/* 🧱 Títulos personalizados */
+h1, h2, h3, h4 {
+  @apply font-heading font-bold text-gray-900;
+}
+
+/* 🧩 Links e botões */
+a {
+  @apply text-primary hover:text-primary-dark transition-colors;
+}
+
+button {
+  @apply font-semibold rounded-lg shadow hover:shadow-md transition-all;
 }
