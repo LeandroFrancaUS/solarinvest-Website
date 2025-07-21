@@ -16,7 +16,7 @@ export default function Footer() {
           </p>
           <p className="text-sm text-gray-400">
             Cidade: Anápolis – GO<br />
-            Tel:(62) 98170-4303
+            Tel:(62) 99515-0975
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function Footer() {
         {/* 🌐 Redes sociais com ícones coloridos */}
         <div className="flex items-start md:justify-end space-x-6 pt-1">
           <a
-            href="https://wa.me/5562981704303"
+            href="https://wa.me/5562995150975"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="WhatsApp"
