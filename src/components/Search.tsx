@@ -10,19 +10,33 @@ interface Result {
 export default function Search() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Result[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!query.trim()) {
       setResults([]);
+      setError(null);
       return;
     }
 
-    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+        cache: 'no-store',
+      });
+
+      if (!res.ok) {
+        throw new Error('Response not OK');
+      }
+
       const data = await res.json();
       setResults(data.results);
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setResults([]);
+      setError('Não foi possível carregar os resultados. Tente novamente.');
     }
   }
 
@@ -44,6 +58,11 @@ export default function Search() {
           Buscar
         </button>
       </form>
+      {error && (
+        <p role="alert" className="mt-4 text-red-600">
+          {error}
+        </p>
+      )}
       <ul className="mt-4 space-y-2">
         {results.map((r) => (
           <li key={r.url}>
