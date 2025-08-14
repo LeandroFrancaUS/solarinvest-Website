@@ -14,7 +14,10 @@ const LiteYouTube = dynamic(() => import('@/components/LiteYouTube'), {
 
 export default function Hero() {
   return (
-    <section id="hero" className="w-full bg-gradient-to-br from-yellow-50 to-orange-100 py-12 px-4">
+    <section
+      id="hero"
+      className="w-full bg-gradient-to-br from-yellow-50 to-orange-100 py-16 sm:py-24 px-6 sm:px-12"
+    >
       <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-8">
 
         {/* 📢 Texto promocional do lado esquerdo */}
@@ -25,7 +28,7 @@ export default function Hero() {
         >
           <div className="w-full md:w-3/4 lg:w-2/3 max-w-2xl text-center md:text-left">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-orange-600 leading-tight">
-              Energia solar inteligente para sua casa ou condomínio
+              Energia solar inteligente, zero investimento, para sua casa, condomínio ou negócio.
             </h1>
             <p className="mt-4 text-base sm:text-lg text-gray-700">
               Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
