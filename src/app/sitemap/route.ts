@@ -1,18 +1,21 @@
 // Generates sitemap.xml
+import { siteRoutes } from '@/routes';
+
+export const revalidate = 86400; // regenerate daily
 
 export async function GET() {
+  const baseUrl = 'https://solarinvest.info';
+  const lastmod = new Date().toISOString();
+  const urls = siteRoutes
+    .map((path) => `
+    <url>
+      <loc>${baseUrl}${path}</loc>
+      <lastmod>${lastmod}</lastmod>
+    </url>`)
+    .join('');
+
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-      <loc>https://solarinvest.info/</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-    </url>
-    <url>
-      <loc>https://solarinvest.com/</loc>
-    </url>
-    <url>
-      <loc>https://www.instagram.com/solarinvest.br/</loc>
-    </url>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}
   </urlset>`;
 
   return new Response(sitemap, {
