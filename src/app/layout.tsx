@@ -8,6 +8,13 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'SolarInvest Solutions',
   description: 'Energia solar inteligente e acessível.',
+  alternates: {
+    canonical: '/',
+    languages: {
+      'pt-BR': '/',
+      'en-US': '/en-US',
+    },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
