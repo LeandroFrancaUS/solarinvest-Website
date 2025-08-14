@@ -13,7 +13,7 @@ const LiteYouTube = dynamic(() => import('@/components/LiteYouTube'), {
 
 export default function Hero() {
   return (
-    <section className="w-full bg-gradient-to-br from-yellow-50 to-orange-100 py-12 px-4">
+    <section id="hero" className="w-full bg-gradient-to-br from-yellow-50 to-orange-100 py-12 px-4">
       <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-8">
 
         {/* 📢 Texto promocional do lado esquerdo */}
