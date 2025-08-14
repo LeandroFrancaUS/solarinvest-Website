@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 // 🎥 Importação dinâmica do player YouTube otimizado
 const LiteYouTube = dynamic(() => import('@/components/LiteYouTube'), {
@@ -29,12 +30,12 @@ export default function Hero() {
             <p className="mt-4 text-base sm:text-lg text-gray-700">
               Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
             </p>
-            <a
+            <Link
               href="/contato"
               className="inline-block mt-6 bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow hover:bg-orange-500 transition-colors"
             >
               Solicite uma análise gratuita
-            </a>
+            </Link>
           </div>
         </motion.div>
 
