@@ -1,6 +1,7 @@
 // src/app/comofunciona/page.tsx
 
 import ComoFunciona from '@/components/ComoFunciona';
+import FAQComoFunciona from '@/components/FAQComoFunciona';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default function ComoFuncionaPage() {
   return (
     <main className="min-h-screen bg-white">
       <ComoFunciona />
+      <FAQComoFunciona />
     </main>
   );
 }
