@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 
 export default function FAQComoFunciona() {
-  const faqs: { pergunta: string; resposta: JSX.Element }[] = [
+  const faqs: { pergunta: string; resposta: ReactNode }[] = [
     {
       pergunta: 'A usina terá algum custo para mim?',
       resposta: (
