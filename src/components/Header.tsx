@@ -24,6 +24,8 @@ export default function Header() {
     { name: 'Contato', href: '/contato' },
   ];
 
+  const ariaLabel = menuOpen ? 'Fechar menu' : 'Abrir menu';
+
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-white/70 to-orange-50/30 backdrop-blur-xl shadow-md border-b border-orange-100">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
@@ -72,7 +74,7 @@ export default function Header() {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-orange-500 focus:outline-none"
-          aria-label="Abrir menu"
+          aria-label={ariaLabel}
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
