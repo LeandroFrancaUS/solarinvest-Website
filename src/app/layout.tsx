@@ -6,7 +6,7 @@ import Script from 'next/script';
 
 import type { Metadata } from 'next';
 
-const siteUrl = 'https://solarinvest.com';
+const siteUrl = 'https://solarinvest.info';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
