@@ -10,7 +10,7 @@ type LiteYouTubeProps = {
 /**
  * Player leve de YouTube com lazy-load
  */
-const LiteYouTube: FC<LiteYouTubeProps> = memo(({ videoId }) => {
+const LiteYouTube: FC<LiteYouTubeProps> = memo(function LiteYouTube({ videoId }) {
   const [loaded, setLoaded] = useState(false);
   const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
