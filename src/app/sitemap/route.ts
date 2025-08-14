@@ -7,9 +7,12 @@ export async function GET() {
       <loc>https://solarinvest.info/</loc>
       <lastmod>${new Date().toISOString()}</lastmod>
     </url>
-    <loc>https://solarinvest.com/</loc>
-    <loc>https://www.instagram.com/solarinvest.br/</loc>
-    
+    <url>
+      <loc>https://solarinvest.com/</loc>
+    </url>
+    <url>
+      <loc>https://www.instagram.com/solarinvest.br/</loc>
+    </url>
   </urlset>`;
 
   return new Response(sitemap, {
