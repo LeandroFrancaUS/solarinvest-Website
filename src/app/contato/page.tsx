@@ -1,41 +1,31 @@
-'use client';
+import type { Metadata } from 'next';
+import ContatoContent from './ContatoContent';
 
-import { motion } from 'framer-motion';
-import ContatoForm from '@/components/ContatoForm';
+export const metadata: Metadata = {
+  title: 'Contato | SolarInvest',
+  description:
+    'Entre em contato com a SolarInvest para solicitar orçamento ou tirar dúvidas sobre nossos sistemas de energia solar.',
+  keywords: [
+    'SolarInvest',
+    'contato',
+    'orçamento',
+    'energia solar',
+    'atendimento',
+  ],
+  openGraph: {
+    title: 'Contato | SolarInvest',
+    description:
+      'Entre em contato com a SolarInvest para solicitar orçamento ou tirar dúvidas sobre nossos sistemas de energia solar.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contato | SolarInvest',
+    description:
+      'Entre em contato com a SolarInvest para solicitar orçamento ou tirar dúvidas sobre nossos sistemas de energia solar.',
+  },
+};
 
 export default function ContatoPage() {
-  return (
-    <main className="min-h-screen bg-white py-16 px-4 md:px-8">
-      <section className="max-w-3xl mx-auto text-center">
-        {/* 🎯 Título com animação */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-heading font-bold text-orange-600 mb-6"
-        >
-          Fale com a gente
-        </motion.h1>
-
-        {/* 💬 Subtítulo animado */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg text-gray-700 max-w-2xl mx-auto mb-10"
-        >
-          Está pronto para transformar sua energia em economia? Preencha o formulário abaixo e entraremos em contato rapidamente.
-        </motion.p>
-
-        {/* 📩 Formulário animado */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <ContatoForm />
-        </motion.div>
-      </section>
-    </main>
-  );
+  return <ContatoContent />;
 }
