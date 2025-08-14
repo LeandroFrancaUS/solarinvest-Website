@@ -88,13 +88,13 @@ export default function FAQComoFunciona() {
     {
       question: 'Quais são as vantagens do leasing?',
       answer: (
-        <ol className="list-decimal list-inside space-y-2">
-          <li>Ausência de investimento inicial.</li>
-          <li>Manutenção e monitoramento realizados pela SolarInvest.</li>
-          <li>Pagamentos previsíveis e adequados ao seu consumo.</li>
-          <li>Preservação do capital de giro ou orçamento familiar.</li>
-          <li>Transferência de propriedade ao término do contrato.</li>
-        </ol>
+        <div className="space-y-2">
+          <p>Ausência de investimento inicial.</p>
+          <p>Manutenção e monitoramento realizados pela SolarInvest.</p>
+          <p>Pagamentos previsíveis e adequados ao seu consumo.</p>
+          <p>Preservação do capital de giro ou orçamento familiar.</p>
+          <p>Transferência de propriedade ao término do contrato.</p>
+        </div>
       ),
     },
     {
