@@ -4,5 +4,6 @@ export const siteRoutes = [
   '/solucoes',
   '/sobre',
   '/contato',
+  '/faq',
   '/search',
 ];

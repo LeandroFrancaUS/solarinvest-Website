@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Como Funciona | How It Works | Solar Invest Solutions',
   description:
-    'Entenda como a Solar Invest Solutions oferece energia solar inteligente para economizar. Learn how Solar Invest Solutions delivers smart solar energy to save you money.',
+    'Descubra o modelo de energia solar sem investimento inicial da Solar Invest Solutions e como a usina se torna sua ao final do contrato. Learn how Solar Invest Solutions delivers zero upfront cost solar energy and transfers plant ownership at the end of the agreement.',
 };
 
 export default metadata;

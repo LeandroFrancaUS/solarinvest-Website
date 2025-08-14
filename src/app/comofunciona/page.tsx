@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Como Funciona | SolarInvest Solutions',
   description:
-    'Entenda como a SolarInvest transforma sua conta de energia em economia com um processo simples e eficiente.',
+    'Veja como funciona o modelo sem investimento inicial da SolarInvest e como você se torna dono da usina ao final do contrato.',
   alternates: { canonical: '/comofunciona' },
 };
 

@@ -1,30 +1,34 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FaRegFileAlt, FaClipboardCheck, FaTools, FaPiggyBank } from 'react-icons/fa';
+import { FaRegFileAlt, FaTools, FaPiggyBank, FaSolarPanel } from 'react-icons/fa';
 
 export default function ComoFunciona() {
   // Lista de etapas com ícone, título e descrição
   const etapas = [
     {
       icon: <FaRegFileAlt size={36} className="text-orange-500" />,
-      titulo: 'Análise de Conta',
-      descricao: 'Você nos envia sua conta de luz e realizamos uma análise gratuita e personalizada do seu consumo.',
-    },
-    {
-      icon: <FaClipboardCheck size={36} className="text-orange-500" />,
-      titulo: 'Proposta Ideal',
-      descricao: 'Apresentamos a solução mais econômica e sustentável, de acordo com seu perfil e localização.',
+      titulo: 'Análise de Consumo',
+      descricao:
+        'Você nos envia sua conta de luz e realizamos uma análise gratuita para dimensionar a usina ideal.',
     },
     {
       icon: <FaTools size={36} className="text-orange-500" />,
-      titulo: 'Instalação Técnica',
-      descricao: 'Nossa equipe especializada cuida de toda a instalação com agilidade, segurança e qualidade.',
+      titulo: 'Instalação sem investimento',
+      descricao:
+        'Projetamos, aprovamos e instalamos a usina no seu imóvel sem que você precise investir nada.',
     },
     {
       icon: <FaPiggyBank size={36} className="text-orange-500" />,
-      titulo: 'Economia Imediata',
-      descricao: 'Com a energia solar ativa, você já começa a economizar na sua próxima fatura de energia.',
+      titulo: 'Economia garantida',
+      descricao:
+        'Você paga apenas pela energia consumida com desconto, enquanto cuidamos da operação e manutenção.',
+    },
+    {
+      icon: <FaSolarPanel size={36} className="text-orange-500" />,
+      titulo: 'Usina sua ao final',
+      descricao:
+        'Ao término do contrato, a usina é transferida para o seu nome e toda a energia gerada passa a ser sua sem custo.',
     },
   ];
 
@@ -50,7 +54,7 @@ export default function ComoFunciona() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-16"
         >
-          Entenda como a Solar Invest transforma sua conta de energia em economia real, com um processo simples, rápido e eficiente.
+          Entenda como a SolarInvest oferece energia solar sem investimento inicial e com transferência de propriedade ao final do contrato.
         </motion.p>
 
         {/* Etapas com ícones e animações */}
