@@ -1,9 +1,14 @@
 // src/app/comofunciona/page.tsx
 
-'use client';
-
-import React from 'react';
 import ComoFunciona from '@/components/ComoFunciona';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Como Funciona | SolarInvest Solutions',
+  description:
+    'Entenda como a SolarInvest transforma sua conta de energia em economia com um processo simples e eficiente.',
+  alternates: { canonical: '/comofunciona' },
+};
 
 export default function ComoFuncionaPage() {
   return (

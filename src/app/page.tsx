@@ -3,9 +3,10 @@
 import Hero from '@/components/Hero';
 import Beneficios from '@/components/Beneficios';
 import ComoFunciona from '@/components/ComoFunciona';
+import type { Metadata } from 'next';
 
 // 🔍 SEO Metadata
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Energia Solar Inteligente | Solar Invest Solutions',
   description:
     'Economize com energia solar híbrida, off-grid e sustentável. Soluções acessíveis para residências, negócios e comunidades remotas.',
@@ -23,6 +24,9 @@ export const metadata = {
   ],
   authors: [{ name: 'SolarInvest Solutions' }],
   creator: 'SolarInvest Solutions',
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export default function Home() {
