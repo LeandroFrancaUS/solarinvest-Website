@@ -2,6 +2,23 @@
 
 import { motion } from 'framer-motion';
 
+// 🔍 SEO Metadata
+export const metadata = {
+  title: 'Sobre Nós | About Us | Solar Invest Solutions',
+  description:
+    'Saiba mais sobre a Solar Invest Solutions e nosso compromisso com energia solar acessível. Learn about Solar Invest Solutions and our commitment to affordable solar energy.',
+  keywords: [
+    'sobre a solar invest',
+    'about solar invest',
+    'empresa de energia solar',
+    'solar energy company',
+    'missão',
+    'mission',
+    'energia sustentável',
+    'sustainable energy',
+  ],
+};
+
 export default function SobrePage() {
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8">

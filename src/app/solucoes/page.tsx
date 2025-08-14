@@ -2,6 +2,26 @@
 
 import { motion } from 'framer-motion';
 
+// 🔍 SEO Metadata
+export const metadata = {
+  title: 'Soluções | Solutions | Solar Invest Solutions',
+  description:
+    'Explore nossas soluções de energia solar para residências, negócios e áreas remotas. Explore our solar energy solutions for homes, businesses, and remote areas.',
+  keywords: [
+    'soluções solares',
+    'solar solutions',
+    'energia residencial',
+    'residential solar',
+    'energia comercial',
+    'commercial solar',
+    'off-grid',
+    'off grid',
+    'energia rural',
+    'rural solar',
+    'solar invest',
+  ],
+};
+
 export default function SolucoesPage() {
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8">

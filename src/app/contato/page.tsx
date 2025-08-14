@@ -3,6 +3,24 @@
 import { motion } from 'framer-motion';
 import ContatoForm from '@/components/ContatoForm';
 
+// 🔍 SEO Metadata
+export const metadata = {
+  title: 'Contato | Contact | Solar Invest Solutions',
+  description:
+    'Fale com a Solar Invest Solutions para conhecer nossas soluções solares. Get in touch with Solar Invest Solutions for solar energy solutions.',
+  keywords: [
+    'contato',
+    'contact',
+    'fale conosco',
+    'contact us',
+    'suporte',
+    'support',
+    'energia solar',
+    'solar energy',
+    'solar invest',
+  ],
+};
+
 export default function ContatoPage() {
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8">
