@@ -2,6 +2,7 @@
 
 import { useState, memo } from 'react';
 import type { FC } from 'react';
+import Image from 'next/image';
 
 type LiteYouTubeProps = {
   videoId: string;
@@ -22,10 +23,12 @@ const LiteYouTubeComponent: FC<LiteYouTubeProps> = ({ videoId }) => {
           className="w-full h-full flex items-center justify-center"
           aria-label="Assistir vídeo"
         >
-          <img
+          <Image
             src={thumbnail}
             alt="Prévia do vídeo"
-            className="absolute inset-0 w-full h-full object-cover"
+            fill
+            className="absolute inset-0 object-cover"
+            sizes="(max-width: 768px) 100vw, 640px"
           />
           <div className="z-10">
             <svg
