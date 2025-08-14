@@ -34,3 +34,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Search and SEO
+
+A página `/search` oferece uma busca simples, alimentada pelo endpoint `/api/search`, que indexa as principais páginas do site. A página de busca inclui metadados de título e descrição para melhorar o SEO e facilitar que mecanismos de busca compreendam seu conteúdo.
+
+Para testar localmente:
+
+1. Execute `npm run dev`.
+2. Visite `http://localhost:3000/search`.
+3. Digite um termo como "soluções" para ver os resultados filtrados.
+
