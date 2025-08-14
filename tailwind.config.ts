@@ -1,13 +1,25 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        heading: ['"DM Sans"', 'sans-serif'],
+        mono: ['"Fira Code"', 'monospace'],
+      },
+      colors: {
+        primary: {
+          DEFAULT: '#ea580c',
+          dark: '#c2410c',
+          light: '#f97316',
+        },
+        gray: {
+          DEFAULT: '#6b7280',
+          light: '#d1d5db',
+        },
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
@@ -17,4 +29,5 @@ const config: Config = {
   },
   plugins: [],
 }
+
 export default config
