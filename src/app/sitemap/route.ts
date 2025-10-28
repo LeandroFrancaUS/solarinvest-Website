@@ -1,10 +1,11 @@
 // Generates sitemap.xml
 import { siteRoutes } from '@/routes';
+import { siteUrl } from '@/config/site';
 
 export const revalidate = 86400; // regenerate daily
 
 export async function GET() {
-  const baseUrl = 'https://solarinvest.info';
+  const baseUrl = siteUrl;
   const lastmod = new Date().toISOString();
   const urls = siteRoutes
     .map((path) => `
