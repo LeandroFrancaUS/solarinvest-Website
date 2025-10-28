@@ -24,8 +24,7 @@ export default function ComoFunciona() {
     {
       icon: <FaPiggyBank size={36} className="text-orange-500" />,
       titulo: 'Economia Imediata',
-      descricao:
-        'Você paga apenas pela energia contrata com desconto, enquanto cuidamos da operação e manutenção.',
+      descricao: 'Você paga apenas pela energia contrata com desconto, enquanto cuidamos da operação e manutenção.',
     },
   ];
 
