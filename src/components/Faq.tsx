@@ -329,24 +329,42 @@ export default function Faq() {
   ];
 
   return (
-    <section className="bg-white py-20 px-6 md:px-16 lg:px-28">
+    <section className="bg-gradient-to-b from-white via-orange-50/40 to-white py-20 px-6 md:px-16 lg:px-28">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-orange-600 mb-8 text-center">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-orange-600 mb-10 text-center">
           Perguntas Frequentes
         </h2>
         <div className="space-y-6">
           {sections.map((section) => (
-            <details key={section.titulo} className="border border-orange-200 rounded-lg p-4">
-              <summary className="cursor-pointer text-xl font-semibold text-orange-700">
-                {section.titulo}
+            <details
+              key={section.titulo}
+              className="group rounded-2xl bg-white/80 p-6 shadow-lg shadow-orange-100/50 ring-1 ring-orange-100 backdrop-blur-sm transition-all duration-300 hover:shadow-orange-200"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xl font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
+                <span>{section.titulo}</span>
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-2xl font-bold text-orange-600 transition-transform duration-300 group-open:rotate-45"
+                  aria-hidden
+                >
+                  +
+                </span>
               </summary>
-              <div className="mt-4 space-y-4">
+              <div className="mt-6 space-y-4">
                 {section.perguntas.map((faq) => (
-                  <details key={faq.pergunta} className="border border-orange-100 rounded-md p-3">
-                    <summary className="cursor-pointer font-medium text-orange-600">
-                      {faq.pergunta}
+                  <details
+                    key={faq.pergunta}
+                    className="group rounded-xl bg-white/90 p-5 ring-1 ring-orange-100/70 transition-all duration-300 hover:bg-white"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">
+                      <span>{faq.pergunta}</span>
+                      <span
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-50 text-lg font-bold text-orange-500 transition-transform duration-300 group-open:rotate-45"
+                        aria-hidden
+                      >
+                        +
+                      </span>
                     </summary>
-                    <div className="mt-2 text-gray-700 space-y-2">{faq.resposta}</div>
+                    <div className="mt-3 text-gray-700 leading-relaxed space-y-2">{faq.resposta}</div>
                   </details>
                 ))}
               </div>
