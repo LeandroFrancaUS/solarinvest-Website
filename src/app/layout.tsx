@@ -9,6 +9,7 @@ import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage } = seoConstants;
+const logoUrl = `${siteUrl}/logo.png`;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
@@ -111,7 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     '@type': 'Organization',
     name: siteName,
     url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
+    logo: logoUrl,
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Rua das Flores, 123',
@@ -149,6 +150,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR">
       <head>
+        <meta property="og:image" content={logoUrl} />
+        <meta name="twitter:image" content={logoUrl} />
         <Script
           id="organization-jsonld"
           type="application/ld+json"

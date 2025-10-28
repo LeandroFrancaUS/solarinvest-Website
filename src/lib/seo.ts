@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 const siteUrl = 'https://solarinvest.info';
 const siteName = 'SolarInvest Solutions';
-const defaultImage = `${siteUrl}/hero-solar-house.png`;
+const defaultImage = `${siteUrl}/logo.png`;
 
 export type BuildMetadataOptions = {
   title: string;
