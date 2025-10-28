@@ -5,12 +5,44 @@ import WhatsappButton from '@/components/WhatsappButton';
 import Script from 'next/script';
 
 import type { Metadata } from 'next';
+import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage } = seoConstants;
-const analyticsToken = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ID;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
+const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
+const analyticsDebugEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_DEBUG?.toLowerCase();
+const analyticsEndpoint = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ENDPOINT;
+const analyticsScriptSrc = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_SCRIPT_SRC;
+const analyticsIgnorePatterns = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_IGNORE_PATHS?.split(',')
+  .map((pattern) => pattern.trim())
+  .filter(Boolean);
+
+const analyticsMode =
+  analyticsModeEnv && ['auto', 'development', 'production'].includes(analyticsModeEnv)
+    ? (analyticsModeEnv as 'auto' | 'development' | 'production')
+    : undefined;
+
+const analyticsDebug =
+  analyticsDebugEnv === 'true' ? true : analyticsDebugEnv === 'false' ? false : undefined;
+
+const beforeSendHandler =
+  analyticsIgnorePatterns && analyticsIgnorePatterns.length
+    ? (event: BeforeSendEvent) => {
+        const shouldIgnore = analyticsIgnorePatterns.some((pattern) => {
+          if (!pattern) return false;
+          if (pattern.endsWith('*')) {
+            const prefix = pattern.slice(0, -1);
+            return event.url.startsWith(prefix);
+          }
+
+          return event.url.includes(pattern);
+        });
+
+        return shouldIgnore ? null : event;
+      }
+    : undefined;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -129,15 +161,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
-        {analyticsToken ? (
-          <Script
-            id="vercel-web-analytics"
-            src="https://cdn.vercel-insights.com/v1/script.js"
-            strategy="afterInteractive"
-            defer
-            data-token={analyticsToken}
-          />
-        ) : null}
         {speedInsightsId ? (
           <>
             <Script id="vercel-speed-insights-init" strategy="beforeInteractive">
@@ -158,6 +181,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Footer />
         <WhatsappButton />
+        <Analytics
+          {...(analyticsMode ? { mode: analyticsMode } : {})}
+          {...(typeof analyticsDebug === 'boolean' ? { debug: analyticsDebug } : {})}
+          {...(analyticsEndpoint ? { endpoint: analyticsEndpoint } : {})}
+          {...(analyticsScriptSrc ? { scriptSrc: analyticsScriptSrc } : {})}
+          {...(beforeSendHandler ? { beforeSend: beforeSendHandler } : {})}
+        />
       </body>
     </html>
   );
