@@ -78,20 +78,30 @@ function buildExactKey(payload: ClientePayload) {
   return JSON.stringify(normalized);
 }
 
-function validatePayload(payload: Partial<ClientePayload>): payload is ClientePayload {
+function validatePayload(payload: unknown): payload is ClientePayload {
+  if (
+    payload === null ||
+    typeof payload !== 'object' ||
+    Array.isArray(payload)
+  ) {
+    return false;
+  }
+
+  const candidate = payload as Partial<ClientePayload>;
+
   return (
-    typeof payload.nome === 'string' &&
-    typeof payload.documento === 'string' &&
-    typeof payload.telefone === 'string' &&
-    typeof payload.email === 'string' &&
-    typeof payload.endereco === 'string' &&
-    typeof payload.uc === 'string' &&
-    payload.nome.trim().length > 0 &&
-    payload.documento.trim().length > 0 &&
-    payload.telefone.trim().length > 0 &&
-    payload.email.trim().length > 0 &&
-    payload.endereco.trim().length > 0 &&
-    payload.uc.trim().length > 0
+    typeof candidate.nome === 'string' &&
+    typeof candidate.documento === 'string' &&
+    typeof candidate.telefone === 'string' &&
+    typeof candidate.email === 'string' &&
+    typeof candidate.endereco === 'string' &&
+    typeof candidate.uc === 'string' &&
+    candidate.nome.trim().length > 0 &&
+    candidate.documento.trim().length > 0 &&
+    candidate.telefone.trim().length > 0 &&
+    candidate.email.trim().length > 0 &&
+    candidate.endereco.trim().length > 0 &&
+    candidate.uc.trim().length > 0
   );
 }
 
@@ -107,7 +117,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!validatePayload(data as Partial<ClientePayload>)) {
+  if (!validatePayload(data)) {
     return NextResponse.json(
       { success: false, error: 'Dados do cliente inválidos.' },
       { status: 400 }
