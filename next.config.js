@@ -1,5 +1,7 @@
 // next.config.js
 
+const path = require('path');
+
 const ContentSecurityPolicy = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com;
@@ -59,5 +61,20 @@ module.exports = {
         destination: '/sitemap',
       },
     ];
+  },
+
+  webpack(config) {
+    try {
+      require.resolve('@vercel/analytics/next');
+    } catch (error) {
+      config.resolve = config.resolve || {};
+      config.resolve.alias = config.resolve.alias || {};
+      config.resolve.alias['@vercel/analytics/next'] = path.resolve(
+        __dirname,
+        'src/lib/vercel-analytics-stub.tsx',
+      );
+    }
+
+    return config;
   },
 };
