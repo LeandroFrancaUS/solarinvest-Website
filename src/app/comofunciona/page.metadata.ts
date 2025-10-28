@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Como Funciona | How It Works | Solar Invest Solutions',
+export const metadata = buildMetadata({
+  title: 'Como Funciona | SolarInvest Solutions',
   description:
-    'Descubra o modelo de energia solar sem investimento inicial da Solar Invest Solutions e como a usina se torna sua ao final do contrato. Learn how Solar Invest Solutions delivers zero upfront cost solar energy and transfers plant ownership at the end of the agreement.',
-};
+    'Descubra o modelo de energia solar sem investimento inicial da SolarInvest e como a usina se torna sua ao final do contrato.',
+  path: '/comofunciona',
+  keywords: ['como funciona energia solar', 'modelo solarinvest', 'energia solar sem investimento'],
+});
 
 export default metadata;

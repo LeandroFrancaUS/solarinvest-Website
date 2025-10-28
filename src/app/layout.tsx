@@ -5,45 +5,79 @@ import WhatsappButton from '@/components/WhatsappButton';
 import Script from 'next/script';
 
 import type { Metadata } from 'next';
+import { seoConstants } from '@/lib/seo';
 
-const siteUrl = 'https://solarinvest.com';
+const { siteUrl, siteName, defaultImage } = seoConstants;
+const analyticsToken = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ID;
+const speedInsightsId =
+  process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'SolarInvest Solutions',
-    template: '%s | SolarInvest Solutions',
+    default: siteName,
+    template: `%s | ${siteName}`,
   },
-  description: 'Energia solar inteligente e acessível.',
+  description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+  applicationName: siteName,
+  keywords: [
+    'energia solar',
+    'solarinvest',
+    'energia renovável',
+    'painel fotovoltaico',
+    'sustentabilidade',
+    'economia de energia',
+  ],
+  authors: [{ name: siteName }],
+  creator: siteName,
+  publisher: siteName,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'SolarInvest Solutions',
-    description: 'Energia solar inteligente e acessível.',
+    title: siteName,
+    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
     url: siteUrl,
-    siteName: 'SolarInvest Solutions',
+    siteName,
     locale: 'pt_BR',
     type: 'website',
     images: [
       {
-        url: '/hero-solar-house.png',
+        url: defaultImage,
         width: 1200,
         height: 630,
-        alt: 'SolarInvest Solutions',
+        alt: siteName,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SolarInvest Solutions',
-    description: 'Energia solar inteligente e acessível.',
-    images: ['/hero-solar-house.png'],
+    title: siteName,
+    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+    images: [defaultImage],
   },
+  icons: {
+    icon: '/favicon.ico',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  category: 'technology',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const jsonLd = {
+  const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'SolarInvest Solutions',
+    name: siteName,
     url: siteUrl,
     logo: `${siteUrl}/logo.png`,
     address: {
@@ -59,7 +93,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       telephone: '+55-11-1234-5678',
       contactType: 'customer service',
       areaServed: 'BR',
-      availableLanguage: 'Portuguese',
+      availableLanguage: ['Portuguese', 'English'],
+    },
+    sameAs: [
+      'https://www.facebook.com/solarinvest',
+      'https://www.instagram.com/solarinvest',
+      'https://www.linkedin.com/company/solarinvest',
+    ],
+  };
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteName,
+    url: siteUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${siteUrl}/search?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
     },
   };
 
@@ -70,8 +121,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           id="organization-jsonld"
           type="application/ld+json"
           strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        <Script
+          id="website-jsonld"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        {analyticsToken ? (
+          <Script
+            id="vercel-web-analytics"
+            src="https://cdn.vercel-insights.com/v1/script.js"
+            strategy="afterInteractive"
+            defer
+            data-token={analyticsToken}
+          />
+        ) : null}
+        {speedInsightsId ? (
+          <>
+            <Script id="vercel-speed-insights-init" strategy="beforeInteractive">
+              {`window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};`}
+            </Script>
+            <Script
+              id="vercel-speed-insights"
+              src="https://cdn.vercel-insights.com/v1/speed-insights/script.js"
+              strategy="afterInteractive"
+              defer
+              data-speed-insights-id={speedInsightsId}
+            />
+          </>
+        ) : null}
       </head>
       <body className="font-sans text-gray-900 bg-white pt-[72px]"> {/* Compensar header fixo */}
         <Header />

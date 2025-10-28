@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Perguntas Frequentes | FAQ | Solar Invest Solutions',
+export const metadata = buildMetadata({
+  title: 'Perguntas Frequentes | FAQ | SolarInvest Solutions',
   description:
     'Tire dúvidas sobre o modelo de geração solar da SolarInvest, com zero investimento inicial e usina própria ao fim do contrato.',
-};
+  path: '/faq',
+  keywords: ['faq energia solar', 'perguntas frequentes solarinvest', 'dúvidas energia solar'],
+});
 
 export default metadata;

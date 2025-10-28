@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Contato | Contact | Solar Invest Solutions',
+export const metadata = buildMetadata({
+  title: 'Contato | SolarInvest Solutions',
   description:
-    'Fale com a Solar Invest Solutions para conhecer nossas soluções solares. Get in touch with Solar Invest Solutions for solar energy solutions.',
-};
+    'Fale com a SolarInvest Solutions para conhecer nossas soluções solares e receber atendimento personalizado em energia renovável.',
+  path: '/contato',
+  keywords: ['contato solarinvest', 'atendimento energia solar', 'consultoria energia renovável'],
+});
 
 export default metadata;

@@ -1,11 +1,12 @@
 import Search from '@/components/Search';
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: 'Busca | SolarInvest Solutions',
-  description:
-    'Use a busca para encontrar informações sobre energia solar e nossos serviços.',
-};
+  description: 'Use a busca para encontrar informações sobre energia solar e nossos serviços.',
+  path: '/search',
+  keywords: ['buscar energia solar', 'pesquisa solarinvest', 'encontrar serviços energia solar'],
+});
 
 export default function SearchPage() {
   return (
