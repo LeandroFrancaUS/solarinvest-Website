@@ -15,7 +15,7 @@ const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerC
 const analyticsDebugEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_DEBUG?.toLowerCase();
 const analyticsEndpoint = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ENDPOINT;
 const analyticsScriptSrc = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_SCRIPT_SRC;
-const analyticsIgnorePatterns = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_IGNORE_PATHS?.split(',')
+const analyticsIgnorePatterns = (process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_IGNORE_PATHS?.split(',') ?? [])
   .map((pattern) => pattern.trim())
   .filter(Boolean);
 
