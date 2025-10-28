@@ -24,7 +24,8 @@ export default function ComoFunciona() {
     {
       icon: <FaPiggyBank size={36} className="text-orange-500" />,
       titulo: 'Economia Imediata',
-      descricao: 'Com a energia solar ativa, você já começa a economizar na sua próxima fatura de energia.',
+      descricao:
+        'Você paga apenas pela energia contrata com desconto, enquanto cuidamos da operação e manutenção.',
     },
   ];
 
