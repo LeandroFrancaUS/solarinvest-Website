@@ -22,7 +22,7 @@ export default function ComoFunciona() {
       icon: <FaPiggyBank size={36} className="text-orange-500" />,
       titulo: 'Economia garantida',
       descricao:
-        'Você paga apenas pela energia contrata com desconto, enquanto cuidamos da operação e manutenção.',
+        'Você paga apenas pela energia contratada com desconto, enquanto cuidamos da operação e manutenção.',
     },
     {
       icon: <FaSolarPanel size={36} className="text-orange-500" />,
