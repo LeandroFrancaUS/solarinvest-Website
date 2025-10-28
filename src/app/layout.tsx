@@ -92,7 +92,12 @@ export const metadata: Metadata = {
     images: [defaultImage],
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/icon.png',
+    apple: '/icon.png',
   },
   robots: {
     index: true,
