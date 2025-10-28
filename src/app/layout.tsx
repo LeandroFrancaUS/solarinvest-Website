@@ -3,23 +3,22 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsappButton from '@/components/WhatsappButton';
 import Script from 'next/script';
+import { siteName, siteUrl } from '@/config/site';
 
 import type { Metadata } from 'next';
-
-const siteUrl = 'https://solarinvest.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'SolarInvest Solutions',
-    template: '%s | SolarInvest Solutions',
+    default: siteName,
+    template: `%s | ${siteName}`,
   },
   description: 'Energia solar inteligente e acessível.',
   openGraph: {
-    title: 'SolarInvest Solutions',
+    title: siteName,
     description: 'Energia solar inteligente e acessível.',
     url: siteUrl,
-    siteName: 'SolarInvest Solutions',
+    siteName: siteName,
     locale: 'pt_BR',
     type: 'website',
     images: [
@@ -33,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SolarInvest Solutions',
+    title: siteName,
     description: 'Energia solar inteligente e acessível.',
     images: ['/hero-solar-house.png'],
   },
@@ -43,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'SolarInvest Solutions',
+    name: siteName,
     url: siteUrl,
     logo: `${siteUrl}/logo.png`,
     address: {
