@@ -11,21 +11,21 @@ const platforms = [
     name: 'Google Reviews',
     description:
       'Publique sua experiência diretamente no Google e ajude outras pessoas a encontrarem a SolarInvest com confiança.',
-    href: 'https://www.google.com/maps/search/?api=1&query=SolarInvest+Solutions',
+    href: 'https://g.page/r/Cc6kjAVtYClSEAI/review',
     action: 'Avaliar no Google',
   },
   {
     name: 'Facebook',
     description:
       'Compartilhe seu feedback com nossa comunidade no Facebook e acompanhe novidades em tempo real.',
-    href: 'https://www.facebook.com/search/top?q=SolarInvest%20Solutions',
+    href: 'https://www.facebook.com/SolarInvestSolutions',
     action: 'Comentar no Facebook',
   },
   {
     name: 'Reclame AQUI',
     description:
       'Resolva qualquer pendência com transparência e acompanhe nosso histórico de atendimento no Reclame AQUI.',
-    href: 'https://www.reclameaqui.com.br/',
+    href: 'https://www.reclameaqui.com.br/reclamar/jH8o0cH-F8WJDHnY',
     action: 'Ir para Reclame AQUI',
   },
 ];
