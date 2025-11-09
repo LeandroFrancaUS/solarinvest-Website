@@ -47,7 +47,7 @@ export default function Footer() {
             <FaInstagram size={24} className="text-pink-400 hover:text-pink-300 transition" />
           </a>
           <a
-            href="https://www.linkedin.com"
+            href="https://www.linkedin.com/company/solarinvest-solutions"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
