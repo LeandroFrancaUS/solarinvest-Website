@@ -53,7 +53,7 @@ const highlights = [
 
 export default function FeedbackSection() {
   return (
-    <section className="bg-slate-950 text-white py-20 px-4 sm:px-6 lg:px-8">
+    <section id="feedback" className="bg-slate-950 text-white py-20 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
           <div className="space-y-8">

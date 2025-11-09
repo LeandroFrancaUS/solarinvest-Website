@@ -1,5 +1,6 @@
 'use client';
 
+import FeedbackSection from '@/components/FeedbackSection';
 import { motion } from 'framer-motion';
 
 export default function SobrePageClient() {
@@ -53,6 +54,10 @@ export default function SobrePageClient() {
           </ul>
         </motion.div>
       </section>
+
+      <div className="mt-16">
+        <FeedbackSection />
+      </div>
     </main>
   );
 }
