@@ -52,16 +52,13 @@ export default function Home() {
       </section>
 
       {/* 💬 Central de feedback integrado */}
-      <section className="bg-slate-950 text-white px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-5xl flex-col gap-6 rounded-3xl border border-white/10 bg-slate-900/70 p-8 text-center shadow-[0_20px_45px_-25px_rgba(15,23,42,0.65)] sm:flex-row sm:items-center sm:text-left">
-          <div className="flex-1 space-y-3">
-            <span className="inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-orange-200 shadow-sm">
+      <section className="bg-gradient-to-br from-orange-50 via-white to-orange-100 px-4 py-16 text-slate-900 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col gap-6 rounded-3xl border border-orange-200/60 bg-white/80 p-8 text-center shadow-[0_20px_45px_-25px_rgba(253,186,116,0.55)] backdrop-blur-sm sm:flex-row sm:items-center sm:text-left">
+          <div className="flex-1 space-y-4">
+            <span className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-orange-600">
               Ouça nossos clientes
             </span>
-            <h2 className="text-2xl font-bold sm:text-3xl">
-              Conheça nossa Central de Feedback Integrado
-            </h2>
-            <p className="text-sm text-slate-200 sm:text-base">
+            <p className="text-sm text-slate-700 sm:text-base">
               Reunimos depoimentos reais e links oficiais do Google, Facebook e Reclame AQUI em um único espaço para facilitar a sua avaliação.
             </p>
           </div>

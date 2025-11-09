@@ -53,18 +53,21 @@ const highlights = [
 
 export default function FeedbackSection() {
   return (
-    <section id="feedback" className="bg-slate-950 text-white py-20 px-4 sm:px-6 lg:px-8">
+    <section
+      id="feedback"
+      className="bg-gradient-to-br from-orange-50 via-white to-orange-100 py-20 px-4 text-slate-900 sm:px-6 lg:px-8"
+    >
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
           <div className="space-y-8">
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-orange-200 shadow-sm">
+              <span className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-orange-600">
                 Ouça nossos clientes
               </span>
-              <h2 className="mt-4 max-w-xl text-3xl font-bold leading-tight text-transparent sm:text-4xl bg-gradient-to-r from-white via-orange-100 to-orange-400 bg-clip-text">
+              <h2 className="mt-4 max-w-xl text-3xl font-bold leading-tight text-orange-700 sm:text-4xl">
                 Central de Feedback Integrado
               </h2>
-              <p className="mt-4 text-base text-slate-200 sm:text-lg">
+              <p className="mt-4 text-base text-slate-700 sm:text-lg">
                 Disponibilizamos um ambiente profissional para que parceiros e clientes avaliem a SolarInvest e acompanhem a
                 reputação da marca nas principais plataformas brasileiras.
               </p>
@@ -74,21 +77,21 @@ export default function FeedbackSection() {
               {highlights.map(({ icon: Icon, title, description }) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition hover:border-orange-400"
+                  className="rounded-2xl border border-orange-200/60 bg-white p-6 shadow-[0_18px_32px_-24px_rgba(251,146,60,0.65)] transition hover:border-orange-300"
                 >
-                  <Icon className="h-8 w-8 text-orange-400" aria-hidden />
-                  <h3 className="mt-4 text-lg font-semibold text-white">{title}</h3>
-                  <p className="mt-2 text-sm text-slate-200">{description}</p>
+                  <Icon className="h-8 w-8 text-orange-500" aria-hidden />
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900">{title}</h3>
+                  <p className="mt-2 text-sm text-slate-700">{description}</p>
                 </div>
               ))}
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
+            <div className="rounded-2xl border border-orange-200/60 bg-orange-50 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
               <div>
-                <h3 className="text-lg font-semibold text-white">Queremos ouvir você</h3>
-                <p className="mt-2 text-sm text-slate-200">
+                <h3 className="text-lg font-semibold text-slate-900">Queremos ouvir você</h3>
+                <p className="mt-2 text-sm text-slate-700">
                   Preferencialmente utilize uma das plataformas oficiais, mas se precisar de um contato direto, envie um e-mail
-                  para <a href="mailto:brsolarinvest@gmail.com" className="text-orange-400 underline">brsolarinvest@gmail.com</a>.
+                  para <a href="mailto:brsolarinvest@gmail.com" className="text-orange-600 underline">brsolarinvest@gmail.com</a>.
                 </p>
               </div>
               <Link
@@ -102,17 +105,17 @@ export default function FeedbackSection() {
 
           <div className="space-y-5">
             {platforms.map((platform) => (
-              <div key={platform.name} className="rounded-3xl border border-white/10 bg-slate-900/70 p-6">
+              <div key={platform.name} className="rounded-3xl border border-orange-200/60 bg-white p-6 shadow-[0_22px_36px_-28px_rgba(251,146,60,0.6)]">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-white">{platform.name}</h3>
-                    <p className="mt-2 text-sm text-slate-200">{platform.description}</p>
+                    <h3 className="text-xl font-semibold text-slate-900">{platform.name}</h3>
+                    <p className="mt-2 text-sm text-slate-700">{platform.description}</p>
                   </div>
-                  <MegaphoneIcon className="h-8 w-8 flex-shrink-0 text-orange-400" aria-hidden />
+                  <MegaphoneIcon className="h-8 w-8 flex-shrink-0 text-orange-500" aria-hidden />
                 </div>
                 <Link
                   href={platform.href}
-                  className="mt-6 inline-flex items-center text-sm font-semibold text-orange-400 transition hover:text-orange-300"
+                  className="mt-6 inline-flex items-center text-sm font-semibold text-orange-600 transition hover:text-orange-500"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
