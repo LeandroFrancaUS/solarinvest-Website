@@ -58,10 +58,10 @@ export default function FeedbackSection() {
         <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
           <div className="space-y-8">
             <div>
-              <span className="text-sm font-semibold uppercase tracking-wide text-orange-400">
+              <span className="inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-orange-200 shadow-sm">
                 Ouça nossos clientes
               </span>
-              <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+              <h2 className="mt-4 max-w-xl text-3xl font-bold leading-tight text-transparent sm:text-4xl bg-gradient-to-r from-white via-orange-100 to-orange-400 bg-clip-text">
                 Central de Feedback Integrado
               </h2>
               <p className="mt-4 text-base text-slate-200 sm:text-lg">
@@ -88,7 +88,7 @@ export default function FeedbackSection() {
                 <h3 className="text-lg font-semibold text-white">Queremos ouvir você</h3>
                 <p className="mt-2 text-sm text-slate-200">
                   Preferencialmente utilize uma das plataformas oficiais, mas se precisar de um contato direto, envie um e-mail
-                  para <a href="mailto:contato@solarinvest.com" className="text-orange-400 underline">contato@solarinvest.com</a>.
+                  para <a href="mailto:brsolarinvest@gmail.com" className="text-orange-400 underline">brsolarinvest@gmail.com</a>.
                 </p>
               </div>
               <Link

@@ -38,9 +38,6 @@ export default function Home() {
       {/* ⚙️ Etapas de como funciona */}
       <ComoFunciona />
 
-      {/* 💬 Central de feedback integrado */}
-      <FeedbackSection />
-
       {/* ❓ Banner de perguntas frequentes */}
       <section className="bg-orange-50 text-center py-16 px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl sm:text-4xl font-bold text-orange-600">Perguntas Frequentes</h2>
@@ -54,6 +51,9 @@ export default function Home() {
           Acessar FAQ
         </Link>
       </section>
+
+      {/* 💬 Central de feedback integrado */}
+      <FeedbackSection />
 
       {/* 🟡 Mensagem final com padding ajustado */}
       <section className="bg-gradient-to-br from-yellow-100 to-orange-200 text-gray-800 px-4 sm:px-6 lg:px-8 py-12 sm:py-20 mt-12 sm:mt-16">
