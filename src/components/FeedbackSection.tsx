@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {
+  BugAntIcon,
   ChatBubbleLeftRightIcon,
   MegaphoneIcon,
   ShieldCheckIcon,
@@ -99,6 +100,26 @@ export default function FeedbackSection() {
                 className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:from-orange-400 hover:to-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:mt-0 sm:w-auto sm:flex-shrink-0"
               >
                 Fale com nosso time
+              </Link>
+            </div>
+
+            <div className="rounded-2xl border border-orange-200/60 bg-white p-6 shadow-[0_18px_32px_-24px_rgba(251,146,60,0.45)] sm:flex sm:items-start sm:justify-between sm:gap-6">
+              <div className="flex items-start gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/10">
+                  <BugAntIcon className="h-6 w-6 text-orange-500" aria-hidden />
+                </span>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">Sugestões ou bugs no site?</h3>
+                  <p className="mt-2 text-sm text-slate-700">
+                    Conte para nossa equipe como podemos melhorar a experiência digital ou reporte qualquer problema técnico que encontrar.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="mailto:brsolarinvest@gmail.com?subject=Sugest%C3%A3o%20ou%20bug%20no%20site"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:from-orange-400 hover:to-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:mt-0 sm:w-auto"
+              >
+                Enviar sugestão
               </Link>
             </div>
           </div>
