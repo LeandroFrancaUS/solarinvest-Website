@@ -83,7 +83,7 @@ export default function FeedbackSection() {
               ))}
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:flex sm:items-center sm:justify-between">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
               <div>
                 <h3 className="text-lg font-semibold text-white">Queremos ouvir você</h3>
                 <p className="mt-2 text-sm text-slate-200">
@@ -93,7 +93,7 @@ export default function FeedbackSection() {
               </div>
               <Link
                 href="/contato"
-                className="mt-4 inline-flex items-center justify-center rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-500/40 transition hover:bg-orange-400 sm:mt-0"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:from-orange-400 hover:to-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:mt-0 sm:w-auto sm:flex-shrink-0"
               >
                 Fale com nosso time
               </Link>
