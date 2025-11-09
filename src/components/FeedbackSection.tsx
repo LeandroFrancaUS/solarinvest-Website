@@ -69,8 +69,7 @@ export default function FeedbackSection() {
                 Central de Feedback Integrado
               </h2>
               <p className="mt-4 text-base text-slate-700 sm:text-lg">
-                Disponibilizamos um ambiente profissional para que parceiros e clientes avaliem a SolarInvest e acompanhem a
-                reputação da marca nas principais plataformas brasileiras.
+                Disponibilizamos um ambiente profissional para que parceiros e clientes avaliem a SolarInvest e acompanhem a reputação da marca nas principais plataformas brasileiras.
               </p>
             </div>
 
@@ -85,44 +84,6 @@ export default function FeedbackSection() {
                   <p className="mt-2 text-sm text-slate-700">{description}</p>
                 </div>
               ))}
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-orange-200/60 bg-orange-50/80 p-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Queremos ouvir você</h3>
-                  <p className="mt-2 text-sm text-slate-700">
-                    Preferencialmente utilize uma das plataformas oficiais, mas se precisar de um contato direto, envie um e-mail
-                    para <a href="mailto:brsolarinvest@gmail.com" className="text-orange-600 underline">brsolarinvest@gmail.com</a>.
-                  </p>
-                </div>
-                <Link
-                  href="/contato"
-                  className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:from-orange-400 hover:to-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:self-auto"
-                >
-                  Fale com nosso time
-                </Link>
-              </div>
-
-              <div className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-orange-200/60 bg-white p-6 shadow-[0_18px_32px_-24px_rgba(251,146,60,0.45)]">
-                <div className="flex items-start gap-4">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/10">
-                    <BugAntIcon className="h-6 w-6 text-orange-500" aria-hidden />
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900">Sugestões ou bugs no site?</h3>
-                    <p className="mt-2 text-sm text-slate-700">
-                      Conte para nossa equipe como podemos melhorar a experiência digital ou reporte qualquer problema técnico que encontrar.
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href="mailto:brsolarinvest@gmail.com?subject=Sugest%C3%A3o%20ou%20bug%20no%20site"
-                  className="inline-flex items-center justify-center gap-2 self-start rounded-full border border-orange-400/60 bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:border-orange-400 hover:bg-orange-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:self-auto"
-                >
-                  Enviar sugestão
-                </Link>
-              </div>
             </div>
           </div>
 
@@ -146,6 +107,44 @@ export default function FeedbackSection() {
                 </Link>
               </div>
             ))}
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 md:items-stretch lg:col-span-2">
+            <div className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-orange-200/60 bg-orange-50/80 p-6">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Queremos ouvir você</h3>
+                <p className="mt-2 text-sm text-slate-700">
+                  Preferencialmente utilize uma das plataformas oficiais, mas se precisar de um contato direto, envie um e-mail
+                  para <a href="mailto:brsolarinvest@gmail.com" className="text-orange-600 underline">brsolarinvest@gmail.com</a>.
+                </p>
+              </div>
+              <Link
+                href="/contato"
+                className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:from-orange-400 hover:to-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:self-auto"
+              >
+                Fale com nosso time
+              </Link>
+            </div>
+
+            <div className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-orange-200/60 bg-white p-6 shadow-[0_18px_32px_-24px_rgba(251,146,60,0.45)]">
+              <div className="flex items-start gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/10">
+                  <BugAntIcon className="h-6 w-6 text-orange-500" aria-hidden />
+                </span>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">Sugestões ou bugs no site?</h3>
+                  <p className="mt-2 text-sm text-slate-700">
+                    Conte para nossa equipe como podemos melhorar a experiência digital ou reporte qualquer problema técnico que encontrar.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="mailto:brsolarinvest@gmail.com?subject=Sugest%C3%A3o%20ou%20bug%20no%20site"
+                className="inline-flex items-center justify-center gap-2 self-start rounded-full border border-orange-400/60 bg-white px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm transition hover:border-orange-400 hover:bg-orange-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:self-auto"
+              >
+                Enviar sugestão
+              </Link>
+            </div>
           </div>
         </div>
       </div>
