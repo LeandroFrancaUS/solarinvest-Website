@@ -1,0 +1,11 @@
+@import './proposal-consumer-units.css';
+
+.printable-proposal--leasing .proposal-consumer-units__title,
+.printable-proposal--leasing .proposal-consumer-units__subtitle {
+  color: #0f172a;
+}
+
+.printable-proposal--leasing .proposal-consumer-units__generator,
+.printable-proposal--leasing .proposal-consumer-units__list {
+  color: #1f2937;
+}

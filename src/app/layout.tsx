@@ -1,4 +1,6 @@
 import './globals.css';
+import '@/components/proposal/styles/proposal-leasing.css';
+import '@/components/proposal/styles/proposal-venda.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsappButton from '@/components/WhatsappButton';

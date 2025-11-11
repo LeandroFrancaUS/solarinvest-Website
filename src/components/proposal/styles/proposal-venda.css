@@ -1,0 +1,11 @@
+@import './proposal-consumer-units.css';
+
+.printable-proposal--venda .proposal-consumer-units__title,
+.printable-proposal--venda .proposal-consumer-units__subtitle {
+  color: #111827;
+}
+
+.printable-proposal--venda .proposal-consumer-units__generator,
+.printable-proposal--venda .proposal-consumer-units__list {
+  color: #374151;
+}
