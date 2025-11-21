@@ -3,7 +3,6 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsappButton from '@/components/WhatsappButton';
 import Script from 'next/script';
-import { siteName, siteUrl } from '@/config/site';
 
 import type { Metadata } from 'next';
 import { Analytics, type BeforeSendEvent } from '@/components/Analytics';
