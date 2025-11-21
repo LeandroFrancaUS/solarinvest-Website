@@ -47,7 +47,7 @@ export default function Header() {
             <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">
               SolarInvest
             </span>
-            <span className="text-xs sm:text-sm text-gray-600 -mt-1">
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground -mt-1 whitespace-nowrap">
               Transformando economia mensal e patrimônio real
             </span>
           </div>
