@@ -43,9 +43,14 @@ export default function Header() {
             height={32}
             className="w-8 h-8 object-contain"
           />
-          <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">
-            SolarInvest
-          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">
+              SolarInvest
+            </span>
+            <span className="text-xs sm:text-sm text-gray-600 -mt-1">
+              Transformando economia mensal e patrimônio real
+            </span>
+          </div>
         </Link>
 
         {/* 🖥️ Menu Desktop */}
