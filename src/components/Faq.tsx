@@ -59,16 +59,19 @@ export default function Faq() {
         },
         {
           pergunta: 'Quais são os reais benefícios do leasing?',
-          resposta: (
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Economia imediata sem investir nada: a mensalidade substitui parte da conta de luz.</li>
-              <li>Tranquilidade psicológica: manutenção, seguro e monitoramento são responsabilidade da SolarInvest.</li>
-              <li>Previsibilidade: valor fixo em contrato, sem surpresas de tarifa de energia ou juros.</li>
-              <li>Flexibilidade: opção de compra antecipada com desconto.</li>
-              <li>Transferência garantida da propriedade ao final do contrato.</li>
-            </ul>
-          ),
-        },
+              resposta: (
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Economia imediata sem investir nada: a mensalidade substitui parte da conta de luz.</li>
+                  <li>Tranquilidade psicológica: manutenção, seguro e monitoramento são responsabilidade da SolarInvest.</li>
+                  <li>
+                    Previsibilidade: a cobrança segue uma fórmula contratual transparente, baseada no kWh e na tarifa da
+                    distribuidora, sem surpresas, juros ou cobranças escondidas.
+                  </li>
+                  <li>Flexibilidade: opção de compra antecipada com desconto.</li>
+                  <li>Transferência garantida da propriedade ao final do contrato.</li>
+                </ul>
+              ),
+            },
         {
           pergunta: 'A usina terá algum custo para mim?',
           resposta: (
