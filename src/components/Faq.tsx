@@ -14,102 +14,99 @@ export default function Faq() {
           pergunta: 'O que é a SolarInvest e como funciona?',
           resposta: (
             <p>
-              A SolarInvest é uma empresa especializada em energia solar que oferece soluções completas — da
-              instalação à manutenção — com opções de leasing ou compra direta. Assim, você reduz imediatamente sua
-              conta de energia e, no caso do leasing, torna-se proprietário da usina ao final do contrato sem custos
-              adicionais.
+              A SolarInvest é uma empresa especializada em energia solar que entrega o projeto completo: estudo de
+              viabilidade, instalação, homologação, monitoramento e manutenção. Você pode escolher entre leasing (sem
+              entrada e com mensalidade menor que a conta de luz) ou compra direta. No leasing, a usina é transferida
+              automaticamente para o seu nome ao final do contrato.
             </p>
           ),
         },
         {
           pergunta: 'Quais as vantagens de contratar a SolarInvest?',
           resposta: (
-            <p>
-              Você garante economia imediata sem investimento inicial, com instalação profissional, suporte completo,
-              manutenção, seguro e, no modelo de leasing, transferência garantida da propriedade da usina ao final do
-              contrato.
-            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Economia imediata, com mensalidade de leasing geralmente menor que a fatura de energia.</li>
+              <li>Zero investimento inicial, homologação e manutenção inclusas.</li>
+              <li>Equipe técnica especializada e equipamentos Tier 1 com garantia estendida.</li>
+              <li>Transferência garantida da usina no fim do leasing, sem burocracia ou custo extra.</li>
+            </ul>
           ),
         },
       ],
     },
     {
-      titulo: 'Financiamento, Leasing e Compra',
+      titulo: 'Leasing, Compra e Financiamento',
       perguntas: [
         {
           pergunta: 'Qual a diferença entre leasing e compra direta?',
           resposta: (
             <p>
-              No leasing, você paga uma mensalidade reduzida pelo uso da usina, que é automaticamente transferida para
-              seu nome ao final do contrato. Na compra direta, você adquire a usina à vista ou via financiamento
-              bancário. O leasing não exige entrada e inclui manutenção, suporte e seguro.
+              No leasing, você paga uma mensalidade pelo uso da usina e ela é transferida para o seu nome ao final do
+              contrato, sem entrada ou juros. Na compra direta, o investimento é feito à vista ou parcelado, e a
+              propriedade é imediata. O leasing protege seu fluxo de caixa e inclui operação, manutenção e seguro.
             </p>
           ),
         },
         {
-          pergunta: 'Existe custo inicial para aderir ao leasing?',
+          pergunta: 'E entre leasing e financiamento bancário?',
           resposta: (
             <p>
-              Não. A adesão ao leasing é feita sem entrada. A mensalidade é, em quase todos os casos, menor do que a
-              fatura atual de energia, salvo raras exceções.
+              O financiamento bancário exige entrada, comprovação de crédito e cobra juros. No leasing, não há entrada
+              nem juros bancários; a mensalidade já contempla instalação, seguro, operação e manutenção. O processo é
+              mais rápido e com menos burocracia.
             </p>
           ),
         },
         {
-          pergunta: 'Posso comprar a usina antes do fim do contrato?',
-          resposta: (
-            <p>
-              Sim. A partir do 6º mês é possível solicitar a compra antecipada da usina com valor reduzido, conforme a
-              tabela de transferência prevista em contrato.
-            </p>
-          ),
-        },
-        {
-          pergunta: 'Quais as formas de pagamento na compra direta?',
-          resposta: (
-            <p>
-              Você pode pagar à vista (transferência, Pix, débito ou crédito) ou parcelar via cartão ou financiamento
-              bancário.
-            </p>
-          ),
-        },
+          pergunta: 'Quais são os reais benefícios do leasing?',
+              resposta: (
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Economia imediata sem investir nada: a mensalidade substitui parte da conta de luz.</li>
+                  <li>Tranquilidade psicológica: manutenção, seguro e monitoramento são responsabilidade da SolarInvest.</li>
+                  <li>
+                    Previsibilidade: a cobrança segue uma fórmula contratual transparente, baseada no kWh e na tarifa da
+                    distribuidora, sem surpresas, juros ou cobranças escondidas.
+                  </li>
+                  <li>Flexibilidade: opção de compra antecipada com desconto.</li>
+                  <li>Transferência garantida da propriedade ao final do contrato.</li>
+                </ul>
+              ),
+            },
         {
           pergunta: 'A usina terá algum custo para mim?',
           resposta: (
             <p>
-              No leasing, não há custo inicial. A mensalidade substitui a conta de luz, com valor menor, cobrindo
-              instalação, suporte, manutenção e seguro durante todo o contrato. Na compra direta, há um investimento
-              inicial proporcional ao tamanho do sistema.
+              No leasing, não há custo inicial. Você paga apenas a mensalidade, que costuma ser menor que a fatura de
+              energia, e ela já cobre instalação, seguro, operação e manutenção. Na compra direta, existe o custo do
+              investimento inicial ou parcelas de financiamento.
             </p>
           ),
         },
         {
-          pergunta: 'Posso antecipar a compra da usina?',
+          pergunta: 'Posso comprar a usina antes do fim do leasing?',
           resposta: (
             <p>
-              Sim. A aquisição pode ser feita a partir do 6º mês, com valor proporcional ao tempo restante do contrato.
+              Sim. Após o 6º mês você pode solicitar a compra antecipada com valor reduzido, seguindo a tabela de
+              transferência prevista em contrato.
             </p>
           ),
         },
         {
-          pergunta: 'Qual é o processo ao final do contrato?',
+          pergunta: 'Como funciona o fim do contrato de leasing?',
           resposta: (
             <p>
-              Ao final do contrato de leasing, a usina é automaticamente transferida para seu nome, sem necessidade de
-              cartório ou custo adicional. O contrato já garante sua titularidade.
+              Ao final do prazo, a usina é transferida automaticamente para o seu nome. Não há necessidade de cartório
+              nem cobrança extra: a titularidade já está garantida em contrato.
             </p>
           ),
         },
         {
-          pergunta: 'Quais são as vantagens do leasing?',
+          pergunta: 'Quais as formas de pagamento para compra direta?',
           resposta: (
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Sem entrada, parcelas bancárias ou juros.</li>
-              <li>Economia mensal imediata.</li>
-              <li>Manutenção, suporte e seguro inclusos.</li>
-              <li>Possibilidade de compra antecipada.</li>
-              <li>Transferência garantida da propriedade ao final do contrato.</li>
-            </ul>
+            <p>
+              Aceitamos Pix, transferência, cartão de crédito, débito, boleto bancário e financiamento com bancos
+              parceiros. As condições são apresentadas junto com a proposta.
+            </p>
           ),
         },
       ],
@@ -118,11 +115,11 @@ export default function Faq() {
       titulo: 'Instalação e Sistema',
       perguntas: [
         {
-          pergunta: 'Onde a usina solar é instalada?',
+          pergunta: 'Onde a usina é instalada?',
           resposta: (
             <p>
-              A instalação pode ser feita no seu imóvel (telhado ou solo) ou em uma usina remota com compensação de
-              energia via distribuidora.
+              Instalações podem ser feitas no telhado, no solo do seu imóvel ou em uma usina remota, com compensação de
+              energia pela distribuidora. Avaliamos a melhor opção para garantir geração e segurança.
             </p>
           ),
         },
@@ -130,8 +127,8 @@ export default function Faq() {
           pergunta: 'E se meu telhado não for adequado?',
           resposta: (
             <p>
-              A SolarInvest realiza inspeção, inclusive com drone, e pode propor uma solução alternativa como usina
-              remota caso o telhado não seja viável.
+              Nossa equipe verifica estrutura, inclinação e sombreamento. Se o telhado não for viável, apresentamos
+              alternativas como estrutura em solo ou alocação em usina remota para você continuar economizando.
             </p>
           ),
         },
@@ -139,8 +136,8 @@ export default function Faq() {
           pergunta: 'A SolarInvest faz visita técnica?',
           resposta: (
             <p>
-              Sim. A vistoria pode ser presencial ou remota com drone para validar as condições do local e os
-              parâmetros da proposta.
+              Sim. Fazemos vistoria presencial ou remota com drone para confirmar medidas, estrutura e rota dos cabos,
+              garantindo que a instalação siga as melhores práticas e o orçamento acordado.
             </p>
           ),
         },
@@ -153,26 +150,27 @@ export default function Faq() {
           pergunta: 'Quais documentos são necessários?',
           resposta: (
             <p>
-              Documento com foto, CPF/CNPJ, comprovante de endereço, fatura de energia, fotos ou planta do local e a
-              assinatura digital dos contratos.
+              RG ou CNH, CPF/CNPJ, comprovante de endereço, fatura recente de energia, fotos do local (ou planta) e a
+              assinatura digital dos contratos. Em leasing, pode ser solicitado comprovante de renda para análise de
+              crédito.
             </p>
           ),
         },
         {
-          pergunta: 'Preciso de autorização se o imóvel não for meu?',
+          pergunta: 'E se o imóvel não estiver em meu nome?',
           resposta: (
             <p>
-              Sim. É necessário apresentar um documento de autorização do proprietário, herdeiros ou representante
-              legal.
+              É necessário apresentar autorização do proprietário ou documento que comprove posse/uso do imóvel. No
+              leasing, a titularidade da conta de energia também deve estar regularizada para a compensação.
             </p>
           ),
         },
         {
-          pergunta: 'Herdeiros precisam assinar o contrato?',
+          pergunta: 'Preciso de autorização de herdeiros?',
           resposta: (
             <p>
-              Não. Apenas o contratante assina o contrato principal. Os demais assinam o documento de autorização com
-              firma reconhecida.
+              Se o imóvel estiver em inventário ou com vários herdeiros, basta uma autorização formal dos demais
+              proprietários, com firma reconhecida, permitindo a instalação e a compensação de energia.
             </p>
           ),
         },
@@ -185,8 +183,8 @@ export default function Faq() {
           pergunta: 'A SolarInvest cuida da homologação com a distribuidora?',
           resposta: (
             <p>
-              Sim. A SolarInvest gerencia todo o processo junto à distribuidora, incluindo documentação, vistoria e
-              liberação da conexão.
+              Sim. Protocolamos o projeto, acompanhamos vistorias e entregamos a homologação concluída junto à
+              distribuidora. Você não precisa lidar com burocracias ou prazos.
             </p>
           ),
         },
@@ -194,17 +192,18 @@ export default function Faq() {
           pergunta: 'Quais as garantias dos equipamentos?',
           resposta: (
             <p>
-              Os módulos solares têm até 25 anos de garantia, enquanto os inversores possuem de 5 a 10 anos, conforme
-              o fabricante.
+              Módulos com garantia de performance de até 25 anos e inversores com 5 a 10 anos, conforme fabricante. A
+              instalação possui garantia contratual e manutenção preventiva está inclusa no leasing.
             </p>
           ),
         },
         {
-          pergunta: 'Existe multa em caso de rescisão?',
+          pergunta: 'Existe multa se eu quiser sair?',
           resposta: (
             <p>
-              A rescisão é permitida após 24 meses. Em caso de cancelamento, aplica-se a quitação proporcional do valor
-              restante.
+              No leasing, há possibilidade de cancelamento após o período mínimo. Aplica-se a quitação proporcional dos
+              valores restantes e custos de desinstalação, conforme previsto em contrato. Na compra direta, não há
+              multa após a entrega e homologação.
             </p>
           ),
         },
@@ -217,17 +216,18 @@ export default function Faq() {
           pergunta: 'Quanto posso economizar por mês?',
           resposta: (
             <p>
-              A economia varia entre 15% e 30% da conta de energia, conforme o consumo e a tarifa local.
+              A economia média fica entre 15% e 35% da conta de energia, dependendo do consumo, bandeira tarifária e
+              radiação da sua região. No leasing, essa redução já aparece na primeira fatura após a homologação.
             </p>
           ),
         },
         {
-          pergunta: 'Qual o retorno médio do investimento?',
+          pergunta: 'Qual o retorno do investimento?',
           resposta: (
             <p>
-              Na compra direta, o retorno varia entre 3 e 6 anos, dependendo do consumo e do investimento realizado. No
-              leasing, não há investimento inicial, e o retorno real ocorre no 5º ano com a aquisição definitiva da
-              usina sem custo adicional.
+              Na compra direta, o payback costuma ocorrer entre 3 e 6 anos. No leasing, o retorno é psicológico e
+              financeiro desde o início: você paga menos que na conta de luz e, ao final do contrato, recebe a usina já
+              quitada.
             </p>
           ),
         },
@@ -235,35 +235,26 @@ export default function Faq() {
           pergunta: 'Como acompanho meu consumo e economia?',
           resposta: (
             <p>
-              Você recebe relatórios regulares da geração de energia e da economia acumulada, com suporte contínuo da
-              equipe SolarInvest.
+              Você acompanha em tempo real por aplicativo e recebe relatórios periódicos com geração, consumo e
+              economia acumulada. Nossa equipe também monitora a performance para agir rápido em qualquer anomalia.
             </p>
           ),
         },
         {
-          pergunta: 'E se a usina não gerar a quantidade contratada em um mês?',
+          pergunta: 'E se a usina não gerar o contratado?',
           resposta: (
             <p>
-              No leasing, a SolarInvest garante a geração contratada. Caso ocorra alguma falha técnica, realizamos a
-              manutenção sem custo e cobrimos eventuais cobranças extras da distribuidora referentes à energia
-              contratada.
+              No leasing, a SolarInvest garante a geração contratada. Caso haja falha técnica, fazemos a correção sem
+              custo e compensamos o que faltar conforme previsto em contrato.
             </p>
           ),
         },
         {
-          pergunta: 'E se eu consumir mais do que o contratado?',
+          pergunta: 'E se eu consumir mais ou menos que o contratado?',
           resposta: (
             <p>
-              O excedente será cobrado diretamente pela concessionária com base na tarifa vigente.
-            </p>
-          ),
-        },
-        {
-          pergunta: 'E se eu consumir menos do que o contratado?',
-          resposta: (
-            <p>
-              A energia gerada não utilizada vira crédito junto à distribuidora e pode ser usada em meses futuros,
-              conforme as regras da ANEEL.
+              Se consumir mais, a diferença é cobrada pela distribuidora na tarifa vigente. Se consumir menos, os
+              créditos ficam acumulados para uso futuro, seguindo as regras da ANEEL.
             </p>
           ),
         },
@@ -276,9 +267,9 @@ export default function Faq() {
           pergunta: 'Posso escolher os modelos dos equipamentos?',
           resposta: (
             <p>
-              A SolarInvest trabalha com equipamentos de ponta e marcas Tier 1. Entre os inversores: Solis, Huawei e
-              Deye. Entre os módulos: Jinko, Trina, Longi e Canadian Solar. Todos com certificação INMETRO e escolhidos
-              conforme disponibilidade e adequação ao projeto.
+              Trabalhamos apenas com marcas Tier 1. Entre os inversores: Solis, Huawei e Deye. Entre os módulos: Jinko,
+              Trina, Longi e Canadian Solar, todos certificados pelo INMETRO. Sugerimos o melhor conjunto para seu
+              projeto, mas você pode indicar preferências.
             </p>
           ),
         },
@@ -286,8 +277,8 @@ export default function Faq() {
           pergunta: 'O que está incluso na proposta da usina?',
           resposta: (
             <p>
-              Estão inclusos os módulos, inversores, estrutura de fixação, cabeamento, conectores, projeto, instalação
-              e homologação completa.
+              Módulos, inversores, estruturas de fixação, cabeamento, conectores, projeto executivo, ART, instalação,
+              homologação e monitoramento. Em leasing, manutenção preventiva e corretiva também estão incluídas.
             </p>
           ),
         },
@@ -300,9 +291,8 @@ export default function Faq() {
           pergunta: 'Como recebo a proposta?',
           resposta: (
             <p>
-              Após o envio da conta de luz e dos dados do local, você recebe uma proposta personalizada em PDF por
-              e-mail ou WhatsApp, com todos os dados técnicos e financeiros do projeto e contato direto com nossa
-              equipe.
+              Após análise da sua conta de luz e dados do local, enviamos uma proposta personalizada em PDF por e-mail
+              ou WhatsApp, com resumo financeiro, detalhes técnicos e simulação de economia.
             </p>
           ),
         },
@@ -310,17 +300,17 @@ export default function Faq() {
           pergunta: 'O valor pode mudar após a visita?',
           resposta: (
             <p>
-              Sim. A proposta é baseada em estimativas e pode ser ajustada após a visita técnica ou inspeção com drone,
-              conforme as condições reais do local.
+              Sim. A proposta inicial é baseada em estimativas. Após a visita técnica ou inspeção com drone, o valor
+              pode ser ajustado para refletir as condições reais de instalação e garantir segurança e performance.
             </p>
           ),
         },
         {
-          pergunta: 'Qual o prazo de validade da proposta?',
+          pergunta: 'Qual a validade da proposta?',
           resposta: (
             <p>
-              Propostas de leasing têm validade de 15 dias corridos. Propostas de compra direta são válidas por 3 dias
-              corridos, salvo acordos específicos.
+              Propostas de leasing são válidas por 15 dias corridos. Para compra direta, a validade padrão é de 3 dias
+              devido à variação cambial e disponibilidade de equipamentos.
             </p>
           ),
         },
