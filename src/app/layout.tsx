@@ -5,7 +5,7 @@ import WhatsappButton from '@/components/WhatsappButton';
 import Script from 'next/script';
 
 import type { Metadata } from 'next';
-import { Analytics, type BeforeSendEvent } from '@/components/Analytics';
+import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage } = seoConstants;
