@@ -48,7 +48,7 @@ export default function Header() {
               SolarInvest
             </span>
             <span className="text-xs sm:text-sm font-medium text-muted-foreground -mt-1 whitespace-nowrap">
-              Transformando economia mensal e patrimônio real
+              Transformando sua economia mensal e patrimônio real
             </span>
           </div>
         </Link>

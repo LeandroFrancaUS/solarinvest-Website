@@ -28,7 +28,7 @@ export default function Hero() {
               Energia solar inteligente para sua casa ou condomínio
             </h1>
             <p className="mt-3 text-lg font-semibold text-orange-700">
-              Transformando economia mensal em patrimônio real
+              Transformando sua economia mensal e patrimônio real
             </p>
             <p className="mt-4 text-base sm:text-lg text-gray-700">
               Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
