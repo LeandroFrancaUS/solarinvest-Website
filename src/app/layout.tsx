@@ -9,7 +9,7 @@ import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName } = seoConstants;
-const logoUrl = `${siteUrl}/assets/logo-solarinvest.png`;
+const logoUrl = `${siteUrl}/images/logo.png`;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
@@ -120,7 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     '@type': 'Organization',
     name: 'SolarInvest Solutions',
     url: 'https://solarinvest.info',
-    logo: 'https://solarinvest.info/assets/logo-solarinvest.png',
+    logo: 'https://solarinvest.info/images/logo.png',
     sameAs: [],
   };
 
