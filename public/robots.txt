@@ -1,8 +1,12 @@
 User-agent: *
 Allow: /
+Allow: /assets/
 
 # Indique explicitamente o domínio principal para os mecanismos de busca
 Host: solarinvest.info
 
 # Localização do sitemap atualizado para rastreamento completo
 Sitemap: https://solarinvest.info/sitemap.xml
+
+
+
