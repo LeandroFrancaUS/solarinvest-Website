@@ -8,8 +8,8 @@ import type { Metadata } from 'next';
 import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
-const { siteUrl, siteName, defaultImage } = seoConstants;
-const logoUrl = `${siteUrl}/logo.png`;
+const { siteUrl, siteName } = seoConstants;
+const logoUrl = `${siteUrl}/assets/logo-solarinvest.png`;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
@@ -78,9 +78,9 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: defaultImage,
-        width: 1200,
-        height: 630,
+        url: logoUrl,
+        width: 512,
+        height: 512,
         alt: siteName,
       },
     ],
@@ -89,16 +89,17 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: siteName,
     description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
-    images: [defaultImage],
+    images: [logoUrl],
   },
   icons: {
     icon: [
-      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
     ],
-    shortcut: '/icon.png',
-    apple: '/icon.png',
+    shortcut: '/favicon-32x32.png',
+    apple: '/apple-touch-icon.png',
   },
+  manifest: '/site.webmanifest',
   robots: {
     index: true,
     follow: true,
@@ -117,29 +118,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: siteName,
-    url: siteUrl,
-    logo: logoUrl,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'Rua das Flores, 123',
-      addressLocality: 'São Paulo',
-      addressRegion: 'SP',
-      postalCode: '01234-567',
-      addressCountry: 'BR',
-    },
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+55-11-1234-5678',
-      contactType: 'customer service',
-      areaServed: 'BR',
-      availableLanguage: ['Portuguese', 'English'],
-    },
-    sameAs: [
-      'https://www.facebook.com/solarinvest',
-      'https://www.instagram.com/solarinvest',
-      'https://www.linkedin.com/company/solarinvest',
-    ],
+    name: 'SolarInvest Solutions',
+    url: 'https://solarinvest.info',
+    logo: 'https://solarinvest.info/assets/logo-solarinvest.png',
+    sameAs: [],
   };
 
   const websiteJsonLd = {
@@ -162,13 +144,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script
           id="organization-jsonld"
           type="application/ld+json"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <Script
           id="website-jsonld"
           type="application/ld+json"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         {speedInsightsId ? (
@@ -186,7 +168,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </>
         ) : null}
       </head>
-      <body className="font-sans text-gray-900 bg-white pt-[72px]"> {/* Compensar header fixo */}
+      <body className="font-sans text-gray-900 bg-white pt-[72px]">
+        {/* Compensar header fixo */}
         <Header />
         {children}
         <Footer />
