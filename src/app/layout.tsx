@@ -8,7 +8,7 @@ import type { Metadata } from 'next';
 import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
-const { siteUrl, siteName, defaultImage, logoPath, logoUrl } = seoConstants;
+const { siteUrl, siteName, defaultImage, logoPath, logoUrl, baseKeywords, socialProfiles } = seoConstants;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
@@ -54,14 +54,7 @@ export const metadata: Metadata = {
   },
   description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
   applicationName: siteName,
-  keywords: [
-    'energia solar',
-    'solarinvest',
-    'energia renovável',
-    'painel fotovoltaico',
-    'sustentabilidade',
-    'economia de energia',
-  ],
+  keywords: baseKeywords,
   authors: [{ name: siteName }],
   creator: siteName,
   publisher: siteName,
@@ -120,25 +113,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     url: siteUrl,
     logo: logoUrl,
     image: logoUrl,
+    description:
+      'Soluções completas de energia solar, on-grid, off-grid e híbrida com leasing, assinatura e projetos personalizados.',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Rua das Flores, 123',
-      addressLocality: 'São Paulo',
-      addressRegion: 'SP',
-      postalCode: '01234-567',
       addressCountry: 'BR',
+      addressRegion: 'Goiás',
+      addressLocality: 'Goiânia',
     },
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+55-11-1234-5678',
+      telephone: '+55-62-99515-0975',
       contactType: 'customer service',
       areaServed: 'BR',
       availableLanguage: ['Portuguese', 'English'],
     },
     sameAs: [
-      'https://www.facebook.com/solarinvest',
-      'https://www.instagram.com/solarinvest',
-      'https://www.linkedin.com/company/solarinvest',
+      socialProfiles.instagram,
+      socialProfiles.linkedin,
+      socialProfiles.whatsapp,
+      socialProfiles.google,
+      socialProfiles.maps,
     ],
   };
 
@@ -153,6 +148,49 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       target: `${siteUrl}/search?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
+    sameAs: [
+      socialProfiles.instagram,
+      socialProfiles.linkedin,
+      socialProfiles.whatsapp,
+      socialProfiles.google,
+      socialProfiles.maps,
+    ],
+  };
+
+  const localBusinessJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': ['Organization', 'LocalBusiness'],
+    name: siteName,
+    url: siteUrl,
+    image: logoUrl,
+    logo: logoUrl,
+    telephone: '+55-62-99515-0975',
+    sameAs: [
+      socialProfiles.instagram,
+      socialProfiles.linkedin,
+      socialProfiles.whatsapp,
+      socialProfiles.google,
+      socialProfiles.maps,
+    ],
+    areaServed: {
+      '@type': 'AdministrativeArea',
+      name: 'Brasil',
+    },
+    hasMap: socialProfiles.maps,
+    knowsAbout: baseKeywords,
+    makesOffer: [
+      {
+        '@type': 'Offer',
+        priceCurrency: 'BRL',
+        availability: 'https://schema.org/InStock',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Projetos e leasing de energia solar',
+          areaServed: 'Brasil',
+          serviceType: 'Energia solar fotovoltaica, on-grid, off-grid e híbrida',
+        },
+      },
+    ],
   };
 
   return (
@@ -171,6 +209,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <Script
+          id="localbusiness-jsonld"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
         />
         {speedInsightsId ? (
           <>
