@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import Script from 'next/script';
+import { seoConstants } from '@/lib/seo';
 
 // 🎥 Importação dinâmica do player YouTube otimizado
 const LiteYouTube = dynamic(() => import('@/components/LiteYouTube'), {
@@ -13,8 +15,45 @@ const LiteYouTube = dynamic(() => import('@/components/LiteYouTube'), {
 });
 
 export default function Hero() {
+  const { baseKeywords, socialProfiles, logoUrl, siteUrl, siteName } = seoConstants;
+
+  const heroServiceJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Energia solar inteligente para residências e condomínios',
+    serviceType: 'Energia solar fotovoltaica, on-grid, off-grid e híbrida com leasing e assinatura',
+    provider: {
+      '@type': 'Organization',
+      name: siteName,
+      url: siteUrl,
+      logo: logoUrl,
+      sameAs: [
+        socialProfiles.instagram,
+        socialProfiles.linkedin,
+        socialProfiles.whatsapp,
+        socialProfiles.google,
+        socialProfiles.maps,
+      ],
+    },
+    areaServed: 'Brasil',
+    image: logoUrl,
+    keywords: baseKeywords,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'BRL',
+      availability: 'https://schema.org/InStock',
+      url: `${siteUrl}/contato`,
+      description: 'Análise gratuita para projetos solares residenciais, comerciais e híbridos',
+    },
+  };
+
   return (
-    <section id="hero" className="w-full bg-gradient-to-br from-yellow-50 to-orange-100 py-12 px-4">
+    <section
+      id="hero"
+      className="w-full bg-gradient-to-br from-yellow-50 to-orange-100 py-12 px-4"
+      itemScope
+      itemType="https://schema.org/Service"
+    >
       <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-8">
 
         {/* 📢 Texto promocional do lado esquerdo */}
@@ -53,6 +92,13 @@ export default function Hero() {
           <LiteYouTube videoId="UXA3Td8KgmY" />
         </motion.div>
       </div>
+
+      <Script
+        id="hero-service-jsonld"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(heroServiceJsonLd) }}
+      />
     </section>
   );
 }
