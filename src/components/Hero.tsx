@@ -25,14 +25,25 @@ export default function Hero() {
         >
           <div className="w-full md:w-3/4 lg:w-2/3 max-w-2xl text-center md:text-left">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-orange-600 leading-tight">
-              Energia solar inteligente para sua casa ou condomínio
+              Energia solar inteligente on-grid, off-grid e híbrida
             </h1>
             <p className="mt-3 text-lg font-semibold text-orange-700">
-              Transformando sua economia mensal e patrimônio real
+              Transformando sua economia mensal e patrimônio real com módulos fotovoltaicos de alta performance
             </p>
             <p className="mt-4 text-base sm:text-lg text-gray-700">
               Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
+              Modelos de leasing e assinatura de usina solar sem investimento inicial, com descontos médios de 20% a 30% na energia.
             </p>
+            <ul className="mt-4 grid gap-3 text-sm text-left text-gray-700 sm:grid-cols-2">
+              <li className="flex items-start gap-2">
+                <span className="mt-1 inline-block h-2 w-2 rounded-full bg-orange-500" aria-hidden />
+                Sistemas completos com painel solar, módulo fotovoltaico e baterias para backup.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1 inline-block h-2 w-2 rounded-full bg-orange-500" aria-hidden />
+                Energia renovável com usina própria ao final do contrato e suporte em todo o Brasil.
+              </li>
+            </ul>
             <Link
               href="/contato"
               className="inline-block mt-6 bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow hover:bg-orange-500 transition-colors"

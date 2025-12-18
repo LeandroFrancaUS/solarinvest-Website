@@ -7,17 +7,22 @@ export default function Beneficios() {
   const beneficios = [
     {
       titulo: 'Economia na Conta de Luz',
-      descricao: 'Reduza seus custos mensais com energia e ganhe previsibilidade financeira.',
+      descricao: 'Reduza seus custos mensais com energia e ganhe previsibilidade financeira com tarifas solares mais baixas.',
       icone: CheckCircleIcon,
     },
     {
       titulo: 'Segurança Contra Apagões',
-      descricao: 'Tenha fornecimento contínuo de energia, mesmo em quedas da rede.',
+      descricao: 'Tenha fornecimento contínuo de energia, mesmo em quedas da rede, com sistemas híbridos e baterias solares.',
       icone: ShieldCheckIcon,
     },
     {
       titulo: 'Sustentabilidade e Valorização',
-      descricao: 'Contribua com o meio ambiente e aumente o valor do seu imóvel.',
+      descricao: 'Contribua com o meio ambiente e aumente o valor do seu imóvel com energia renovável certificada.',
+      icone: BoltIcon,
+    },
+    {
+      titulo: 'Desconto imediato e leasing',
+      descricao: 'Modelos de leasing e assinatura com usina fotovoltaica sem investimento inicial e descontos de 20% a 30%.',
       icone: BoltIcon,
     },
   ];
@@ -34,7 +39,7 @@ export default function Beneficios() {
         </p>
 
         {/* 📦 Grid dos cards de benefícios */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {beneficios.map((beneficio, index) => (
             <div
               key={index}

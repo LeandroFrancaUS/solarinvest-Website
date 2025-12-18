@@ -10,25 +10,25 @@ export default function ComoFunciona() {
       icon: <FaRegFileAlt size={36} className="text-orange-500" />,
       titulo: 'Análise de Consumo',
       descricao:
-        'Você nos envia sua conta de luz e realizamos uma análise gratuita para dimensionar a usina ideal.',
+        'Você nos envia sua conta de luz e realizamos uma análise gratuita para dimensionar a usina ideal on-grid, off-grid ou híbrida.',
     },
     {
       icon: <FaTools size={36} className="text-orange-500" />,
       titulo: 'Instalação sem investimento',
       descricao:
-        'Projetamos, aprovamos e instalamos a usina no seu imóvel sem que você precise investir nada.',
+        'Projetamos, aprovamos e instalamos a usina no seu imóvel sem que você precise investir nada, no modelo leasing (usina de graça).',
     },
     {
       icon: <FaPiggyBank size={36} className="text-orange-500" />,
       titulo: 'Economia garantida',
       descricao:
-        'Você paga apenas pela energia contratada com desconto, enquanto cuidamos da operação e manutenção.',
+        'Você paga apenas pela energia contratada com desconto de 20% a 30%, enquanto cuidamos da operação e manutenção.',
     },
     {
       icon: <FaSolarPanel size={36} className="text-orange-500" />,
       titulo: 'Usina sua ao final',
       descricao:
-        'Ao término do contrato, a usina é transferida para o seu nome e toda a energia gerada passa a ser sua sem custo.',
+        'Ao término do contrato, a usina fotovoltaica é transferida para o seu nome e toda a energia gerada passa a ser sua sem custo.',
     },
   ];
 

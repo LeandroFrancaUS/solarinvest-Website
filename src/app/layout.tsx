@@ -6,7 +6,7 @@ import Script from 'next/script';
 
 import type { Metadata } from 'next';
 import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
-import { seoConstants } from '@/lib/seo';
+import { defaultKeywords, seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage, logoPath, logoUrl } = seoConstants;
 const speedInsightsId =
@@ -52,25 +52,23 @@ export const metadata: Metadata = {
     default: siteName,
     template: `%s | ${siteName}`,
   },
-  description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+  description:
+    'Energia solar inteligente, acessível e sustentável para residências, empresas e condomínios: on-grid, off-grid, híbrido, leasing de usinas fotovoltaicas, baterias e descontos médios de 20% a 30%.',
   applicationName: siteName,
-  keywords: [
-    'energia solar',
-    'solarinvest',
-    'energia renovável',
-    'painel fotovoltaico',
-    'sustentabilidade',
-    'economia de energia',
-  ],
+  keywords: defaultKeywords,
   authors: [{ name: siteName }],
   creator: siteName,
   publisher: siteName,
   alternates: {
     canonical: '/',
+    languages: {
+      'pt-BR': '/',
+    },
   },
   openGraph: {
     title: siteName,
-    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+    description:
+      'Energia solar inteligente, acessível e sustentável para residências, empresas e condomínios: on-grid, off-grid, híbrido, leasing de usinas fotovoltaicas, baterias e descontos médios de 20% a 30%.',
     url: siteUrl,
     siteName,
     locale: 'pt_BR',
@@ -87,7 +85,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: siteName,
-    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+    description:
+      'Energia solar inteligente, acessível e sustentável para residências, empresas e condomínios: on-grid, off-grid, híbrido, leasing de usinas fotovoltaicas, baterias e descontos médios de 20% a 30%.',
     images: [defaultImage],
   },
   icons: {
@@ -116,6 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': `${siteUrl}#organization`,
     name: siteName,
     url: siteUrl,
     logo: logoUrl,
@@ -139,12 +139,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       'https://www.facebook.com/solarinvest',
       'https://www.instagram.com/solarinvest',
       'https://www.linkedin.com/company/solarinvest',
+      'https://www.tiktok.com/@solarinvest',
+      'https://x.com/solarinvest',
+      'https://www.youtube.com/@solarinvest',
     ],
   };
 
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': `${siteUrl}#website`,
     name: siteName,
     url: siteUrl,
     image: logoUrl,
@@ -152,6 +156,79 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       '@type': 'SearchAction',
       target: `${siteUrl}/search?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
+    },
+  };
+
+  const serviceJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${siteUrl}#solar-service`,
+    name: 'Energia solar com desconto e leasing de usinas SolarInvest',
+    provider: {
+      '@id': organizationJsonLd['@id'],
+    },
+    serviceType: [
+      'energia solar on-grid',
+      'energia solar off-grid',
+      'energia solar híbrida',
+      'leasing de usina fotovoltaica',
+      'energia solar com baterias',
+    ],
+    areaServed: {
+      '@type': 'GeoCircle',
+      geoMidpoint: {
+        '@type': 'GeoCoordinates',
+        latitude: -23.55052,
+        longitude: -46.633308,
+      },
+      geoRadius: 1200000,
+    },
+    keywords: defaultKeywords,
+    logo: logoUrl,
+    image: logoUrl,
+    brand: {
+      '@type': 'Brand',
+      name: siteName,
+      logo: logoUrl,
+    },
+    offers: [
+      {
+        '@type': 'Offer',
+        priceCurrency: 'BRL',
+        category: 'Energia renovável',
+        description:
+          'Modelo de leasing e usina fotovoltaica sem investimento inicial, com entrega turnkey e operação completa.',
+      },
+      {
+        '@type': 'Offer',
+        priceCurrency: 'BRL',
+        eligibleRegion: 'BR',
+        description: 'Descontos médios de 20% a 30% na conta de energia com geração solar limpa.',
+      },
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Planos SolarInvest',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Product',
+            name: 'Usina fotovoltaica conectada à rede (on-grid)',
+            image: logoUrl,
+            description: 'Geração distribuída com painéis solares e módulos fotovoltaicos para residências e empresas.',
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Product',
+            name: 'Sistema híbrido com baterias solares',
+            image: logoUrl,
+            description: 'Energia solar com backup e armazenamento para segurança contra apagões.',
+          },
+        },
+      ],
     },
   };
 
@@ -171,6 +248,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <Script
+          id="service-jsonld"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
         />
         {speedInsightsId ? (
           <>
