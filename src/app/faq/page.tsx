@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Perguntas Frequentes | SolarInvest Solutions',
   description:
-    'Dúvidas sobre o modelo de leasing solar? Confira respostas sobre custos, vantagens e processo.',
+    'Dúvidas sobre leasing solar, usinas fotovoltaicas ou sistemas híbridos? Confira respostas sobre custos, economia, instalação e suporte da SolarInvest.',
   alternates: { canonical: '/faq' },
 };
 

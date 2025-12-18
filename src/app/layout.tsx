@@ -8,8 +8,7 @@ import type { Metadata } from 'next';
 import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
-const { siteUrl, siteName } = seoConstants;
-const logoUrl = `${siteUrl}/images/logo.png`;
+const { siteUrl, siteName, defaultImage, logoPath, logoUrl, baseKeywords, socialProfiles } = seoConstants;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
@@ -47,22 +46,18 @@ const beforeSendHandler =
       }
     : undefined;
 
+const defaultMetaDescription =
+  'Energia solar inteligente com leasing solar, usinas fotovoltaicas em Goiás e soluções híbridas SolarInvest para residências e empresas com economia sustentável.';
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteName,
     template: `%s | ${siteName}`,
   },
-  description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+  description: defaultMetaDescription,
   applicationName: siteName,
-  keywords: [
-    'energia solar',
-    'solarinvest',
-    'energia renovável',
-    'painel fotovoltaico',
-    'sustentabilidade',
-    'economia de energia',
-  ],
+  keywords: baseKeywords,
   authors: [{ name: siteName }],
   creator: siteName,
   publisher: siteName,
@@ -71,7 +66,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: siteName,
-    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+    description: defaultMetaDescription,
     url: siteUrl,
     siteName,
     locale: 'pt_BR',
@@ -88,16 +83,16 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: siteName,
-    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+    description: defaultMetaDescription,
     images: [logoUrl],
   },
   icons: {
     icon: [
-      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
-      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: logoPath, type: 'image/png' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
-    shortcut: '/favicon-32x32.png',
-    apple: '/apple-touch-icon.png',
+    shortcut: [logoPath],
+    apple: [{ url: logoPath }],
   },
   manifest: '/site.webmanifest',
   robots: {
@@ -118,10 +113,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'SolarInvest Solutions',
-    url: 'https://solarinvest.info',
-    logo: 'https://solarinvest.info/images/logo.png',
-    sameAs: [],
+    name: siteName,
+    url: siteUrl,
+    logo: logoUrl,
+    image: logoUrl,
+    description:
+      'Soluções completas de energia solar, on-grid, off-grid e híbrida com leasing, assinatura e projetos personalizados.',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'BR',
+      addressRegion: 'Goiás',
+      addressLocality: 'Goiânia',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+55-62-99515-0975',
+      contactType: 'customer service',
+      areaServed: 'BR',
+      availableLanguage: ['Portuguese', 'English'],
+    },
+    sameAs: [
+      socialProfiles.instagram,
+      socialProfiles.linkedin,
+      socialProfiles.whatsapp,
+      socialProfiles.facebook,
+      socialProfiles.google,
+      socialProfiles.maps,
+    ],
   };
 
   const websiteJsonLd = {
@@ -129,10 +147,88 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     '@type': 'WebSite',
     name: siteName,
     url: siteUrl,
+    image: logoUrl,
     potentialAction: {
       '@type': 'SearchAction',
       target: `${siteUrl}/search?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
+    },
+    sameAs: [
+      socialProfiles.instagram,
+      socialProfiles.linkedin,
+      socialProfiles.whatsapp,
+      socialProfiles.facebook,
+      socialProfiles.google,
+      socialProfiles.maps,
+    ],
+  };
+
+  const localBusinessJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': ['Organization', 'LocalBusiness'],
+    name: siteName,
+    url: siteUrl,
+    image: logoUrl,
+    logo: logoUrl,
+    telephone: '+55-62-99515-0975',
+    sameAs: [
+      socialProfiles.instagram,
+      socialProfiles.linkedin,
+      socialProfiles.whatsapp,
+      socialProfiles.facebook,
+      socialProfiles.google,
+      socialProfiles.maps,
+    ],
+    areaServed: {
+      '@type': 'AdministrativeArea',
+      name: 'Brasil',
+    },
+    hasMap: socialProfiles.maps,
+    knowsAbout: baseKeywords,
+    makesOffer: [
+      {
+        '@type': 'Offer',
+        priceCurrency: 'BRL',
+        availability: 'https://schema.org/InStock',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Projetos e leasing de energia solar',
+          areaServed: 'Brasil',
+          serviceType: 'Energia solar fotovoltaica, on-grid, off-grid e híbrida',
+        },
+      },
+    ],
+  };
+
+  const servicesJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': ['Service', 'Product'],
+    name: 'Soluções e leasing de energia solar',
+    description:
+      'Assinatura, projetos e usinas fotovoltaicas completas da SolarInvest com foco em energia solar limpa, sistemas híbridos e baterias.',
+    brand: {
+      '@type': 'Brand',
+      name: siteName,
+      logo: logoUrl,
+    },
+    provider: {
+      '@type': 'Organization',
+      name: siteName,
+      url: siteUrl,
+      logo: logoUrl,
+    },
+    areaServed: {
+      '@type': 'AdministrativeArea',
+      name: 'Goiás, Distrito Federal e Brasil',
+    },
+    serviceType: 'Energia solar fotovoltaica, leasing solar e sistemas híbridos com baterias',
+    category: 'https://schema.org/EnergyEfficiencyEnumeration',
+    image: defaultImage,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'BRL',
+      availability: 'https://schema.org/InStock',
+      description: 'Planos flexíveis de energia solar com previsibilidade de custos e homologação completa.',
     },
   };
 
@@ -152,6 +248,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <Script
+          id="localbusiness-jsonld"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        />
+        <Script
+          id="services-jsonld"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(servicesJsonLd) }}
         />
         {speedInsightsId ? (
           <>
