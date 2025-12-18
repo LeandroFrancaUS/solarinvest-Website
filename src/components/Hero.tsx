@@ -64,7 +64,7 @@ export default function Hero() {
         >
           <div className="w-full max-w-3xl mx-auto md:mx-0 text-center md:text-left space-y-4">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-orange-600 leading-tight md:leading-tight">
-              Energia solar inteligente para sua casa, comercio ou condomínio
+              Energia solar inteligente para sua casa, comércio ou condomínio
             </h1>
             <p className="text-base sm:text-lg text-gray-700">
               Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
