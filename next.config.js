@@ -60,6 +60,10 @@ module.exports = {
         source: '/sitemap.xml',
         destination: '/sitemap',
       },
+      {
+        source: '/icon.png',
+        destination: '/logo.png',
+      },
     ];
   },
 
