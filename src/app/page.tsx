@@ -3,7 +3,6 @@
 import Hero from '@/components/Hero';
 import Beneficios from '@/components/Beneficios';
 import ComoFunciona from '@/components/ComoFunciona';
-import SeoGuidelines from '@/components/SeoGuidelines';
 import Link from 'next/link';
 import { buildMetadata } from '@/lib/seo';
 
@@ -37,9 +36,6 @@ export default function Home() {
 
       {/* ⚙️ Etapas de como funciona */}
       <ComoFunciona />
-
-      {/* 📘 Guia rápido de SEO */}
-      <SeoGuidelines />
 
       {/* ❓ Banner de perguntas frequentes */}
       <section className="bg-orange-50 text-center py-16 px-4 sm:px-6 lg:px-8">
