@@ -54,7 +54,7 @@ export default function Hero() {
       itemScope
       itemType="https://schema.org/Service"
     >
-      <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-12">
 
         {/* 📢 Texto promocional do lado esquerdo */}
         <motion.div
@@ -62,19 +62,16 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="w-full md:w-3/4 lg:w-2/3 max-w-2xl text-center md:text-left">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-orange-600 leading-tight">
-              Energia solar inteligente para sua casa ou condomínio
+          <div className="w-full max-w-3xl mx-auto md:mx-0 text-center md:text-left space-y-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-orange-600 leading-tight md:leading-tight">
+              Energia solar inteligente para sua casa, comércio ou condomínio
             </h1>
-            <p className="mt-3 text-lg font-semibold text-orange-700">
-              Transformando sua economia mensal e patrimônio real
-            </p>
-            <p className="mt-4 text-base sm:text-lg text-gray-700">
+            <p className="text-base sm:text-lg text-gray-700">
               Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
             </p>
             <Link
               href="/contato"
-              className="inline-block mt-6 bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow hover:bg-orange-500 transition-colors"
+              className="inline-block bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow hover:bg-orange-500 transition-colors"
             >
               Solicite uma análise gratuita
             </Link>
@@ -83,7 +80,7 @@ export default function Hero() {
 
         {/* 🎬 Vídeo YouTube leve com thumbnail otimizada */}
         <motion.div
-          className="w-full md:w-1/2"
+          className="w-full max-w-3xl mx-auto md:max-w-none"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
