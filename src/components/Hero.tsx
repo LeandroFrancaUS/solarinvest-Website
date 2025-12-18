@@ -31,6 +31,7 @@ export default function Hero() {
         socialProfiles.instagram,
         socialProfiles.linkedin,
         socialProfiles.whatsapp,
+        socialProfiles.facebook,
         socialProfiles.google,
         socialProfiles.maps,
       ],

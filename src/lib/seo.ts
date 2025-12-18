@@ -97,12 +97,15 @@ const baseKeywords = [
   'soluções em energia solar',
   'energia solar inteligente',
   'solarinvest',
+  'SolarInvest Solutions Facebook',
+  'facebook solarinvest solutions',
 ];
 
 const socialProfiles = {
   instagram: 'https://www.instagram.com/solarinvest.br',
   linkedin: 'https://www.linkedin.com/company/solarinvest-solutions/',
   whatsapp: 'https://api.whatsapp.com/send/?phone=5562995150975',
+  facebook: 'https://www.facebook.com/SolarInvestSolutions',
   google: 'https://share.google/urA2LS9hMCaGML3YE',
   maps: 'https://maps.app.goo.gl/F4Nergs2Arurxxij7',
   website: siteUrl,
