@@ -8,8 +8,7 @@ import type { Metadata } from 'next';
 import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
-const { siteUrl, siteName, defaultImage } = seoConstants;
-const logoUrl = `${siteUrl}/logo.png`;
+const { siteUrl, siteName, defaultImage, logoPath, logoUrl } = seoConstants;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
@@ -93,11 +92,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+      { url: logoPath, type: 'image/png', sizes: '512x512' },
       { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
-    shortcut: '/icon.png',
-    apple: '/icon.png',
+    shortcut: logoPath,
+    apple: logoPath,
   },
   robots: {
     index: true,
@@ -120,6 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     name: siteName,
     url: siteUrl,
     logo: logoUrl,
+    image: logoUrl,
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Rua das Flores, 123',
@@ -147,6 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     '@type': 'WebSite',
     name: siteName,
     url: siteUrl,
+    image: logoUrl,
     potentialAction: {
       '@type': 'SearchAction',
       target: `${siteUrl}/search?q={search_term_string}`,

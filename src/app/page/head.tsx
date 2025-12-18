@@ -2,7 +2,7 @@
 
 import { seoConstants } from '@/lib/seo';
 
-const { siteUrl, siteName, defaultImage } = seoConstants;
+const { siteUrl, siteName, defaultImage, logoPath } = seoConstants;
 
 export default function Head() {
   return (
@@ -14,7 +14,9 @@ export default function Head() {
       />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="robots" content="index, follow" />
-      <link rel="icon" href="/favicon.ico" />
+      <link rel="icon" href={logoPath} />
+      <link rel="apple-touch-icon" href={logoPath} />
+      <link rel="alternate icon" href={logoPath} />
       <link rel="canonical" href={siteUrl} />
 
       {/* 🔁 Preload do thumbnail em alta resolução para performance */}
@@ -37,6 +39,7 @@ export default function Head() {
         content="Energia solar inteligente, com economia, segurança e sustentabilidade."
       />
       <meta name="twitter:image" content={defaultImage} />
+      <meta itemProp="image" content={defaultImage} />
     </>
   );
 }

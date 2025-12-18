@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 
 const siteUrl = 'https://solarinvest.info';
 const siteName = 'SolarInvest Solutions';
-const defaultImage = `${siteUrl}/logo.png`;
+const logoPath = '/icon.png';
+const logoUrl = `${siteUrl}${logoPath}`;
+const defaultImage = logoUrl;
 
 export type BuildMetadataOptions = {
   title: string;
@@ -50,5 +52,7 @@ export function buildMetadata({ title, description, path, keywords = [] }: Build
 export const seoConstants = {
   siteUrl,
   siteName,
+  logoPath,
+  logoUrl,
   defaultImage,
 };
