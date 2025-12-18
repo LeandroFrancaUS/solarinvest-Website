@@ -1,5 +1,13 @@
-# robots.txt gerado automaticamente para SolarInvest (Google Search Central)
+import { NextResponse } from 'next/server';
+
+import { seoConstants } from '@/lib/seo';
+
+const { siteUrl } = seoConstants;
+const normalizedSiteUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
+
+const robotsContent = `# robots.txt gerado automaticamente para SolarInvest (Google Search Central)
 # Permite rastreamento amplo e bloqueia apenas áreas administrativas e APIs privadas.
+# Última atualização: ${new Date().toISOString()}
 
 User-agent: *
 Allow: /
@@ -58,6 +66,19 @@ Allow: /
 User-agent: PageSpeed Insights Bot
 Allow: /
 
-Sitemap: https://solarinvest.info/sitemap.xml
-Sitemap: https://solarinvest.info/sitemap-index.xml
-Host: https://solarinvest.info
+Sitemap: ${normalizedSiteUrl}/sitemap.xml
+Sitemap: ${normalizedSiteUrl}/sitemap-index.xml
+Host: ${normalizedSiteUrl}
+`;
+
+export const revalidate = 86400;
+
+export function GET() {
+  return new NextResponse(robotsContent, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600',
+    },
+  });
+}

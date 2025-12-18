@@ -10,7 +10,7 @@ export default function Head() {
       <title>{siteName}</title>
       <meta
         name="description"
-        content="Energia solar inteligente e acessível para residências, condomínios e empresas."
+        content="Energia solar inteligente e acessível em Goiás: leasing solar, usinas fotovoltaicas e sistemas híbridos SolarInvest para residências, condomínios e empresas."
       />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="robots" content="index, follow" />
@@ -27,7 +27,7 @@ export default function Head() {
       <meta property="og:title" content={siteName} />
       <meta
         property="og:description"
-        content="Energia solar inteligente, com economia, segurança e sustentabilidade."
+        content="Energia solar inteligente, com leasing solar, economia garantida e sistemas fotovoltaicos sustentáveis para negócios e residências."
       />
       <meta property="og:image" content={defaultImage} />
       <meta property="og:url" content={siteUrl} />
@@ -36,7 +36,7 @@ export default function Head() {
       <meta name="twitter:title" content={siteName} />
       <meta
         name="twitter:description"
-        content="Energia solar inteligente, com economia, segurança e sustentabilidade."
+        content="Energia solar inteligente, com leasing solar, economia garantida e sistemas fotovoltaicos sustentáveis para negócios e residências."
       />
       <meta name="twitter:image" content={defaultImage} />
       <meta itemProp="image" content={defaultImage} />
