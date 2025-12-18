@@ -46,13 +46,16 @@ const beforeSendHandler =
       }
     : undefined;
 
+const defaultMetaDescription =
+  'Energia solar inteligente com leasing solar, usinas fotovoltaicas em Goiás e soluções híbridas SolarInvest para residências e empresas com economia sustentável.';
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteName,
     template: `%s | ${siteName}`,
   },
-  description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+  description: defaultMetaDescription,
   applicationName: siteName,
   keywords: baseKeywords,
   authors: [{ name: siteName }],
@@ -63,7 +66,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: siteName,
-    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+    description: defaultMetaDescription,
     url: siteUrl,
     siteName,
     locale: 'pt_BR',
@@ -80,7 +83,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: siteName,
-    description: 'Energia solar inteligente, acessível e sustentável para residências e empresas.',
+    description: defaultMetaDescription,
     images: [logoUrl],
   },
   icons: {
@@ -197,6 +200,38 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     ],
   };
 
+  const servicesJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': ['Service', 'Product'],
+    name: 'Soluções e leasing de energia solar',
+    description:
+      'Assinatura, projetos e usinas fotovoltaicas completas da SolarInvest com foco em energia solar limpa, sistemas híbridos e baterias.',
+    brand: {
+      '@type': 'Brand',
+      name: siteName,
+      logo: logoUrl,
+    },
+    provider: {
+      '@type': 'Organization',
+      name: siteName,
+      url: siteUrl,
+      logo: logoUrl,
+    },
+    areaServed: {
+      '@type': 'AdministrativeArea',
+      name: 'Goiás, Distrito Federal e Brasil',
+    },
+    serviceType: 'Energia solar fotovoltaica, leasing solar e sistemas híbridos com baterias',
+    category: 'https://schema.org/EnergyEfficiencyEnumeration',
+    image: defaultImage,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'BRL',
+      availability: 'https://schema.org/InStock',
+      description: 'Planos flexíveis de energia solar com previsibilidade de custos e homologação completa.',
+    },
+  };
+
   return (
     <html lang="pt-BR">
       <head>
@@ -219,6 +254,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        />
+        <Script
+          id="services-jsonld"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(servicesJsonLd) }}
         />
         {speedInsightsId ? (
           <>

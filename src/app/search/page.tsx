@@ -3,7 +3,8 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Busca | SolarInvest Solutions',
-  description: 'Use a busca para encontrar informações sobre energia solar e nossos serviços.',
+  description:
+    'Use a busca para encontrar serviços SolarInvest, leasing solar, economia de energia e conteúdos sobre usinas fotovoltaicas e sistemas híbridos.',
   path: '/search',
   keywords: ['buscar energia solar', 'pesquisa solarinvest', 'encontrar serviços energia solar'],
 });
