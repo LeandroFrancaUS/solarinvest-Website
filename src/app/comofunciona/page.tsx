@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Como Funciona | SolarInvest Solutions',
   description:
-    'Veja como funciona o modelo sem investimento inicial da SolarInvest e como você se torna dono da usina ao final do contrato.',
+    'Saiba como funciona o leasing solar da SolarInvest: usina fotovoltaica própria, sem entrada, com homologação completa e economia garantida em Goiás.',
   alternates: { canonical: '/comofunciona' },
 };
 
