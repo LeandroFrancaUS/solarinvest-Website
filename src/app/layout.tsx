@@ -237,6 +237,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta property="og:image" content={logoUrl} />
         <meta name="twitter:image" content={logoUrl} />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg" />
         <Script
           id="organization-jsonld"
           type="application/ld+json"
