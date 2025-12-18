@@ -9,8 +9,6 @@ import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage, logoPath, logoUrl, baseKeywords, socialProfiles } = seoConstants;
-const { siteUrl, siteName } = seoConstants;
-const logoUrl = `${siteUrl}/images/logo.png`;
 const speedInsightsId =
   process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
@@ -87,16 +85,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: logoPath, type: 'image/png', sizes: '512x512' },
+      { url: logoPath, type: 'image/png' },
       { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
-    shortcut: logoPath,
-    apple: logoPath,
-      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
-      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
-    ],
-    shortcut: '/favicon-32x32.png',
-    apple: '/apple-touch-icon.png',
+    shortcut: [logoPath],
+    apple: [{ url: logoPath }],
   },
   manifest: '/site.webmanifest',
   robots: {
@@ -143,10 +136,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       socialProfiles.google,
       socialProfiles.maps,
     ],
-    name: 'SolarInvest Solutions',
-    url: 'https://solarinvest.info',
-    logo: 'https://solarinvest.info/images/logo.png',
-    sameAs: [],
   };
 
   const websiteJsonLd = {
