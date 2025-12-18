@@ -65,6 +65,7 @@ export default function ComoFunciona() {
         socialProfiles.instagram,
         socialProfiles.linkedin,
         socialProfiles.whatsapp,
+        socialProfiles.facebook,
         socialProfiles.google,
         socialProfiles.maps,
       ],
