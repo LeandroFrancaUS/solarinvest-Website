@@ -6,6 +6,7 @@ const logoPath = '/icon.png';
 const logoUrl = `${siteUrl}${logoPath}`;
 const defaultImage = logoUrl;
 const baseKeywords = [
+  'solar',
   'energia solar',
   'energia solar fotovoltaica',
   'sistema fotovoltaico',
