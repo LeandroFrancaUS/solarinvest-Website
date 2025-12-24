@@ -24,6 +24,7 @@ export default function HomeWithSplash() {
             <Image
               src="/LogoNatal2.png"
               alt="Logotipo da SolarInvest"
+              alt="Logotipo natalino da SolarInvest"
               width={320}
               height={320}
               priority

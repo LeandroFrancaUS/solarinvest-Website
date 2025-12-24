@@ -26,7 +26,7 @@ export type SitemapEntry = {
 const { siteUrl, logoUrl } = seoConstants;
 
 const sharedHeroImage = `${siteUrl}/hero-solar-house.png`;
-const sharedLogoImage = `${siteUrl}/logo.png`;
+const sharedLogoImage = `${siteUrl}/LogoNatal.png`;
 
 const defaultPublicationDate = new Date().toISOString();
 
