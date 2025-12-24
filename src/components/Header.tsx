@@ -38,7 +38,7 @@ export default function Header() {
         >
           <Image
             src="/LogoNatal.png"
-            alt="Logo SolarInvest"
+            alt="Logo natalino da SolarInvest"
             width={40}
             height={40}
             className="w-10 h-10 object-contain"

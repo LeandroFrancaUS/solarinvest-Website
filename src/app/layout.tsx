@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsappButton from '@/components/WhatsappButton';
 import Script from 'next/script';
+import SplashScreen from '@/components/SplashScreen';
 
 import type { Metadata } from 'next';
 import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
@@ -280,11 +281,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ) : null}
       </head>
       <body className="font-sans text-gray-900 bg-white pt-[72px]">
-        {/* Compensar header fixo */}
-        <Header />
-        {children}
-        <Footer />
-        <WhatsappButton />
+        <SplashScreen>
+          {/* Compensar header fixo */}
+          <Header />
+          {children}
+          <Footer />
+          <WhatsappButton />
+        </SplashScreen>
         <Analytics
           {...(analyticsMode ? { mode: analyticsMode } : {})}
           {...(typeof analyticsDebug === 'boolean' ? { debug: analyticsDebug } : {})}
