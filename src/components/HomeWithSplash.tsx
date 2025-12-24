@@ -11,15 +11,15 @@ export default function HomeWithSplash() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 2000);
+    const timer = setTimeout(() => setShowSplash(false), 3000);
 
     return () => clearTimeout(timer);
   }, []);
 
   if (showSplash) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-orange-50 via-white to-orange-100">
-        <div className="flex flex-col items-center gap-4 px-6 text-center">
+      <div className="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-100">
+        <div className="flex flex-col items-center gap-4 px-6 text-center sm:px-8">
           <div className="rounded-3xl border border-orange-200/70 bg-white/80 p-6 shadow-[0_25px_55px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm">
             <Image
               src="/LogoNatal2.png"
