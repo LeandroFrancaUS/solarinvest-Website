@@ -37,8 +37,8 @@ export default function Header() {
           className="flex items-center gap-3 transition-colors duration-200"
         >
           <Image
-            src="/logo.png"
-            alt="Logo SolarInvest"
+            src="/LogoNatal.png"
+            alt="Logo natalino da SolarInvest"
             width={40}
             height={40}
             className="w-10 h-10 object-contain"
