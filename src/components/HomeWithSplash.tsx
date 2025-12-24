@@ -27,17 +27,10 @@ export default function HomeWithSplash() {
               width={320}
               height={320}
               priority
+              sizes="(min-width: 640px) 280px, 240px"
               className="h-auto w-full max-w-[240px] sm:max-w-[280px]"
             />
           </div>
-          <p className="text-sm font-medium uppercase tracking-[0.35em] text-orange-500 sm:text-base">
-            carregando
-            <span className="ml-2 inline-flex animate-pulse gap-1">
-              <span className="h-1 w-1 rounded-full bg-orange-400" />
-              <span className="h-1 w-1 rounded-full bg-orange-400" />
-              <span className="h-1 w-1 rounded-full bg-orange-400" />
-            </span>
-          </p>
         </div>
       </div>
     );
