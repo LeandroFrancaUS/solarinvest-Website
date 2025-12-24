@@ -23,7 +23,6 @@ export default function HomeWithSplash() {
           <div className="rounded-3xl border border-orange-200/70 bg-white/80 p-6 shadow-[0_25px_55px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm">
             <Image
               src="/LogoNatal2.png"
-              alt="Logotipo da SolarInvest"
               alt="Logotipo natalino da SolarInvest"
               width={320}
               height={320}
