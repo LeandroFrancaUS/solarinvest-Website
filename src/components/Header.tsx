@@ -37,11 +37,11 @@ export default function Header() {
           className="flex items-center gap-3 transition-colors duration-200"
         >
           <Image
-            src="/logo.png"
+            src="/LogoNatal.png"
             alt="Logo SolarInvest"
-            width={32}
-            height={32}
-            className="w-8 h-8 object-contain"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain"
           />
           <div className="flex flex-col leading-tight">
             <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">
