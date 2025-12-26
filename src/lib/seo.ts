@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 
 const siteUrl = 'https://solarinvest.info';
 const siteName = 'SolarInvest Solutions';
-const logoPath = '/icon.png';
+const logoPath = '/logo.png';
 const logoUrl = `${siteUrl}${logoPath}`;
-const defaultImage = logoUrl;
+const defaultImage = `${siteUrl}/favicon.png`;
 const baseKeywords = [
   'solar',
   'energia solar',
@@ -103,11 +103,11 @@ const baseKeywords = [
 ];
 
 const socialProfiles = {
-  instagram: 'https://www.instagram.com/solarinvest.br',
-  linkedin: 'https://www.linkedin.com/company/solarinvest-solutions/',
-  whatsapp: 'https://api.whatsapp.com/send/?phone=5562995150975',
+  instagram: 'https://www.instagram.com/solarinvest.br/',
   facebook: 'https://www.facebook.com/SolarInvestSolutions',
-  google: 'https://share.google/urA2LS9hMCaGML3YE',
+  whatsapp:
+    'https://api.whatsapp.com/send/?phone=5562995150975&text=Ol%C3%A1%21+Gostaria+de+saber+mais+sobre+a+energia+solar+da+SolarInvest.&type=phone_number&app_absent=0',
+  linkedin: 'https://www.linkedin.com/company/solarinvest-solutions/',
   maps: 'https://maps.app.goo.gl/F4Nergs2Arurxxij7',
   website: siteUrl,
 };
@@ -140,8 +140,8 @@ export function buildMetadata({ title, description, path, keywords = [] }: Build
       images: [
         {
           url: defaultImage,
-          width: 1200,
-          height: 630,
+          width: 1024,
+          height: 1024,
           alt: siteName,
         },
       ],
