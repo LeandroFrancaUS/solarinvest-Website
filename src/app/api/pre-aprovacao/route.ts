@@ -38,6 +38,7 @@ const remetente = 'Pré-Qualificação SolarInvest <contato@solarinvest.info>';
 const destinatarios = ['brsolarinvest@gmail.com'];
 const whatsappToken = process.env.WHATSAPP_TOKEN;
 const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
+const solarinvestLogoUrl = 'https://solarinvest.info/logo.png';
 
 function normalizarWhatsapp(numero: string) {
   const digits = numero.replace(/\D/g, '');
@@ -46,8 +47,27 @@ function normalizarWhatsapp(numero: string) {
   return digits;
 }
 
-async function enviarWhatsapp(to: string, body: string) {
+async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
   if (!whatsappToken || !whatsappPhoneId || !to) return;
+
+  if (imageUrl) {
+    await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${whatsappToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to,
+        type: 'image',
+        image: {
+          link: imageUrl,
+          caption: 'SolarInvest',
+        },
+      }),
+    });
+  }
 
   await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
     method: 'POST',
@@ -205,6 +225,10 @@ export async function POST(req: Request) {
       subject: 'Recebemos sua pré-análise de leasing SolarInvest',
       html: `
         <div style="font-family: Arial, sans-serif; color: #111827; padding: 16px; line-height: 1.6;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <img src="${solarinvestLogoUrl}" alt="SolarInvest" width="140" height="48" style="object-fit: contain;" />
+            <div style="font-weight: 600; color: #e15800;">SolarInvest</div>
+          </div>
           <h2 style="color: #e15800; margin: 0 0 12px 0;">Solicitação recebida</h2>
           <p style="margin: 0 0 10px 0;">Olá, ${sanitize(body.nome)}.</p>
           <p style="margin: 0 0 12px 0;">Recebemos sua solicitação de pré-análise de leasing SolarInvest.</p>
@@ -229,7 +253,8 @@ export async function POST(req: Request) {
     try {
       await enviarWhatsapp(
         normalizarWhatsapp(body.whatsapp),
-        `Olá, ${body.nome}! Recebemos sua solicitação de pré-análise de leasing SolarInvest. Status automático: ${body.status}. Em breve entraremos em contato.`
+        `Olá, ${body.nome}! Recebemos sua solicitação de pré-análise de leasing SolarInvest. Status automático: ${body.status}. Em breve entraremos em contato.`,
+        solarinvestLogoUrl
       );
     } catch (err) {
       // Notificar falha de WhatsApp silenciosamente para não bloquear o cliente
