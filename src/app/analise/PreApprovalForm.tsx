@@ -95,6 +95,27 @@ const statusMessages: Record<StatusResultado, string> = {
     'Por enquanto, pode não ser o ideal.\nPelo consumo informado, o leasing tende a não gerar o melhor custo-benefício. Mas podemos avaliar outras opções (compra/financiamento) ou uma solução sob medida.',
 };
 
+const statusVisuals: Record<StatusResultado, { title: string; icon: string; styles: string; accent: string }> = {
+  PRE_APROVADO: {
+    title: 'Pré-aprovado',
+    icon: '✅',
+    styles: 'bg-green-50 border-green-200 text-green-900',
+    accent: 'text-green-700',
+  },
+  PENDENTE: {
+    title: 'Em análise',
+    icon: '🔎',
+    styles: 'bg-amber-50 border-amber-200 text-amber-900',
+    accent: 'text-amber-700',
+  },
+  NAO_ELEGIVEL: {
+    title: 'Não elegível no momento',
+    icon: 'ℹ️',
+    styles: 'bg-slate-50 border-slate-200 text-slate-900',
+    accent: 'text-slate-700',
+  },
+};
+
 function onlyDigits(value: string) {
   return value.replace(/\D/g, '');
 }
@@ -302,6 +323,10 @@ export default function PreApprovalForm() {
 
   const consumoNormalizado = useMemo(() => parseConsumo(form.consumoMedio), [form.consumoMedio]);
   const tarifaNormalizada = useMemo(() => parseTarifa(form.tarifa), [form.tarifa]);
+  const valorContaEstimado = useMemo(() => {
+    if (!consumoNormalizado || tarifaNormalizada === undefined) return undefined;
+    return Number((consumoNormalizado * tarifaNormalizada).toFixed(2));
+  }, [consumoNormalizado, tarifaNormalizada]);
 
   const relacaoImovelDocChecklist = useMemo(
     () => buildChecklist(form.relacaoImovel),
@@ -745,6 +770,11 @@ export default function PreApprovalForm() {
                   required
                 />
                 {errors.tarifa && <p className="text-xs text-red-600 mt-1">{errors.tarifa}</p>}
+                {valorContaEstimado !== undefined && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    Conta estimada: <span className="font-semibold">R$ {valorContaEstimado.toFixed(2)}</span> / mês
+                  </p>
+                )}
               </div>
             </div>
             <div>
@@ -843,8 +873,22 @@ export default function PreApprovalForm() {
       </form>
 
       {submission.status && submission.message && (
-        <div className="mt-6 rounded-2xl bg-white border border-gray-200 p-4 shadow-sm">
-          <p className="whitespace-pre-line text-gray-800">{submission.message}</p>
+        <div
+          className={`mt-6 rounded-2xl border p-5 shadow-lg transition transform duration-300 ${
+            statusVisuals[submission.status].styles
+          } animate-[pulse_1.8s_ease-in-out_2]`}
+        >
+          <div className="flex items-start gap-3">
+            <div className={`text-2xl ${statusVisuals[submission.status].accent}`} aria-hidden>
+              {statusVisuals[submission.status].icon}
+            </div>
+            <div>
+              <p className={`text-sm font-semibold uppercase tracking-wide ${statusVisuals[submission.status].accent}`}>
+                {statusVisuals[submission.status].title}
+              </p>
+              <p className="whitespace-pre-line mt-1 leading-relaxed">{submission.message}</p>
+            </div>
+          </div>
         </div>
       )}
     </section>

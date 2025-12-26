@@ -36,6 +36,33 @@ const resend = apiKey ? new Resend(apiKey) : null;
 
 const remetente = 'Pré-Qualificação SolarInvest <contato@solarinvest.info>';
 const destinatarios = ['brsolarinvest@gmail.com'];
+const whatsappToken = process.env.WHATSAPP_TOKEN;
+const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
+
+function normalizarWhatsapp(numero: string) {
+  const digits = numero.replace(/\D/g, '');
+  if (digits.startsWith('55')) return digits;
+  if (digits.length === 11 || digits.length === 12 || digits.length === 13) return `55${digits}`;
+  return digits;
+}
+
+async function enviarWhatsapp(to: string, body: string) {
+  if (!whatsappToken || !whatsappPhoneId || !to) return;
+
+  await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${whatsappToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      messaging_product: 'whatsapp',
+      to,
+      type: 'text',
+      text: { body },
+    }),
+  });
+}
 
 function sanitize(input: string | undefined) {
   if (!input) return '';
@@ -82,6 +109,8 @@ export async function POST(req: Request) {
   }
 
   const assunto = `[Pré-Qualificação] ${body.status} — ${body.nome} — ${body.cep} — ${body.consumoMedio} kWh/mês`;
+
+  const valorContaEstimado = Number((body.consumoMedio * body.tarifa).toFixed(2));
 
   const motivos = body.motivosInternos?.length
     ? `<ul>${body.motivosInternos.map((m) => `<li>${sanitize(m)}</li>`).join('')}</ul>`
@@ -131,6 +160,7 @@ export async function POST(req: Request) {
           <ul>
             <li><strong>Consumo médio:</strong> ${sanitize(String(body.consumoMedio))} kWh/mês</li>
             <li><strong>Tarifa:</strong> R$ ${sanitize(body.tarifa.toFixed(2))}/kWh</li>
+            <li><strong>Conta estimada:</strong> R$ ${sanitize(valorContaEstimado.toFixed(2))} / mês</li>
             <li><strong>Conta enviada:</strong> ${body.attachment ? 'Sim (em anexo)' : 'Não'}</li>
           </ul>
 
@@ -167,6 +197,42 @@ export async function POST(req: Request) {
 
     if (error) {
       return NextResponse.json({ success: false, error: 'Erro ao enviar e-mail.' }, { status: 502 });
+    }
+
+    const clienteEmail = await resend.emails.send({
+      from: remetente,
+      to: [body.email],
+      subject: 'Recebemos sua pré-análise de leasing SolarInvest',
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #111827; padding: 16px; line-height: 1.6;">
+          <h2 style="color: #e15800; margin: 0 0 12px 0;">Solicitação recebida</h2>
+          <p style="margin: 0 0 10px 0;">Olá, ${sanitize(body.nome)}.</p>
+          <p style="margin: 0 0 12px 0;">Recebemos sua solicitação de pré-análise de leasing SolarInvest.</p>
+          <p style="margin: 0 0 12px 0;">Status automático: <strong>${sanitize(body.status)}</strong></p>
+          <p style="margin: 0 0 12px 0;">Em breve nossa equipe entrará em contato pelo WhatsApp ${sanitize(body.whatsapp)} para confirmar próximos passos.</p>
+          <h3 style="margin: 16px 0 8px 0;">Resumo informado</h3>
+          <ul>
+            <li><strong>CEP:</strong> ${sanitize(body.cep)} — ${sanitize(body.municipio)}</li>
+            <li><strong>Consumo médio:</strong> ${sanitize(String(body.consumoMedio))} kWh/mês</li>
+            <li><strong>Tarifa:</strong> R$ ${sanitize(body.tarifa.toFixed(2))}/kWh</li>
+            <li><strong>Conta estimada:</strong> R$ ${sanitize(valorContaEstimado.toFixed(2))} / mês</li>
+          </ul>
+          <p style="margin-top: 12px;">Se precisar complementar dados, responda a este e-mail ou aguarde nosso contato.</p>
+        </div>
+      `,
+    });
+
+    if (clienteEmail.error) {
+      return NextResponse.json({ success: false, error: 'Erro ao enviar confirmação ao cliente.' }, { status: 502 });
+    }
+
+    try {
+      await enviarWhatsapp(
+        normalizarWhatsapp(body.whatsapp),
+        `Olá, ${body.nome}! Recebemos sua solicitação de pré-análise de leasing SolarInvest. Status automático: ${body.status}. Em breve entraremos em contato.`
+      );
+    } catch (err) {
+      // Notificar falha de WhatsApp silenciosamente para não bloquear o cliente
     }
 
     return NextResponse.json({ success: true, id: data?.id });
