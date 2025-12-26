@@ -10,8 +10,10 @@ import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage, logoPath, logoUrl, baseKeywords, socialProfiles } = seoConstants;
+const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_VERCEL_TRACKING === 'true';
 const speedInsightsId =
-  process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
+  analyticsEnabled &&
+  (process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID);
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
 const analyticsDebugEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_DEBUG?.toLowerCase();
 const analyticsEndpoint = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ENDPOINT;
@@ -288,13 +290,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <WhatsappButton />
         </SplashScreen>
-        <Analytics
-          {...(analyticsMode ? { mode: analyticsMode } : {})}
-          {...(typeof analyticsDebug === 'boolean' ? { debug: analyticsDebug } : {})}
-          {...(analyticsEndpoint ? { endpoint: analyticsEndpoint } : {})}
-          {...(analyticsScriptSrc ? { scriptSrc: analyticsScriptSrc } : {})}
-          {...(beforeSendHandler ? { beforeSend: beforeSendHandler } : {})}
-        />
+        {analyticsEnabled ? (
+          <Analytics
+            {...(analyticsMode ? { mode: analyticsMode } : {})}
+            {...(typeof analyticsDebug === 'boolean' ? { debug: analyticsDebug } : {})}
+            {...(analyticsEndpoint ? { endpoint: analyticsEndpoint } : {})}
+            {...(analyticsScriptSrc ? { scriptSrc: analyticsScriptSrc } : {})}
+            {...(beforeSendHandler ? { beforeSend: beforeSendHandler } : {})}
+          />
+        ) : null}
       </body>
     </html>
   );
