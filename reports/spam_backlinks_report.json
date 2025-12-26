@@ -1,0 +1,35 @@
+{
+  "site_url": "https://solarinvest.info/",
+  "data_coleta": "2025-12-26",
+  "fonte": "Google Search Console > Links > Principais sites com links",
+  "observacoes": "Sem export de CSV disponível neste snapshot; domínios fornecidos manualmente.",
+  "dominios_suspeitos": [
+    {
+      "dominio": "bauenwohnen.org",
+      "quantidade_de_links": null,
+      "paginas_alvo_no_site": [],
+      "anchors_temas": [],
+      "score_spam": 0,
+      "recomendacao": "IGNORAR",
+      "criterios_acionados": []
+    },
+    {
+      "dominio": "drjack.world",
+      "quantidade_de_links": null,
+      "paginas_alvo_no_site": [],
+      "anchors_temas": [],
+      "score_spam": 30,
+      "recomendacao": "IGNORAR",
+      "criterios_acionados": [
+        "+30 TLD incomum (.world)"
+      ]
+    }
+  ],
+  "top_20_por_score": [
+    "drjack.world",
+    "bauenwohnen.org"
+  ],
+  "criterios_disavow_atendidos": false,
+  "motivo": "Volume baixo e sem sinais de impacto; manter apenas monitoramento leve.",
+  "proxima_acao": "Capturar export completo do GSC, acompanhar semanalmente e reavaliar se surgirem novos domínios ou queda de desempenho."
+}
