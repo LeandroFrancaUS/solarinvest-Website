@@ -17,8 +17,8 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
           <div className="flex items-center justify-center p-6">
             <Image
-              src="/LogoNatal2.png"
-              alt="SolarInvest - Versão Natal"
+              src="/LogoNatal.png"
+              alt="SolarInvest"
               width={360}
               height={360}
               priority
