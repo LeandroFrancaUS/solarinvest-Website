@@ -153,6 +153,29 @@ function formatCEP(value: string) {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
+function maskCpfCnpj(value: string) {
+  const digits = onlyDigits(value);
+  if (digits.length !== 11 && digits.length !== 14) return value;
+
+  const maskedDigits = digits
+    .split('')
+    .map((digit, index) => (index < digits.length - 4 ? '•' : digit))
+    .join('');
+
+  if (digits.length === 11) {
+    return maskedDigits
+      .replace(/(.{3})(.)/, '$1.$2')
+      .replace(/(.{3})(.)/, '$1.$2')
+      .replace(/(.{3})(.{1,2})$/, '$1-$2');
+  }
+
+  return maskedDigits
+    .replace(/(.{2})(.)/, '$1.$2')
+    .replace(/(.{3})(.)/, '$1.$2')
+    .replace(/(.{3})(.)/, '$1/$2')
+    .replace(/(.{4})(.{1,2})$/, '$1-$2');
+}
+
 function validarEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -320,6 +343,7 @@ export default function PreApprovalForm() {
   const [submission, setSubmission] = useState<SubmissionState>({ loading: false });
   const [municipioState, setMunicipioState] = useState<MunicipioState>({ status: 'idle', label: '' });
   const [pendencias, setPendencias] = useState<string[]>([]);
+  const [cpfCnpjMasked, setCpfCnpjMasked] = useState(false);
 
   const consumoNormalizado = useMemo(() => parseConsumo(form.consumoMedio), [form.consumoMedio]);
   const tarifaNormalizada = useMemo(() => parseTarifa(form.tarifa), [form.tarifa]);
@@ -327,6 +351,11 @@ export default function PreApprovalForm() {
     if (!consumoNormalizado || tarifaNormalizada === undefined) return undefined;
     return Number((consumoNormalizado * tarifaNormalizada).toFixed(2));
   }, [consumoNormalizado, tarifaNormalizada]);
+
+  const cpfCnpjDisplay = useMemo(
+    () => (cpfCnpjMasked ? maskCpfCnpj(form.cpfCnpj) : form.cpfCnpj),
+    [cpfCnpjMasked, form.cpfCnpj]
+  );
 
   const relacaoImovelDocChecklist = useMemo(
     () => buildChecklist(form.relacaoImovel),
@@ -542,6 +571,7 @@ export default function PreApprovalForm() {
 
       setSubmission({ status, message: statusMessages[status], loading: false });
       setForm(initialState);
+      setCpfCnpjMasked(false);
       setErrors({});
     } catch (error: unknown) {
       const mensagem = error instanceof Error ? error.message : 'Erro ao enviar a solicitação.';
@@ -601,8 +631,16 @@ export default function PreApprovalForm() {
                 <input
                   type="text"
                   className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
-                  value={form.cpfCnpj}
-                  onChange={(e) => atualizarCampo('cpfCnpj', formatCpfCnpj(e.target.value))}
+                  value={cpfCnpjDisplay}
+                  onChange={(e) => {
+                    setCpfCnpjMasked(false);
+                    atualizarCampo('cpfCnpj', formatCpfCnpj(e.target.value));
+                  }}
+                  onFocus={() => setCpfCnpjMasked(false)}
+                  onBlur={() => {
+                    const digitsLength = onlyDigits(form.cpfCnpj).length;
+                    setCpfCnpjMasked(digitsLength === 11 || digitsLength === 14);
+                  }}
                   required
                 />
                 {errors.cpfCnpj && <p className="text-xs text-red-600 mt-1">{errors.cpfCnpj}</p>}
@@ -772,7 +810,7 @@ export default function PreApprovalForm() {
                 {errors.tarifa && <p className="text-xs text-red-600 mt-1">{errors.tarifa}</p>}
                 {valorContaEstimado !== undefined && (
                   <p className="text-xs text-gray-600 mt-1">
-                    Conta estimada: <span className="font-semibold">R$ {valorContaEstimado.toFixed(2)}</span> / mês
+                    Conta atual estimada: <span className="font-semibold">R$ {valorContaEstimado.toFixed(2)}</span> / mês
                   </p>
                 )}
               </div>

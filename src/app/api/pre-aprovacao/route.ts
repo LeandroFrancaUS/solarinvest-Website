@@ -160,7 +160,7 @@ export async function POST(req: Request) {
           <ul>
             <li><strong>Consumo médio:</strong> ${sanitize(String(body.consumoMedio))} kWh/mês</li>
             <li><strong>Tarifa:</strong> R$ ${sanitize(body.tarifa.toFixed(2))}/kWh</li>
-            <li><strong>Conta estimada:</strong> R$ ${sanitize(valorContaEstimado.toFixed(2))} / mês</li>
+            <li><strong>Conta atual estimada:</strong> R$ ${sanitize(valorContaEstimado.toFixed(2))} / mês</li>
             <li><strong>Conta enviada:</strong> ${body.attachment ? 'Sim (em anexo)' : 'Não'}</li>
           </ul>
 
@@ -215,7 +215,7 @@ export async function POST(req: Request) {
             <li><strong>CEP:</strong> ${sanitize(body.cep)} — ${sanitize(body.municipio)}</li>
             <li><strong>Consumo médio:</strong> ${sanitize(String(body.consumoMedio))} kWh/mês</li>
             <li><strong>Tarifa:</strong> R$ ${sanitize(body.tarifa.toFixed(2))}/kWh</li>
-            <li><strong>Conta estimada:</strong> R$ ${sanitize(valorContaEstimado.toFixed(2))} / mês</li>
+            <li><strong>Conta atual estimada:</strong> R$ ${sanitize(valorContaEstimado.toFixed(2))} / mês</li>
           </ul>
           <p style="margin-top: 12px;">Se precisar complementar dados, responda a este e-mail ou aguarde nosso contato.</p>
         </div>
