@@ -336,7 +336,12 @@ export default function PreApprovalForm() {
         }
         const label = `${data.localidade ?? ''}${data.uf ? `/${data.uf}` : ''}`.trim();
         setMunicipioState({ status: 'loaded', label });
-        setForm((prev) => ({ ...prev, municipio: label }));
+        const rua = typeof data.logradouro === 'string' ? data.logradouro.trim() : '';
+        setForm((prev) => ({
+          ...prev,
+          municipio: label,
+          ...(rua && !prev.endereco.trim() ? { endereco: rua } : {}),
+        }));
       })
       .catch(() => {
         if (!controller.signal.aborted) {
