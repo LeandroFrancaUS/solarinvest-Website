@@ -68,7 +68,7 @@ export default function SolucoesPageClient() {
             Solicite a análise de aprovação para leasing e descubra rapidamente sua elegibilidade.
           </p>
           <Link
-            href="/analise"
+            href="/analise?abrir=true"
             className="inline-flex items-center gap-2 rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition"
           >
             Análise de aprovação para Leasing

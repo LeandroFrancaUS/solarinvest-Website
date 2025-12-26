@@ -2,17 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 import PreApprovalForm from './PreApprovalForm';
 
 export default function AnalisePageClient() {
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const searchParams = useSearchParams();
+  const shouldAutoOpen = searchParams?.get('abrir') === 'true';
+  const [mostrarFormulario, setMostrarFormulario] = useState(shouldAutoOpen);
 
   useEffect(() => {
+    if (shouldAutoOpen) {
+      setMostrarFormulario(true);
+    }
+
     if (mostrarFormulario) {
       const anchor = document.getElementById('pre-aprovacao');
       anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [mostrarFormulario]);
+  }, [mostrarFormulario, shouldAutoOpen]);
 
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8 space-y-12">
