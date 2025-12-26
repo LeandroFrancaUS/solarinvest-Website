@@ -14,9 +14,10 @@ export default function Head() {
       />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="robots" content="index, follow" />
-      <link rel="icon" href={logoPath} />
+      <link rel="icon" href="/favicon.png" sizes="any" />
+      <link rel="icon" href="/icon.png" sizes="1024x1024" type="image/png" />
       <link rel="apple-touch-icon" href={logoPath} />
-      <link rel="alternate icon" href={logoPath} />
+      <link rel="manifest" href="/site.webmanifest" />
       <link rel="canonical" href={siteUrl} />
 
       {/* 🔁 Preload do thumbnail em alta resolução para performance */}
