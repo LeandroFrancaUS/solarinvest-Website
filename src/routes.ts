@@ -4,6 +4,8 @@ export const siteRoutes = [
   '/solucoes',
   '/sobre',
   '/contato',
+  '/videos',
+  '/videos/solarinvest-apresentacao',
   '/faq',
   '/search',
 ];

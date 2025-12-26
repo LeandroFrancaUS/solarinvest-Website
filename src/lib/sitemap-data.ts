@@ -1,3 +1,4 @@
+import { featuredVideos } from '@/config/videos';
 import { seoConstants } from './seo';
 
 export type SitemapImage = {
@@ -25,10 +26,10 @@ export type SitemapEntry = {
 
 const { siteUrl, logoUrl } = seoConstants;
 
-const sharedHeroImage = `${siteUrl}/hero-solar-house.png`;
-const sharedLogoImage = `${siteUrl}/LogoNatal.png`;
+const sharedHeroImage = `${siteUrl}/icon.png`;
+const sharedLogoImage = logoUrl;
 
-const defaultPublicationDate = new Date().toISOString();
+const [presentationVideo] = featuredVideos;
 
 export const sitemapEntries: SitemapEntry[] = [
   {
@@ -44,17 +45,6 @@ export const sitemapEntries: SitemapEntry[] = [
       {
         loc: sharedLogoImage,
         title: 'Identidade visual SolarInvest Solutions',
-      },
-    ],
-    videos: [
-      {
-        loc: `${siteUrl}/solarinvest-apresentacao.mp4`,
-        thumbnail: sharedLogoImage,
-        title: 'Apresentação SolarInvest Solutions',
-        description:
-          'Vídeo institucional sobre energia solar, leasing solar, usinas fotovoltaicas e sistemas híbridos em Goiás e Distrito Federal.',
-        duration: 120,
-        publicationDate: defaultPublicationDate,
       },
     ],
   },
@@ -105,6 +95,42 @@ export const sitemapEntries: SitemapEntry[] = [
         caption: 'Atendimento para projetos fotovoltaicos, leasing solar e suporte técnico.',
       },
     ],
+  },
+  {
+    path: '/videos',
+    changefreq: 'weekly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Biblioteca de vídeos SolarInvest',
+        caption: 'Conteúdos em vídeo sobre economia de energia, projetos fotovoltaicos e leasing solar.',
+      },
+    ],
+  },
+  {
+    path: '/videos/solarinvest-apresentacao',
+    changefreq: 'weekly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedLogoImage,
+        title: 'Vídeo institucional SolarInvest',
+        caption: 'Conheça a proposta de valor e os diferenciais da SolarInvest Solutions.',
+      },
+    ],
+    videos: presentationVideo
+      ? [
+          {
+            loc: presentationVideo.contentUrl,
+            thumbnail: presentationVideo.thumbnailUrl[0],
+            title: presentationVideo.title,
+            description: presentationVideo.description,
+            duration: 120,
+            publicationDate: `${presentationVideo.uploadDate}T00:00:00Z`,
+          },
+        ]
+      : [],
   },
   {
     path: '/faq',

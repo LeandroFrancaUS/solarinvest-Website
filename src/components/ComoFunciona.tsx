@@ -61,14 +61,7 @@ export default function ComoFunciona() {
       '@type': 'Organization',
       name: siteName,
       logo: logoUrl,
-      sameAs: [
-        socialProfiles.instagram,
-        socialProfiles.linkedin,
-        socialProfiles.whatsapp,
-        socialProfiles.facebook,
-        socialProfiles.google,
-        socialProfiles.maps,
-      ],
+      sameAs: [socialProfiles.instagram, socialProfiles.facebook, socialProfiles.whatsapp, socialProfiles.linkedin],
     },
   };
 
