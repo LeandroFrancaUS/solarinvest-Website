@@ -5,6 +5,7 @@ import { useState } from 'react';
 interface Result {
   title: string;
   url: string;
+  description: string;
 }
 
 export default function Search() {
@@ -65,13 +66,17 @@ export default function Search() {
       )}
       <ul className="mt-4 space-y-2">
         {results.map((r) => (
-          <li key={r.url}>
-            <a href={r.url} className="text-orange-600 hover:underline">
+          <li key={r.url} className="border rounded p-3">
+            <a href={r.url} className="text-orange-600 hover:underline font-semibold">
               {r.title}
             </a>
+            <p className="text-sm text-gray-700 mt-1">{r.description}</p>
           </li>
         ))}
       </ul>
+      {query.trim() && results.length === 0 && !error && (
+        <p className="mt-4 text-gray-700">Nenhuma página encontrada para sua busca.</p>
+      )}
     </div>
   );
 }
