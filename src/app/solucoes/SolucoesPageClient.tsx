@@ -1,10 +1,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import PreApprovalForm from './PreApprovalForm';
 
 export default function SolucoesPageClient() {
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+
+  useEffect(() => {
+    if (mostrarFormulario) {
+      const anchor = document.getElementById('pre-aprovacao');
+      anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [mostrarFormulario]);
+
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8 space-y-16">
       <section className="max-w-6xl mx-auto text-center space-y-6">
@@ -28,12 +37,13 @@ export default function SolucoesPageClient() {
         </motion.p>
 
         <div className="flex justify-center">
-          <Link
-            href="#pre-aprovacao"
+          <button
+            type="button"
+            onClick={() => setMostrarFormulario(true)}
             className="inline-flex items-center gap-2 rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition"
           >
             Analise de aprovação para Leasing
-          </Link>
+          </button>
         </div>
 
         <motion.div
@@ -66,9 +76,11 @@ export default function SolucoesPageClient() {
         </motion.div>
       </section>
 
-      <section className="max-w-7xl mx-auto">
-        <PreApprovalForm />
-      </section>
+      {mostrarFormulario && (
+        <section className="max-w-7xl mx-auto" id="pre-aprovacao">
+          <PreApprovalForm />
+        </section>
+      )}
     </main>
   );
 }

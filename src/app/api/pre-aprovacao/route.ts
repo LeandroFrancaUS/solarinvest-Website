@@ -13,6 +13,7 @@ type Payload = {
   whatsapp: string;
   email: string;
   cep: string;
+  municipio: string;
   endereco: string;
   tipoCliente: string;
   tipoClienteOutro?: string;
@@ -68,6 +69,7 @@ export async function POST(req: Request) {
     !body.whatsapp ||
     !body.email ||
     !body.cep ||
+    !body.municipio ||
     !body.consumoMedio ||
     !body.tarifa ||
     !body.tipoCliente ||
@@ -118,6 +120,7 @@ export async function POST(req: Request) {
             <li><strong>Telefone:</strong> ${sanitize(body.whatsapp)}</li>
             <li><strong>E-mail:</strong> ${sanitize(body.email)}</li>
             <li><strong>CEP:</strong> ${sanitize(body.cep)}</li>
+            <li><strong>Município:</strong> ${sanitize(body.municipio)}</li>
             <li><strong>Endereço:</strong> ${sanitize(body.endereco)}</li>
           </ul>
 

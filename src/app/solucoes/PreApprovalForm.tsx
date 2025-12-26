@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 type ClientType =
   | 'Residencial'
@@ -33,6 +33,7 @@ type FormState = {
   whatsapp: string;
   email: string;
   cep: string;
+  municipio: string;
   endereco: string;
   tipoCliente: ClientType;
   tipoClienteOutro: string;
@@ -59,12 +60,15 @@ type SubmissionState = {
   loading: boolean;
 };
 
+type MunicipioState = { status: 'idle' | 'loading' | 'not_found' | 'error' | 'loaded'; label: string };
+
 const initialState: FormState = {
   nome: '',
   cpfCnpj: '',
   whatsapp: '',
   email: '',
   cep: '',
+  municipio: '',
   endereco: '',
   tipoCliente: 'Residencial',
   tipoClienteOutro: '',
@@ -87,6 +91,39 @@ const statusMessages: Record<StatusResultado, string> = {
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, '');
+}
+
+function formatCpfCnpj(value: string) {
+  const digits = onlyDigits(value).slice(0, 14);
+  if (digits.length <= 11) {
+    return digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+  return digits
+    .replace(/(\d{2})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1/$2')
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+}
+
+function formatWhatsapp(value: string) {
+  const digits = onlyDigits(value).slice(0, 13);
+  if (digits.length <= 10) return digits;
+  const match = digits.match(/(\d{0,2})(\d{0,1})(\d{0,4})(\d{0,4})/);
+  if (!match) return digits;
+  const [, ddd, first, middle, last] = match;
+  const part1 = ddd ? `(${ddd}` + (ddd.length === 2 ? ') ' : '') : '';
+  const part2 = first ? `${first} ` : '';
+  const part3 = middle ? middle + (middle.length === 4 && last ? '-' : '') : '';
+  return `${part1}${part2}${part3}${last ?? ''}`.trim();
+}
+
+function formatCEP(value: string) {
+  const digits = onlyDigits(value).slice(0, 8);
+  if (digits.length <= 5) return digits;
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
 function validarEmail(email: string) {
@@ -253,6 +290,8 @@ export default function PreApprovalForm() {
   const [form, setForm] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submission, setSubmission] = useState<SubmissionState>({ loading: false });
+  const [municipioState, setMunicipioState] = useState<MunicipioState>({ status: 'idle', label: '' });
+  const [pendencias, setPendencias] = useState<string[]>([]);
 
   const consumoNormalizado = useMemo(() => parseConsumo(form.consumoMedio), [form.consumoMedio]);
   const tarifaNormalizada = useMemo(() => parseTarifa(form.tarifa), [form.tarifa]);
@@ -269,7 +308,39 @@ export default function PreApprovalForm() {
     }));
   };
 
-  const validarCampos = (): boolean => {
+  useEffect(() => {
+    const digits = onlyDigits(form.cep);
+    if (digits.length !== 8) {
+      setMunicipioState({ status: 'idle', label: '' });
+      setForm((prev) => ({ ...prev, municipio: '' }));
+      return;
+    }
+
+    const controller = new AbortController();
+    setMunicipioState({ status: 'loading', label: 'Buscando município...' });
+
+    fetch(`https://viacep.com.br/ws/${digits}/json/`, { signal: controller.signal })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.erro) {
+          setMunicipioState({ status: 'not_found', label: 'CEP não encontrado' });
+          setForm((prev) => ({ ...prev, municipio: '' }));
+          return;
+        }
+        const label = `${data.localidade ?? ''}${data.uf ? `/${data.uf}` : ''}`.trim();
+        setMunicipioState({ status: 'loaded', label });
+        setForm((prev) => ({ ...prev, municipio: label }));
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setMunicipioState({ status: 'error', label: 'Erro ao buscar município' });
+        }
+      });
+
+    return () => controller.abort();
+  }, [form.cep]);
+
+  const coletarErros = useCallback((): ValidationErrors => {
     const novoErros: ValidationErrors = {};
 
     if (!form.nome.trim()) novoErros.nome = 'Informe o nome ou razão social.';
@@ -310,15 +381,63 @@ export default function PreApprovalForm() {
       novoErros.tarifa = 'Informe a tarifa no formato 0,95.';
     }
 
-    setErrors(novoErros);
-    return Object.keys(novoErros).length === 0;
-  };
+    if (municipioState.status === 'not_found' || municipioState.status === 'error') {
+      novoErros.cep = 'Não foi possível identificar o município. Confirme o CEP.';
+    }
+
+    return novoErros;
+  }, [
+    consumoNormalizado,
+    form.cpfCnpj,
+    form.email,
+    form.cep,
+    form.nome,
+    form.relacaoImovel,
+    form.relacaoOutro,
+    form.tipoCliente,
+    form.tipoClienteOutro,
+    form.tipoInstalacao,
+    form.tipoInstalacaoOutro,
+    form.whatsapp,
+    municipioState.status,
+    tarifaNormalizada,
+  ]);
+
+  useEffect(() => {
+    const novoErros = coletarErros();
+    setErrors((prev) => ({ ...novoErros, geral: prev.geral }));
+
+    const avisos: string[] = [];
+    Object.values(novoErros).forEach((mensagem) => {
+      if (mensagem) avisos.push(mensagem);
+    });
+
+    if (!form.contaDeEnergia) {
+      avisos.push('Conta de energia não enviada — análise manual pode atrasar.');
+    }
+
+    if (consumoNormalizado && consumoNormalizado < 300) {
+      avisos.push('Consumo informado abaixo de 300 kWh/mês: tende a ir para análise manual.');
+    }
+
+    if (tarifaNormalizada !== undefined && (tarifaNormalizada <= 0.9 || tarifaNormalizada >= 2.5)) {
+      avisos.push('Tarifa fora do intervalo típico (0,90 a 2,50). Confirme o valor.');
+    }
+
+    if (form.tipoInstalacao === 'Outro') {
+      avisos.push('Tipo de instalação marcado como Outro — precisaremos validar a viabilidade.');
+    }
+
+    setPendencias(avisos);
+  }, [coletarErros, form.contaDeEnergia, form.tipoInstalacao, consumoNormalizado, tarifaNormalizada]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setSubmission({ loading: true });
 
-    if (!validarCampos()) {
+    const novoErros = coletarErros();
+    setErrors(novoErros);
+    if (Object.keys(novoErros).length > 0) {
       setSubmission({ loading: false });
       return;
     }
@@ -350,6 +469,7 @@ export default function PreApprovalForm() {
 
       const payload = {
         ...form,
+        municipio: form.municipio,
         tipoClienteOutro: form.tipoCliente === 'Outro' ? form.tipoClienteOutro : '',
         tipoInstalacaoOutro: form.tipoInstalacao === 'Outro' ? form.tipoInstalacaoOutro : '',
         relacaoOutro: form.relacaoImovel === 'Inquilino (locatário)' ? form.relacaoOutro : '',
@@ -436,7 +556,7 @@ export default function PreApprovalForm() {
                   type="text"
                   className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
                   value={form.cpfCnpj}
-                  onChange={(e) => atualizarCampo('cpfCnpj', e.target.value)}
+                  onChange={(e) => atualizarCampo('cpfCnpj', formatCpfCnpj(e.target.value))}
                   required
                 />
                 {errors.cpfCnpj && <p className="text-xs text-red-600 mt-1">{errors.cpfCnpj}</p>}
@@ -448,7 +568,7 @@ export default function PreApprovalForm() {
                   className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
                   placeholder="(DDD) 9 9999-9999"
                   value={form.whatsapp}
-                  onChange={(e) => atualizarCampo('whatsapp', e.target.value)}
+                  onChange={(e) => atualizarCampo('whatsapp', formatWhatsapp(e.target.value))}
                   required
                 />
                 {errors.whatsapp && <p className="text-xs text-red-600 mt-1">{errors.whatsapp}</p>}
@@ -477,10 +597,26 @@ export default function PreApprovalForm() {
                   className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
                   placeholder="00000-000"
                   value={form.cep}
-                  onChange={(e) => atualizarCampo('cep', e.target.value)}
+                  onChange={(e) => atualizarCampo('cep', formatCEP(e.target.value))}
                   required
                 />
                 {errors.cep && <p className="text-xs text-red-600 mt-1">{errors.cep}</p>}
+                <div className="mt-2">
+                  <label className="block text-xs font-medium text-gray-500">Município</label>
+                  <input
+                    type="text"
+                    readOnly
+                    className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-700"
+                    value={form.municipio || municipioState.label}
+                    placeholder={
+                      municipioState.status === 'loading'
+                        ? 'Consultando...'
+                        : municipioState.status === 'not_found'
+                          ? 'CEP não encontrado'
+                          : 'Informe o CEP para preencher'
+                    }
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Endereço completo</label>
@@ -639,6 +775,17 @@ export default function PreApprovalForm() {
             )}
           </div>
         </div>
+
+        {pendencias.length > 0 && (
+          <div className="bg-white border border-orange-100 rounded-2xl p-4 shadow-sm">
+            <p className="text-sm font-semibold text-orange-700">O que falta ou precisa de atenção</p>
+            <ul className="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+              {pendencias.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2">
           <p className="text-sm text-gray-600">
