@@ -271,9 +271,6 @@ export async function POST(req: Request) {
               <a href="${sanitize(whatsappLink)}" style="color: #e15800; text-decoration: none; font-weight: 600;">
                 ${sanitize(whatsappAmigavel)}
               </a>
-              <span style="color: #6b7280; font-size: 12px;">(
-                <a href="${sanitize(whatsappTelLink)}" style="color: #6b7280; text-decoration: none;">ligar</a>
-              )</span>
             </li>
             <li><strong>E-mail:</strong> ${sanitize(body.email)}</li>
             <li><strong>CEP:</strong> ${sanitize(body.cep)}</li>

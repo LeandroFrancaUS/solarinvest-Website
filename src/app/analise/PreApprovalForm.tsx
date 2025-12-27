@@ -1163,8 +1163,7 @@ export default function PreApprovalForm({
                 }}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Cada arquivo precisa de uma etiqueta. A análise poderá levar mais tempo caso a conta de energia atual não seja
-                enviada.
+                A análise poderá levar mais tempo caso a conta de energia atual não seja enviada.
               </p>
               {documentos.length > 0 && (
                 <ul className="text-xs text-gray-700 mt-2 space-y-2">
