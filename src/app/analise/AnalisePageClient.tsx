@@ -99,7 +99,8 @@ const campaignHighlights = [
 
 export default function AnalisePageClient() {
   const searchParams = useSearchParams();
-  const shouldAutoOpen = searchParams?.get('abrir') === 'true';
+  const shouldAutoOpenParam = searchParams?.get('abrir');
+  const shouldAutoOpen = shouldAutoOpenParam ? shouldAutoOpenParam === 'true' : true;
   const [mostrarFormulario, setMostrarFormulario] = useState(shouldAutoOpen);
   const [resultado, setResultado] = useState<{ status: StatusResultado; message: string } | null>(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
@@ -246,50 +247,6 @@ export default function AnalisePageClient() {
         </section>
       )}
 
-      <section className="max-w-5xl mx-auto space-y-4 rounded-3xl bg-gray-50 p-6 md:p-8 shadow-inner">
-        <div className="flex flex-col gap-2 text-center">
-          <h2 className="text-2xl font-heading font-semibold text-gray-900">Perguntas rápidas sobre a divulgação</h2>
-          <p className="text-gray-700">Use este material para campanhas e para gerar seguidores qualificados.</p>
-        </div>
-        <div className="space-y-3">
-          {faqItems.map((faq) => (
-            <details
-              key={faq.question}
-              className="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-orange-200"
-            >
-              <summary className="flex cursor-pointer items-center justify-between text-left font-semibold text-gray-900">
-                {faq.question}
-                <span className="text-orange-600 transition group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-2 text-gray-700 leading-relaxed">{faq.answer}</p>
-            </details>
-          ))}
-        </div>
-        <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-orange-200 bg-white p-4 text-center">
-          <p className="text-gray-800">
-            Inclua parâmetros UTM no link <strong>solarinvest.info/analise</strong> ao anunciar. Assim você mede conversões e
-            mantém a página elegível para Google Search e Facebook/Instagram Ads.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <a
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 py-3 text-white font-semibold shadow-md hover:bg-orange-700 transition"
-              href={`${seoConstants.socialProfiles.whatsapp}&utm_source=analise&utm_medium=faq_cta&utm_campaign=whatsapp-leads`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Enviar link com UTM pelo WhatsApp
-            </a>
-            <a
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-3 font-semibold text-gray-800 shadow-sm hover:border-orange-200 hover:text-orange-700 transition"
-              href={`${seoConstants.socialProfiles.instagram}?utm_source=analise&utm_medium=faq_cta&utm_campaign=instagram-follow`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Convidar para seguir no Instagram
-            </a>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }
