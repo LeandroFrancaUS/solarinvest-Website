@@ -57,7 +57,15 @@ const estadosBrasil = [
   'TO',
 ];
 
-const normalizeWhatsapp = (value: string) => value.replace(/\D/g, '').slice(0, 15);
+const normalizeWhatsapp = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+  const semDdi = digits.startsWith('55') ? digits.slice(2) : digits;
+  const local = semDdi.slice(-11);
+
+  if (local.length < 10) return '';
+
+  return `55${local}`;
+};
 
 export async function POST(req: Request) {
   if (!resend) {
@@ -97,7 +105,7 @@ export async function POST(req: Request) {
     !estado ||
     !estadosBrasil.includes(estado) ||
     !whatsapp ||
-    whatsapp.length < 10 ||
+    whatsapp.length < 12 ||
     whatsapp.length > 15 ||
     !mensagem ||
     mensagem.length > 2000
@@ -122,7 +130,7 @@ export async function POST(req: Request) {
           <p><strong>✉️ Email:</strong> ${sanitize(email)}</p>
           <p><strong>📊 Consumo médio (12 meses):</strong> ${sanitize(consumo)}</p>
           <p><strong>📍 Local de instalação:</strong> ${sanitize(municipio)} / ${sanitize(estado)}</p>
-          <p><strong>📱 WhatsApp:</strong> ${sanitize(whatsapp)}</p>
+          <p><strong>📱 WhatsApp:</strong> +${sanitize(whatsapp)}</p>
           <p><strong>📝 Mensagem:</strong></p>
           <div style="margin-top: 10px; padding: 15px; background: #f9f9f9; border-left: 4px solid #E15800;">
             ${mensagemSanitizada}

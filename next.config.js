@@ -9,7 +9,7 @@ const ContentSecurityPolicy = `
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com;
   frame-src 'self' https://www.youtube.com https://vercel.live;
-  connect-src 'self';
+  connect-src 'self' https://viacep.com.br;
 `;
 
 module.exports = {

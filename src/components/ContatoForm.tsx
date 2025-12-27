@@ -58,7 +58,17 @@ export default function ContatoForm() {
 
   const normalizarEstado = (value: string) => value.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase();
 
-  const normalizarWhatsapp = (value: string) => value.replace(/\D/g, '').slice(0, 15);
+  const sanitizeWhatsappInput = (value: string) => value.replace(/\D/g, '').slice(0, 13);
+
+  const normalizarWhatsapp = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    const semDdi = digits.startsWith('55') ? digits.slice(2) : digits;
+    const local = semDdi.slice(-11);
+
+    if (local.length < 10) return '';
+
+    return `55${local}`;
+  };
 
   // 🔄 Atualiza campos do formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -67,7 +77,7 @@ export default function ContatoForm() {
 
     if (name === 'municipio') value = normalizarMunicipio(value);
     if (name === 'estado') value = normalizarEstado(value);
-    if (name === 'whatsapp') value = normalizarWhatsapp(value);
+    if (name === 'whatsapp') value = sanitizeWhatsappInput(value);
 
     setFormData({ ...formData, [name]: value });
   };
@@ -94,7 +104,7 @@ export default function ContatoForm() {
       return;
     }
 
-    if (whatsappDigits.length < 10) {
+    if (whatsappDigits.length < 12) {
       setErro('Informe um número de WhatsApp válido com DDD.');
       return;
     }
