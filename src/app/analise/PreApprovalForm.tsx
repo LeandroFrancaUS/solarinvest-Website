@@ -29,7 +29,7 @@ type InstallationType =
 
 type RedeType = 'Monofásica' | 'Bifásica' | 'Trifásica' | '';
 
-type StatusResultado = 'PRE_APROVADO' | 'PENDENTE' | 'NAO_ELEGIVEL';
+export type StatusResultado = 'PRE_APROVADO' | 'PENDENTE' | 'NAO_ELEGIVEL';
 
 type FormState = {
   nome: string;
@@ -86,7 +86,7 @@ const initialState: FormState = {
   tipoRede: '',
 };
 
-const statusMessages: Record<StatusResultado, string> = {
+export const statusMessages: Record<StatusResultado, string> = {
   PRE_APROVADO:
     'Pré-aprovado! ✅\nPelos dados informados, você tem forte elegibilidade para o leasing SolarInvest. Nossa equipe vai analisar sua conta e te chamar no WhatsApp para confirmar os próximos passos.',
   PENDENTE:
@@ -95,7 +95,7 @@ const statusMessages: Record<StatusResultado, string> = {
     'Por enquanto, pode não ser o ideal.\nPelo consumo informado, o leasing tende a não gerar o melhor custo-benefício. Mas podemos avaliar outras opções (compra/financiamento) ou uma solução sob medida.',
 };
 
-const statusVisuals: Record<StatusResultado, { title: string; icon: string; styles: string; accent: string }> = {
+export const statusVisuals: Record<StatusResultado, { title: string; icon: string; styles: string; accent: string }> = {
   PRE_APROVADO: {
     title: 'Pré-aprovado',
     icon: '✅',
@@ -337,13 +337,18 @@ async function fileToBase64(file: File): Promise<AttachmentPayload> {
   };
 }
 
-export default function PreApprovalForm() {
+export default function PreApprovalForm({
+  onSubmitted,
+}: {
+  onSubmitted?: (payload: { status: StatusResultado; message: string }) => void;
+}) {
   const [form, setForm] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submission, setSubmission] = useState<SubmissionState>({ loading: false });
   const [municipioState, setMunicipioState] = useState<MunicipioState>({ status: 'idle', label: '' });
   const [pendencias, setPendencias] = useState<string[]>([]);
   const [cpfCnpjMasked, setCpfCnpjMasked] = useState(false);
+  const [honeypotValue, setHoneypotValue] = useState('');
 
   const consumoNormalizado = useMemo(() => parseConsumo(form.consumoMedio), [form.consumoMedio]);
   const tarifaNormalizada = useMemo(() => parseTarifa(form.tarifa), [form.tarifa]);
@@ -509,6 +514,12 @@ export default function PreApprovalForm() {
     event.preventDefault();
     setSubmission({ loading: true });
 
+    if (honeypotValue.trim()) {
+      setErrors({ geral: 'Não foi possível enviar. Tente novamente.' });
+      setSubmission({ loading: false });
+      return;
+    }
+
     const novoErros = coletarErros();
     setErrors(novoErros);
     if (Object.keys(novoErros).length > 0) {
@@ -573,6 +584,7 @@ export default function PreApprovalForm() {
       setForm(initialState);
       setCpfCnpjMasked(false);
       setErrors({});
+      onSubmitted?.({ status, message: statusMessages[status] });
     } catch (error: unknown) {
       const mensagem = error instanceof Error ? error.message : 'Erro ao enviar a solicitação.';
       setErrors({ geral: mensagem });
@@ -605,6 +617,19 @@ export default function PreApprovalForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="sr-only" aria-hidden>
+          <label htmlFor="extra-info">Não preencha este campo</label>
+          <input
+            id="extra-info"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypotValue}
+            onChange={(e) => setHoneypotValue(e.target.value)}
+            className="hidden"
+          />
+        </div>
+
         {errors.geral && (
           <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-4 text-sm">
             {errors.geral}

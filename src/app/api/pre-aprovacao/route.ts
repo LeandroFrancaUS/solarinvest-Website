@@ -40,6 +40,11 @@ const whatsappToken = process.env.WHATSAPP_TOKEN;
 const whatsappPhoneId = process.env.WHATSAPP_PHONE_ID;
 const solarinvestLogoUrl = 'https://solarinvest.info/logo.png';
 
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
+const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_COOLDOWN_MS = 20 * 1000;
+const submissionLog = new Map<string, number[]>();
+
 function normalizarWhatsapp(numero: string) {
   const digits = numero.replace(/\D/g, '');
   if (digits.startsWith('55')) return digits;
@@ -98,6 +103,30 @@ function sanitize(input: string | undefined) {
   });
 }
 
+function isRateLimited(ip: string) {
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW_MS;
+  const history = submissionLog.get(ip)?.filter((timestamp) => timestamp > windowStart) ?? [];
+
+  const lastRequest = history[history.length - 1];
+  if (lastRequest && now - lastRequest < RATE_LIMIT_COOLDOWN_MS) {
+    submissionLog.set(ip, history);
+    return { limited: true, reason: 'Aguarde alguns segundos antes de enviar novamente.' };
+  }
+
+  if (history.length >= RATE_LIMIT_MAX) {
+    submissionLog.set(ip, history);
+    return {
+      limited: true,
+      reason: 'Detectamos muitas solicitações seguidas. Aguarde alguns minutos antes de tentar de novo.',
+    };
+  }
+
+  history.push(now);
+  submissionLog.set(ip, history);
+  return { limited: false };
+}
+
 export async function POST(req: Request) {
   if (!resend) {
     return NextResponse.json({ success: false, error: 'Servidor não configurado.' }, { status: 500 });
@@ -126,6 +155,12 @@ export async function POST(req: Request) {
 
   if (missing) {
     return NextResponse.json({ success: false, error: 'Campos obrigatórios ausentes.' }, { status: 400 });
+  }
+
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+  const rateResult = isRateLimited(ip);
+  if (rateResult.limited) {
+    return NextResponse.json({ success: false, error: rateResult.reason }, { status: 429 });
   }
 
   const assunto = `[Pré-Qualificação] ${body.status} — ${body.nome} — ${body.cep} — ${body.consumoMedio} kWh/mês`;

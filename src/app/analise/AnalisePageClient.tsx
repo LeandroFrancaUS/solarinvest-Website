@@ -3,15 +3,18 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import PreApprovalForm from './PreApprovalForm';
+import PreApprovalForm, { StatusResultado, statusVisuals } from './PreApprovalForm';
 
 export default function AnalisePageClient() {
   const searchParams = useSearchParams();
   const shouldAutoOpen = searchParams?.get('abrir') === 'true';
   const [mostrarFormulario, setMostrarFormulario] = useState(shouldAutoOpen);
+  const [resultado, setResultado] = useState<{ status: StatusResultado; message: string } | null>(null);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   useEffect(() => {
-    if (shouldAutoOpen) {
+    if (shouldAutoOpen && !hasAutoOpened) {
+      setHasAutoOpened(true);
       setMostrarFormulario(true);
     }
 
@@ -19,7 +22,25 @@ export default function AnalisePageClient() {
       const anchor = document.getElementById('pre-aprovacao');
       anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [mostrarFormulario, shouldAutoOpen]);
+  }, [mostrarFormulario, shouldAutoOpen, hasAutoOpened]);
+
+  useEffect(() => {
+    if (resultado) {
+      const anchor = document.getElementById('resultado-analise');
+      anchor?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [resultado]);
+
+  const iniciarAnalise = () => {
+    setResultado(null);
+    setMostrarFormulario(true);
+    setHasAutoOpened(true);
+  };
+
+  const handleSubmitted = (res: { status: StatusResultado; message: string }) => {
+    setResultado(res);
+    setMostrarFormulario(false);
+  };
 
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8 space-y-12">
@@ -46,7 +67,7 @@ export default function AnalisePageClient() {
         <div className="flex justify-center">
           <button
             type="button"
-            onClick={() => setMostrarFormulario(true)}
+            onClick={iniciarAnalise}
             className="inline-flex items-center gap-2 rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition"
           >
             Iniciar pré-análise
@@ -56,7 +77,37 @@ export default function AnalisePageClient() {
 
       {mostrarFormulario && (
         <section className="max-w-7xl mx-auto" id="pre-aprovacao">
-          <PreApprovalForm />
+          <PreApprovalForm onSubmitted={handleSubmitted} />
+        </section>
+      )}
+
+      {resultado && (
+        <section id="resultado-analise" className="max-w-3xl mx-auto text-center space-y-4">
+          <div
+            className={`rounded-2xl border p-6 shadow-lg ${statusVisuals[resultado.status].styles} animate-[pulse_1.2s_ease-in-out_1]`}
+          >
+            <div className="flex flex-col items-center gap-3">
+              <div className={`text-3xl ${statusVisuals[resultado.status].accent}`} aria-hidden>
+                {statusVisuals[resultado.status].icon}
+              </div>
+              <div>
+                <p className={`text-sm font-semibold uppercase tracking-wide ${statusVisuals[resultado.status].accent}`}>
+                  {statusVisuals[resultado.status].title}
+                </p>
+                <p className="whitespace-pre-line mt-2 leading-relaxed text-gray-800">{resultado.message}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={iniciarAnalise}
+              className="inline-flex items-center gap-2 rounded-xl bg-orange-600 text-white font-semibold px-5 py-3 shadow-md hover:bg-orange-700 transition"
+            >
+              Iniciar nova pré-análise
+            </button>
+          </div>
         </section>
       )}
     </main>
