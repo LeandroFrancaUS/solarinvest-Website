@@ -650,7 +650,7 @@ export default function PreApprovalForm({
     }
 
     if (tarifaNormalizada === undefined) {
-      novoErros.tarifa = 'Informe a tarifa no formato 0,95 (até 4 casas decimais).';
+      novoErros.tarifa = 'Informe a tarifa atual no formato 1,20.';
     }
 
     if (municipioState.status === 'not_found' || municipioState.status === 'error') {
@@ -832,8 +832,7 @@ export default function PreApprovalForm({
             Faça uma análise rápida e gratuita
           </h2>
           <p className="text-gray-700 mt-2 max-w-3xl">
-            Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise humana e
-            não revela critérios internos.
+            Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise humana.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-white border border-orange-200 rounded-2xl px-4 py-3 shadow-inner text-sm text-gray-700">
@@ -1164,7 +1163,7 @@ export default function PreApprovalForm({
                 }}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Cada arquivo precisa de uma etiqueta. Sem conta de energia, a análise fica manual.
+                A análise poderá levar mais tempo caso a conta de energia atual não seja enviada.
               </p>
               {documentos.length > 0 && (
                 <ul className="text-xs text-gray-700 mt-2 space-y-2">
