@@ -68,6 +68,8 @@ const ALL_DOC_TAGS: DocTag[] = [
   'FOTOS_LOCAL_INSTALACAO',
 ];
 
+const BILL_RECOMMENDED: DocTag[] = ['CONTA_ENERGIA_ATUAL'];
+
 export type StatusResultado = 'PRE_APROVADO' | 'PENDENTE' | 'NAO_ELEGIVEL';
 
 type FormState = {
@@ -296,19 +298,13 @@ function parseConsumo(consumo: string) {
 }
 
 function formatTarifaInput(raw: string) {
-  const digits = raw.replace(/\D/g, '').slice(0, 4);
+  const digits = raw.replace(/\D/g, '').slice(0, 5);
   if (!digits) return '';
 
   const inteiro = digits[0];
   const decimais = digits.slice(1);
 
-  if (decimais.length <= 3) {
-    return decimais.length ? `${inteiro},${decimais}` : `${inteiro},`;
-  }
-
-  const numero = Number(`${inteiro}.${decimais}`);
-  const arredondado = Math.ceil(numero * 1000) / 1000;
-  return arredondado.toFixed(3).replace('.', ',');
+  return decimais.length ? `${inteiro},${decimais}` : `${inteiro},`;
 }
 
 function parseTarifa(valor: string) {
@@ -316,8 +312,8 @@ function parseTarifa(valor: string) {
   const normalizado = valor.replace(',', '.');
   const numero = Number(normalizado);
   if (Number.isNaN(numero)) return undefined;
-  const arredondado = Math.ceil(numero * 1000) / 1000;
-  return Number(arredondado.toFixed(3));
+  const arredondado = Math.ceil(numero * 10000) / 10000;
+  return Number(arredondado.toFixed(4));
 }
 
 function calcularPrioridade(consumo: number) {
@@ -339,7 +335,7 @@ function buildDocFlags(relacaoImovel: PropertyRelation, anexos: AttachmentWithMe
   };
 }
 
-type DocRules = { options: DocTag[]; required: DocTag[] };
+type DocRules = { options: DocTag[]; required: DocTag[]; recommended: DocTag[] };
 
 function getDocRules(relacaoImovel: PropertyRelation): DocRules {
   switch (relacaoImovel) {
@@ -355,6 +351,7 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
           'FOTOS_LOCAL_INSTALACAO',
         ],
         required: ['CONTRATO_LOCACAO', 'AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+        recommended: BILL_RECOMMENDED,
       };
     case 'Comodatário (uso gratuito)':
       return {
@@ -367,6 +364,7 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
           'CPF_CNPJ_PROPRIETARIO',
         ],
         required: ['AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+        recommended: BILL_RECOMMENDED,
       };
     case 'Arrendatário':
       return {
@@ -379,6 +377,7 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
           'CPF_CNPJ_PROPRIETARIO',
         ],
         required: ['CONTRATO_ARRENDAMENTO', 'AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+        recommended: BILL_RECOMMENDED,
       };
     case 'Familiar do proprietário':
       return {
@@ -391,6 +390,7 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
           'COMPROVANTE_VINCULO_PROPRIETARIO',
         ],
         required: ['AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+        recommended: BILL_RECOMMENDED,
       };
     case 'Administrador / Síndico':
       return {
@@ -403,14 +403,16 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
           'FOTOS_LOCAL_INSTALACAO',
         ],
         required: ['DOC_ID_SINDICO_ADMIN', 'ATA_ASSEMBLEIA_APROVACAO'],
+        recommended: BILL_RECOMMENDED,
       };
     case 'Proprietário':
       return {
         options: ['CONTA_ENERGIA_ATUAL', 'DOC_ID_SOLICITANTE', 'CPF_CNPJ_SOLICITANTE', 'FOTOS_LOCAL_INSTALACAO'],
         required: [],
+        recommended: BILL_RECOMMENDED,
       };
     default:
-      return { options: [], required: [] };
+      return { options: [], required: [], recommended: BILL_RECOMMENDED };
   }
 }
 
@@ -540,6 +542,13 @@ export default function PreApprovalForm({
   );
 
   const relacaoImovelDocRules = useMemo(() => getDocRules(form.relacaoImovel), [form.relacaoImovel]);
+  const recommendedDocTags = useMemo(
+    () =>
+      relacaoImovelDocRules.recommended.filter(
+        (tag) => !relacaoImovelDocRules.required.includes(tag)
+      ),
+    [relacaoImovelDocRules]
+  );
   const docFlags = useMemo(() => buildDocFlags(form.relacaoImovel, documentos), [documentos, form.relacaoImovel]);
 
   const atualizarCampo = (campo: keyof FormState, valor: string | File | File[] | undefined) => {
@@ -640,7 +649,7 @@ export default function PreApprovalForm({
     }
 
     if (tarifaNormalizada === undefined) {
-      novoErros.tarifa = 'Informe a tarifa no formato 0,95.';
+      novoErros.tarifa = 'Informe a tarifa no formato 0,95 (até 4 casas decimais).';
     }
 
     if (municipioState.status === 'not_found' || municipioState.status === 'error') {
@@ -1126,8 +1135,7 @@ export default function PreApprovalForm({
                   value={form.tarifa}
                   onChange={(e) => atualizarCampo('tarifa', formatTarifaInput(e.target.value))}
                   onBlur={() => {
-                    const valor = parseTarifa(form.tarifa);
-                    atualizarCampo('tarifa', valor !== undefined ? valor.toFixed(3).replace('.', ',') : '');
+                    atualizarCampo('tarifa', formatTarifaInput(form.tarifa));
                   }}
                   required
                 />
@@ -1229,25 +1237,50 @@ export default function PreApprovalForm({
               <div className="bg-white border border-orange-100 rounded-xl p-3 text-sm text-gray-700 space-y-2">
                 <p className="font-semibold text-orange-700">Checklist automático</p>
                 <div className="flex flex-wrap gap-2 text-xs">
-                  {relacaoImovelDocRules.required.map((tag) => {
-                    const ok = documentos.some((doc) => doc.tag === tag);
-                    return (
-                      <span
-                        key={tag}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
-                          ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-amber-200 bg-amber-50 text-amber-800'
-                        }`}
-                      >
-                        {ok ? '✅' : '⏳'} {tag}
-                      </span>
-                    );
-                  })}
-                  {!relacaoImovelDocRules.required.length && (
+                  {relacaoImovelDocRules.required.length ? (
+                    relacaoImovelDocRules.required.map((tag) => {
+                      const ok = documentos.some((doc) => doc.tag === tag);
+                      return (
+                        <span
+                          key={tag}
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
+                            ok
+                              ? 'border-green-200 bg-green-50 text-green-700'
+                              : 'border-amber-200 bg-amber-50 text-amber-800'
+                          }`}
+                        >
+                          {ok ? '✅' : '⏳'} {tag}
+                        </span>
+                      );
+                    })
+                  ) : (
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 border border-slate-200 bg-slate-50 text-slate-700">
-                      Opcional — envie o que tiver
+                      Nenhum documento obrigatório para esta relação
                     </span>
                   )}
                 </div>
+                {recommendedDocTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    {recommendedDocTags.map((tag) => {
+                      const ok = documentos.some((doc) => doc.tag === tag);
+                      return (
+                        <span
+                          key={tag}
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
+                            ok
+                              ? 'border-green-200 bg-green-50 text-green-700'
+                              : 'border-blue-200 bg-blue-50 text-blue-800'
+                          }`}
+                        >
+                          {ok ? '✅' : '⭐'} {tag}
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-900">
+                            Recomendado
+                          </span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </div>
