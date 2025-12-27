@@ -48,7 +48,7 @@ type FormState = {
   tipoInstalacao: InstallationType;
   tipoInstalacaoOutro: string;
   tipoRede: RedeType;
-  contaDeEnergia?: File;
+  contasDeEnergia: File[];
 };
 
 type AttachmentPayload = {
@@ -84,32 +84,33 @@ const initialState: FormState = {
   tipoInstalacao: 'Telhado fibrocimento',
   tipoInstalacaoOutro: '',
   tipoRede: '',
+  contasDeEnergia: [],
 };
 
 export const statusMessages: Record<StatusResultado, string> = {
   PRE_APROVADO:
-    'Pré-aprovado!\nPelos dados informados, você tem forte elegibilidade para o leasing SolarInvest. Nossa equipe vai analisar sua conta e te chamar no WhatsApp para confirmar os próximos passos.',
+    'Pelos dados informados, você tem forte elegibilidade para o leasing SolarInvest. Nossa equipe vai analisar sua conta e te chamar no WhatsApp para confirmar os próximos passos.',
   PENDENTE:
-    'Recebido!\nSeus dados foram enviados para análise. Em alguns casos precisamos confirmar informações (ex.: conta de energia, autorização do proprietário ou tipo de instalação). Em breve chamaremos você no WhatsApp.',
+    'Recebido! Seus dados foram enviados para análise. Em alguns casos precisamos confirmar informações (ex.: conta de energia, autorização do proprietário ou tipo de instalação). Em breve chamaremos você no WhatsApp.',
   NAO_ELEGIVEL:
-    'Por enquanto, pode não ser o ideal.\nPelo consumo informado, o leasing tende a não gerar o melhor custo-benefício. Mas podemos avaliar outras opções (compra/financiamento) ou uma solução sob medida.',
+    'Por enquanto, pode não ser o ideal. Pelo consumo informado, o leasing tende a não gerar o melhor custo-benefício. Mas podemos avaliar outras opções (compra/financiamento) ou uma solução sob medida.',
 };
 
 export const statusVisuals: Record<StatusResultado, { title: string; icon: string; styles: string; accent: string }> = {
   PRE_APROVADO: {
-    title: 'Pré-aprovado',
+    title: 'PRÉ-APROVADO',
     icon: '✅',
     styles: 'bg-green-50 border-green-200 text-green-900',
-    accent: 'text-green-700',
+    accent: 'text-green-800',
   },
   PENDENTE: {
-    title: 'Em análise',
+    title: 'EM ANÁLISE',
     icon: '🔎',
     styles: 'bg-amber-50 border-amber-200 text-amber-900',
-    accent: 'text-amber-700',
+    accent: 'text-amber-800',
   },
   NAO_ELEGIVEL: {
-    title: 'Não elegível no momento',
+    title: 'NÃO ELEGÍVEL NO MOMENTO',
     icon: 'ℹ️',
     styles: 'bg-slate-50 border-slate-200 text-slate-900',
     accent: 'text-slate-700',
@@ -376,10 +377,10 @@ export default function PreApprovalForm({
     [form.relacaoImovel]
   );
 
-  const atualizarCampo = (campo: keyof FormState, valor: string | File | undefined) => {
+  const atualizarCampo = (campo: keyof FormState, valor: string | File | File[] | undefined) => {
     setForm((prev) => ({
       ...prev,
-      [campo]: valor instanceof File ? valor : valor ?? '',
+      [campo]: Array.isArray(valor) ? valor : valor instanceof File ? valor : valor ?? '',
     }));
   };
 
@@ -500,7 +501,7 @@ export default function PreApprovalForm({
       if (mensagem) avisos.push(mensagem);
     });
 
-    if (!form.contaDeEnergia) {
+    if (!form.contasDeEnergia.length) {
       avisos.push('Conta de energia não enviada. A análise será manual e pode levar mais tempo.');
     }
 
@@ -517,7 +518,7 @@ export default function PreApprovalForm({
     }
 
     setPendencias(avisos);
-  }, [coletarErros, form.contaDeEnergia, form.tipoInstalacao, consumoNormalizado, tarifaNormalizada]);
+  }, [coletarErros, form.contasDeEnergia.length, form.tipoInstalacao, consumoNormalizado, tarifaNormalizada]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -542,9 +543,9 @@ export default function PreApprovalForm({
     }
 
     try {
-      const attachment = form.contaDeEnergia
-        ? await fileToBase64(form.contaDeEnergia)
-        : undefined;
+      const attachments = await Promise.all(
+        (form.contasDeEnergia ?? []).map(async (file) => fileToBase64(file))
+      );
 
       const cpfCnpjValido = validarCpfOuCnpj(form.cpfCnpj);
       const whatsappValido = validarWhatsapp(form.whatsapp);
@@ -557,7 +558,7 @@ export default function PreApprovalForm({
       const { status, motivosInternos } = calcularStatus(
         consumo,
         tarifa,
-        Boolean(attachment),
+        attachments.length > 0,
         cepValido,
         cpfCnpjValido,
         whatsappValido,
@@ -581,7 +582,7 @@ export default function PreApprovalForm({
         prioridade,
         motivosInternos,
         checklist: relacaoImovelDocChecklist,
-        attachment,
+        attachments,
       };
 
       const response = await fetch('/api/pre-aprovacao', {
@@ -862,11 +863,22 @@ export default function PreApprovalForm({
                 type="file"
                 accept="application/pdf,image/*"
                 className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none bg-white"
-                onChange={(e) => atualizarCampo('contaDeEnergia', e.target.files?.[0])}
+                multiple
+                onChange={(e) => atualizarCampo('contasDeEnergia', Array.from(e.target.files ?? []))}
               />
               <p className="text-xs text-gray-500 mt-1">
                 Envie para agilizar a análise. Sem a conta, o pedido entra como pendente.
               </p>
+              {form.contasDeEnergia.length > 0 && (
+                <ul className="text-xs text-gray-700 mt-2 space-y-1">
+                  {form.contasDeEnergia.map((file) => (
+                    <li key={file.name} className="flex items-center gap-2">
+                      <span className="inline-block h-2 w-2 rounded-full bg-orange-400" aria-hidden />
+                      <span>{file.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
@@ -962,7 +974,7 @@ export default function PreApprovalForm({
               {statusVisuals[submission.status].icon}
             </div>
             <p
-              className={`text-base md:text-lg font-extrabold uppercase tracking-[0.14em] px-3 py-1 rounded-full bg-white/60 ${
+              className={`text-xl md:text-2xl font-extrabold uppercase tracking-[0.14em] px-3 py-1 rounded-full bg-white/60 ${
                 statusVisuals[submission.status].accent
               }`}
             >

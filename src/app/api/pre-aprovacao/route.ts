@@ -28,7 +28,7 @@ type Payload = {
   tipoInstalacao: string;
   tipoInstalacaoOutro?: string;
   tipoRede?: string;
-  attachment?: AttachmentPayload;
+  attachments?: AttachmentPayload[];
 };
 
 const apiKey = process.env.RESEND_API_KEY;
@@ -186,14 +186,12 @@ export async function POST(req: Request) {
 
   const tipoRede = body.tipoRede ? sanitize(body.tipoRede) : 'Não informado';
 
-  const attachment = body.attachment
-    ? [
-        {
-          filename: sanitize(body.attachment.filename),
-          content: body.attachment.content,
-          contentType: body.attachment.contentType,
-        },
-      ]
+  const attachments = body.attachments?.length
+    ? body.attachments.map((item) => ({
+        filename: sanitize(item.filename),
+        content: item.content,
+        contentType: item.contentType,
+      }))
     : undefined;
 
   try {
@@ -201,7 +199,7 @@ export async function POST(req: Request) {
       from: remetente,
       to: destinatarios,
       subject: assunto,
-      attachments: attachment,
+      attachments,
       html: `
         <div style="font-family: Arial, sans-serif; color: #1f2937; padding: 16px; line-height: 1.5;">
           <h2 style="color: #e15800;">Pré-qualificação de Leasing</h2>
@@ -225,7 +223,7 @@ export async function POST(req: Request) {
             <li><strong>Consumo médio:</strong> ${sanitize(String(body.consumoMedio))} kWh/mês</li>
             <li><strong>Tarifa:</strong> R$ ${sanitize(body.tarifa.toFixed(2))}/kWh</li>
             <li><strong>Conta atual estimada:</strong> R$ ${sanitize(valorContaEstimado.toFixed(2))} / mês</li>
-            <li><strong>Conta enviada:</strong> ${body.attachment ? 'Sim (em anexo)' : 'Não'}</li>
+            <li><strong>Conta enviada:</strong> ${attachments?.length ? `Sim (${attachments.length} arquivo(s))` : 'Não'}</li>
           </ul>
 
           <h3>Técnico</h3>

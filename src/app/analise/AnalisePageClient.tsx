@@ -93,7 +93,11 @@ export default function AnalisePageClient() {
                 {statusVisuals[resultado.status].icon}
               </div>
               <div>
-                <p className={`text-sm font-semibold uppercase tracking-wide ${statusVisuals[resultado.status].accent}`}>
+                <p
+                  className={`text-base md:text-xl font-extrabold uppercase tracking-wide ${
+                    statusVisuals[resultado.status].accent
+                  }`}
+                >
                   {statusVisuals[resultado.status].title}
                 </p>
                 <p className="whitespace-pre-line mt-2 leading-relaxed text-gray-800">{resultado.message}</p>
