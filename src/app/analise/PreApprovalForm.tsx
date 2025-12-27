@@ -88,9 +88,9 @@ const initialState: FormState = {
 
 export const statusMessages: Record<StatusResultado, string> = {
   PRE_APROVADO:
-    'Pré-aprovado! ✅\nPelos dados informados, você tem forte elegibilidade para o leasing SolarInvest. Nossa equipe vai analisar sua conta e te chamar no WhatsApp para confirmar os próximos passos.',
+    'Pré-aprovado!\nPelos dados informados, você tem forte elegibilidade para o leasing SolarInvest. Nossa equipe vai analisar sua conta e te chamar no WhatsApp para confirmar os próximos passos.',
   PENDENTE:
-    'Recebido! 🔎\nSeus dados foram enviados para análise. Em alguns casos precisamos confirmar informações (ex.: conta de energia, autorização do proprietário ou tipo de instalação). Em breve chamaremos você no WhatsApp.',
+    'Recebido!\nSeus dados foram enviados para análise. Em alguns casos precisamos confirmar informações (ex.: conta de energia, autorização do proprietário ou tipo de instalação). Em breve chamaremos você no WhatsApp.',
   NAO_ELEGIVEL:
     'Por enquanto, pode não ser o ideal.\nPelo consumo informado, o leasing tende a não gerar o melhor custo-benefício. Mas podemos avaliar outras opções (compra/financiamento) ou uma solução sob medida.',
 };
@@ -942,20 +942,22 @@ export default function PreApprovalForm({
 
       {submission.status && submission.message && (
         <div
-          className={`mt-6 rounded-2xl border p-5 shadow-lg transition transform duration-300 ${
+          className={`mt-6 rounded-2xl border p-6 shadow-lg transition transform duration-300 text-center ${
             statusVisuals[submission.status].styles
           } animate-[pulse_1.8s_ease-in-out_2]`}
         >
-          <div className="flex items-start gap-3">
-            <div className={`text-2xl ${statusVisuals[submission.status].accent}`} aria-hidden>
+          <div className="flex flex-col items-center gap-3">
+            <div className={`text-3xl ${statusVisuals[submission.status].accent}`} aria-hidden>
               {statusVisuals[submission.status].icon}
             </div>
-            <div>
-              <p className={`text-sm font-semibold uppercase tracking-wide ${statusVisuals[submission.status].accent}`}>
-                {statusVisuals[submission.status].title}
-              </p>
-              <p className="whitespace-pre-line mt-1 leading-relaxed">{submission.message}</p>
-            </div>
+            <p
+              className={`text-base md:text-lg font-extrabold uppercase tracking-[0.14em] px-3 py-1 rounded-full bg-white/60 ${
+                statusVisuals[submission.status].accent
+              }`}
+            >
+              {statusVisuals[submission.status].title}
+            </p>
+            <p className="whitespace-pre-line leading-relaxed">{submission.message}</p>
           </div>
         </div>
       )}
