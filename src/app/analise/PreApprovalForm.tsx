@@ -440,7 +440,7 @@ function calcularStatus(
   if (!cepValido) motivosInternos.push('CEP inválido');
 
   if (motivosInternos.length) {
-    return { status: 'NAO_ELEGIVEL', motivosInternos };
+    return { status: 'NAO_ELEGIVEL', motivosInternos, statusInterno: 'NAO_ELEGIVEL' };
   }
 
   if (consumo < 300) {
