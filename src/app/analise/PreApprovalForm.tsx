@@ -928,11 +928,11 @@ export default function PreApprovalForm({
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2 pb-6 md:pr-20">
           <p className="text-sm text-gray-600">Ao enviar, você autoriza contato via WhatsApp e e-mail.</p>
           <button
             type="submit"
-            className="inline-flex items-center justify-center rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition disabled:opacity-60 md:self-end md:mr-4"
             disabled={submission.loading}
           >
             {submission.loading ? 'Enviando...' : 'Enviar pré-análise'}

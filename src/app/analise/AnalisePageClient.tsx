@@ -64,15 +64,17 @@ export default function AnalisePageClient() {
           você solicitar a análise.
         </motion.p>
 
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={iniciarAnalise}
-            className="inline-flex items-center gap-2 rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition"
-          >
-            Iniciar pré-análise
-          </button>
-        </div>
+        {!resultado && (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={iniciarAnalise}
+              className="inline-flex items-center gap-2 rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition"
+            >
+              Iniciar pré-análise
+            </button>
+          </div>
+        )}
       </section>
 
       {mostrarFormulario && (
