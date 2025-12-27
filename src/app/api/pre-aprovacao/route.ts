@@ -58,6 +58,22 @@ function normalizarWhatsapp(numero: string) {
   return `55${local}`;
 }
 
+function formatarWhatsappAgradavel(numero: string) {
+  const digits = numero.replace(/\D/g, '');
+  const semDdi = digits.startsWith('55') ? digits.slice(2) : digits;
+  const local = semDdi.slice(-11);
+
+  if (local.length === 11) {
+    return `+55 (${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7)}`;
+  }
+
+  if (local.length === 10) {
+    return `+55 (${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`;
+  }
+
+  return `+55 ${local}`;
+}
+
 async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
   if (!whatsappToken || !whatsappPhoneId) {
     throw new Error('WhatsApp não configurado (WHATSAPP_TOKEN ou WHATSAPP_PHONE_ID ausente).');
@@ -186,6 +202,9 @@ export async function POST(req: Request) {
   }
 
   const whatsappNormalizado = normalizarWhatsapp(body.whatsapp);
+  const whatsappAmigavel = formatarWhatsappAgradavel(whatsappNormalizado);
+  const whatsappLink = `https://wa.me/${whatsappNormalizado}`;
+  const whatsappTelLink = `tel:+${whatsappNormalizado}`;
 
   if (!whatsappNormalizado) {
     return NextResponse.json({ success: false, error: 'WhatsApp inválido.' }, { status: 400 });
@@ -247,7 +266,15 @@ export async function POST(req: Request) {
             <li><strong>CPF/CNPJ:</strong> ${sanitize(body.cpfCnpj)}</li>
             <li><strong>Tipo de cliente:</strong> ${sanitize(body.tipoCliente)} ${sanitize(body.tipoClienteOutro)}</li>
             <li><strong>Relação com imóvel:</strong> ${sanitize(body.relacaoImovel)} ${sanitize(body.relacaoOutro)}</li>
-            <li><strong>Telefone:</strong> +${sanitize(whatsappNormalizado)}</li>
+            <li>
+              <strong>Telefone/WhatsApp:</strong>
+              <a href="${sanitize(whatsappLink)}" style="color: #e15800; text-decoration: none; font-weight: 600;">
+                ${sanitize(whatsappAmigavel)}
+              </a>
+              <span style="color: #6b7280; font-size: 12px;">(
+                <a href="${sanitize(whatsappTelLink)}" style="color: #6b7280; text-decoration: none;">ligar</a>
+              )</span>
+            </li>
             <li><strong>E-mail:</strong> ${sanitize(body.email)}</li>
             <li><strong>CEP:</strong> ${sanitize(body.cep)}</li>
             <li><strong>Município:</strong> ${sanitize(body.municipio)}</li>
