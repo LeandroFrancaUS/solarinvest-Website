@@ -59,10 +59,16 @@ function normalizarWhatsapp(numero: string) {
 }
 
 async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
-  if (!whatsappToken || !whatsappPhoneId || !to) return;
+  if (!whatsappToken || !whatsappPhoneId) {
+    throw new Error('WhatsApp não configurado (WHATSAPP_TOKEN ou WHATSAPP_PHONE_ID ausente).');
+  }
+
+  if (!to) {
+    throw new Error('WhatsApp destino ausente.');
+  }
 
   if (imageUrl) {
-    await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
+    const imageResponse = await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${whatsappToken}`,
@@ -78,9 +84,14 @@ async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
         },
       }),
     });
+
+    if (!imageResponse.ok) {
+      const errorText = await imageResponse.text();
+      throw new Error(`Falha ao enviar mídia do WhatsApp (${imageResponse.status}): ${errorText}`);
+    }
   }
 
-  await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
+  const textResponse = await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${whatsappToken}`,
@@ -93,6 +104,11 @@ async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
       text: { body },
     }),
   });
+
+  if (!textResponse.ok) {
+    const errorText = await textResponse.text();
+    throw new Error(`Falha ao enviar texto do WhatsApp (${textResponse.status}): ${errorText}`);
+  }
 }
 
 function sanitize(input: string | undefined) {
@@ -326,7 +342,7 @@ export async function POST(req: Request) {
         solarinvestLogoUrl
       );
     } catch (err) {
-      // Notificar falha de WhatsApp silenciosamente para não bloquear o cliente
+      console.error('Erro ao enviar WhatsApp para pré-análise:', err);
     }
 
     return NextResponse.json({ success: true, id: data?.id });
