@@ -58,11 +58,33 @@ function normalizarWhatsapp(numero: string) {
   return `55${local}`;
 }
 
+function formatarWhatsappAgradavel(numero: string) {
+  const digits = numero.replace(/\D/g, '');
+  const semDdi = digits.startsWith('55') ? digits.slice(2) : digits;
+  const local = semDdi.slice(-11);
+
+  if (local.length === 11) {
+    return `+55 (${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7)}`;
+  }
+
+  if (local.length === 10) {
+    return `+55 (${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`;
+  }
+
+  return `+55 ${local}`;
+}
+
 async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
-  if (!whatsappToken || !whatsappPhoneId || !to) return;
+  if (!whatsappToken || !whatsappPhoneId) {
+    throw new Error('WhatsApp não configurado (WHATSAPP_TOKEN ou WHATSAPP_PHONE_ID ausente).');
+  }
+
+  if (!to) {
+    throw new Error('WhatsApp destino ausente.');
+  }
 
   if (imageUrl) {
-    await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
+    const imageResponse = await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${whatsappToken}`,
@@ -78,9 +100,14 @@ async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
         },
       }),
     });
+
+    if (!imageResponse.ok) {
+      const errorText = await imageResponse.text();
+      throw new Error(`Falha ao enviar mídia do WhatsApp (${imageResponse.status}): ${errorText}`);
+    }
   }
 
-  await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
+  const textResponse = await fetch(`https://graph.facebook.com/v19.0/${whatsappPhoneId}/messages`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${whatsappToken}`,
@@ -93,6 +120,11 @@ async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
       text: { body },
     }),
   });
+
+  if (!textResponse.ok) {
+    const errorText = await textResponse.text();
+    throw new Error(`Falha ao enviar texto do WhatsApp (${textResponse.status}): ${errorText}`);
+  }
 }
 
 function sanitize(input: string | undefined) {
@@ -170,6 +202,9 @@ export async function POST(req: Request) {
   }
 
   const whatsappNormalizado = normalizarWhatsapp(body.whatsapp);
+  const whatsappAmigavel = formatarWhatsappAgradavel(whatsappNormalizado);
+  const whatsappLink = `https://wa.me/${whatsappNormalizado}`;
+  const whatsappTelLink = `tel:+${whatsappNormalizado}`;
 
   if (!whatsappNormalizado) {
     return NextResponse.json({ success: false, error: 'WhatsApp inválido.' }, { status: 400 });
@@ -231,7 +266,12 @@ export async function POST(req: Request) {
             <li><strong>CPF/CNPJ:</strong> ${sanitize(body.cpfCnpj)}</li>
             <li><strong>Tipo de cliente:</strong> ${sanitize(body.tipoCliente)} ${sanitize(body.tipoClienteOutro)}</li>
             <li><strong>Relação com imóvel:</strong> ${sanitize(body.relacaoImovel)} ${sanitize(body.relacaoOutro)}</li>
-            <li><strong>Telefone:</strong> +${sanitize(whatsappNormalizado)}</li>
+            <li>
+              <strong>Telefone/WhatsApp:</strong>
+              <a href="${sanitize(whatsappLink)}" style="color: #e15800; text-decoration: none; font-weight: 600;">
+                ${sanitize(whatsappAmigavel)}
+              </a>
+            </li>
             <li><strong>E-mail:</strong> ${sanitize(body.email)}</li>
             <li><strong>CEP:</strong> ${sanitize(body.cep)}</li>
             <li><strong>Município:</strong> ${sanitize(body.municipio)}</li>
@@ -326,7 +366,7 @@ export async function POST(req: Request) {
         solarinvestLogoUrl
       );
     } catch (err) {
-      // Notificar falha de WhatsApp silenciosamente para não bloquear o cliente
+      console.error('Erro ao enviar WhatsApp para pré-análise:', err);
     }
 
     return NextResponse.json({ success: true, id: data?.id });
