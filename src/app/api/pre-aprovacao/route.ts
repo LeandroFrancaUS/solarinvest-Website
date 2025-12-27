@@ -5,6 +5,8 @@ type AttachmentPayload = {
   filename: string;
   content: string;
   contentType: string;
+  tag: string;
+  note?: string;
 };
 
 type Payload = {
@@ -22,6 +24,7 @@ type Payload = {
   consumoMedio: number;
   tarifa: number;
   status: 'PRE_APROVADO' | 'PENDENTE' | 'NAO_ELEGIVEL';
+  statusInterno?: string;
   prioridade: string;
   motivosInternos: string[];
   checklist: string[];
@@ -184,6 +187,10 @@ export async function POST(req: Request) {
     ? `<ul>${body.checklist.map((item) => `<li>${sanitize(item)}</li>`).join('')}</ul>`
     : '<p>Nenhum documento adicional identificado.</p>';
 
+  const obrigatoriosFaltando = (body.checklist || []).filter(
+    (tag) => !(body.attachments || []).some((att) => att.tag === tag)
+  );
+
   const tipoRede = body.tipoRede ? sanitize(body.tipoRede) : 'Não informado';
 
   const attachments = body.attachments?.length
@@ -193,6 +200,19 @@ export async function POST(req: Request) {
         contentType: item.contentType,
       }))
     : undefined;
+
+  const arquivosTabela = body.attachments?.length
+    ? `<table style="width: 100%; border-collapse: collapse; margin-top: 8px;">${body.attachments
+        .map(
+          (item) => `
+          <tr>
+            <td style="border: 1px solid #e5e7eb; padding: 6px;">${sanitize(item.filename)}</td>
+            <td style="border: 1px solid #e5e7eb; padding: 6px;">${sanitize(item.tag)}</td>
+            <td style="border: 1px solid #e5e7eb; padding: 6px;">${sanitize(item.note ?? '')}</td>
+          </tr>`
+        )
+        .join('')}</table>`
+    : '<p>Nenhum arquivo enviado.</p>';
 
   try {
     const { data, error } = await resend.emails.send({
@@ -235,11 +255,18 @@ export async function POST(req: Request) {
           <h3>Resultado automático</h3>
           <ul>
             <li><strong>Status:</strong> ${sanitize(body.status)}</li>
+            <li><strong>Status interno:</strong> ${sanitize(body.statusInterno ?? body.status)}</li>
             <li><strong>Motivos (interno):</strong> ${motivos}</li>
           </ul>
 
           <h3>Checklist interno</h3>
           ${checklist}
+
+          <h3>Arquivos enviados</h3>
+          ${arquivosTabela}
+
+          <h3>Resumo obrigatório</h3>
+          <p>Faltando: ${obrigatoriosFaltando.length ? obrigatoriosFaltando.join(', ') : 'Nenhum (OK)'}</p>
 
           <h3>Campos internos extras</h3>
           <ul>

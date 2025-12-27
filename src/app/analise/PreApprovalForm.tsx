@@ -29,6 +29,45 @@ type InstallationType =
 
 type RedeType = 'Monofásica' | 'Bifásica' | 'Trifásica' | '';
 
+type DocTag =
+  | 'CONTA_ENERGIA_ATUAL'
+  | 'DOC_ID_SOLICITANTE'
+  | 'CPF_CNPJ_SOLICITANTE'
+  | 'DOC_ID_PROPRIETARIO'
+  | 'CPF_CNPJ_PROPRIETARIO'
+  | 'COMPROVANTE_VINCULO_PROPRIETARIO'
+  | 'CONTRATO_LOCACAO'
+  | 'CONTRATO_COMODATO'
+  | 'CONTRATO_ARRENDAMENTO'
+  | 'AUTORIZACAO_PROPRIETARIO_ASSINADA'
+  | 'PROCURACAO'
+  | 'COMPROVANTE_PROPRIEDADE'
+  | 'ATA_ASSEMBLEIA_APROVACAO'
+  | 'AUTORIZACAO_CONDOMINIO_ASSINADA'
+  | 'DOC_ID_SINDICO_ADMIN'
+  | 'COMPROVANTE_VINCULO_SINDICO'
+  | 'FOTOS_LOCAL_INSTALACAO';
+
+const ALL_DOC_TAGS: DocTag[] = [
+  'CONTA_ENERGIA_ATUAL',
+  'DOC_ID_SOLICITANTE',
+  'CPF_CNPJ_SOLICITANTE',
+  'DOC_ID_PROPRIETARIO',
+  'CPF_CNPJ_PROPRIETARIO',
+  'COMPROVANTE_VINCULO_PROPRIETARIO',
+  'CONTRATO_LOCACAO',
+  'CONTRATO_COMODATO',
+  'CONTRATO_ARRENDAMENTO',
+  'AUTORIZACAO_PROPRIETARIO_ASSINADA',
+  'PROCURACAO',
+  'COMPROVANTE_PROPRIEDADE',
+  'ATA_ASSEMBLEIA_APROVACAO',
+  'AUTORIZACAO_CONDOMINIO_ASSINADA',
+  'DOC_ID_SINDICO_ADMIN',
+  'COMPROVANTE_VINCULO_SINDICO',
+  'FOTOS_LOCAL_INSTALACAO',
+];
+
 export type StatusResultado = 'PRE_APROVADO' | 'PENDENTE' | 'NAO_ELEGIVEL';
 
 type FormState = {
@@ -48,13 +87,21 @@ type FormState = {
   tipoInstalacao: InstallationType;
   tipoInstalacaoOutro: string;
   tipoRede: RedeType;
-  contasDeEnergia: File[];
 };
 
 type AttachmentPayload = {
   filename: string;
   content: string;
   contentType: string;
+  tag: DocTag;
+  note?: string;
+};
+
+type AttachmentWithMeta = {
+  id: string;
+  file: File;
+  tag: DocTag | '';
+  note: string;
 };
 
 type ValidationErrors = Partial<Record<keyof FormState, string>> & { geral?: string };
@@ -84,7 +131,6 @@ const initialState: FormState = {
   tipoInstalacao: 'Telhado fibrocimento',
   tipoInstalacaoOutro: '',
   tipoRede: '',
-  contasDeEnergia: [],
 };
 
 export const statusMessages: Record<StatusResultado, string> = {
@@ -249,9 +295,29 @@ function parseConsumo(consumo: string) {
   return Math.ceil(numero);
 }
 
+function formatTarifaInput(raw: string) {
+  const digits = raw.replace(/\D/g, '').slice(0, 4);
+  if (!digits) return '';
+
+  const inteiro = digits[0];
+  const decimais = digits.slice(1);
+
+  if (decimais.length <= 3) {
+    return decimais.length ? `${inteiro},${decimais}` : `${inteiro},`;
+  }
+
+  const numero = Number(`${inteiro}.${decimais}`);
+  const arredondado = Math.ceil(numero * 1000) / 1000;
+  return arredondado.toFixed(3).replace('.', ',');
+}
+
 function parseTarifa(valor: string) {
-  const numero = Number(valor.replace(',', '.'));
-  return Number.isNaN(numero) ? undefined : Number(numero.toFixed(2));
+  if (!valor) return undefined;
+  const normalizado = valor.replace(',', '.');
+  const numero = Number(normalizado);
+  if (Number.isNaN(numero)) return undefined;
+  const arredondado = Math.ceil(numero * 1000) / 1000;
+  return Number(arredondado.toFixed(3));
 }
 
 function calcularPrioridade(consumo: number) {
@@ -260,12 +326,92 @@ function calcularPrioridade(consumo: number) {
   return 'Baixa';
 }
 
-function buildChecklist(relacaoImovel: PropertyRelation) {
-  if (!relacaoImovel) return [];
-  if (relacaoImovel === 'Proprietário') return [];
-  if (relacaoImovel === 'Administrador / Síndico')
-    return ['Ata ou autorização do condomínio'];
-  return ['Autorização do proprietário', 'Documento do proprietário (RG/CPF)'];
+function buildDocFlags(relacaoImovel: PropertyRelation, anexos: AttachmentWithMeta[]) {
+  const hasTag = (tag: DocTag) => anexos.some((item) => item.tag === tag);
+
+  return {
+    hasBill: hasTag('CONTA_ENERGIA_ATUAL'),
+    hasOwnerAuth: hasTag('AUTORIZACAO_PROPRIETARIO_ASSINADA'),
+    hasRelationContract:
+      hasTag('CONTRATO_LOCACAO') || hasTag('CONTRATO_COMODATO') || hasTag('CONTRATO_ARRENDAMENTO'),
+    hasCondoApproval: hasTag('ATA_ASSEMBLEIA_APROVACAO'),
+    missingRequired: getDocRules(relacaoImovel).required.filter((tag) => !hasTag(tag)),
+  };
+}
+
+type DocRules = { options: DocTag[]; required: DocTag[] };
+
+function getDocRules(relacaoImovel: PropertyRelation): DocRules {
+  switch (relacaoImovel) {
+    case 'Inquilino (locatário)':
+      return {
+        options: [
+          'CONTA_ENERGIA_ATUAL',
+          'DOC_ID_SOLICITANTE',
+          'CONTRATO_LOCACAO',
+          'AUTORIZACAO_PROPRIETARIO_ASSINADA',
+          'DOC_ID_PROPRIETARIO',
+          'CPF_CNPJ_PROPRIETARIO',
+          'FOTOS_LOCAL_INSTALACAO',
+        ],
+        required: ['CONTRATO_LOCACAO', 'AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+      };
+    case 'Comodatário (uso gratuito)':
+      return {
+        options: [
+          'CONTA_ENERGIA_ATUAL',
+          'DOC_ID_SOLICITANTE',
+          'CONTRATO_COMODATO',
+          'AUTORIZACAO_PROPRIETARIO_ASSINADA',
+          'DOC_ID_PROPRIETARIO',
+          'CPF_CNPJ_PROPRIETARIO',
+        ],
+        required: ['AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+      };
+    case 'Arrendatário':
+      return {
+        options: [
+          'CONTA_ENERGIA_ATUAL',
+          'DOC_ID_SOLICITANTE',
+          'CONTRATO_ARRENDAMENTO',
+          'AUTORIZACAO_PROPRIETARIO_ASSINADA',
+          'DOC_ID_PROPRIETARIO',
+          'CPF_CNPJ_PROPRIETARIO',
+        ],
+        required: ['CONTRATO_ARRENDAMENTO', 'AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+      };
+    case 'Familiar do proprietário':
+      return {
+        options: [
+          'CONTA_ENERGIA_ATUAL',
+          'DOC_ID_SOLICITANTE',
+          'AUTORIZACAO_PROPRIETARIO_ASSINADA',
+          'DOC_ID_PROPRIETARIO',
+          'CPF_CNPJ_PROPRIETARIO',
+          'COMPROVANTE_VINCULO_PROPRIETARIO',
+        ],
+        required: ['AUTORIZACAO_PROPRIETARIO_ASSINADA'],
+      };
+    case 'Administrador / Síndico':
+      return {
+        options: [
+          'CONTA_ENERGIA_ATUAL',
+          'DOC_ID_SINDICO_ADMIN',
+          'ATA_ASSEMBLEIA_APROVACAO',
+          'AUTORIZACAO_CONDOMINIO_ASSINADA',
+          'COMPROVANTE_VINCULO_SINDICO',
+          'FOTOS_LOCAL_INSTALACAO',
+        ],
+        required: ['DOC_ID_SINDICO_ADMIN', 'ATA_ASSEMBLEIA_APROVACAO'],
+      };
+    case 'Proprietário':
+      return {
+        options: ['CONTA_ENERGIA_ATUAL', 'DOC_ID_SOLICITANTE', 'CPF_CNPJ_SOLICITANTE', 'FOTOS_LOCAL_INSTALACAO'],
+        required: [],
+      };
+    default:
+      return { options: [], required: [] };
+  }
 }
 
 function calcularStatus(
@@ -276,13 +422,16 @@ function calcularStatus(
   cpfCnpjValido: boolean,
   whatsappValido: boolean,
   emailValido: boolean,
-  tipoInstalacao: InstallationType
-): { status: StatusResultado; motivosInternos: string[] } {
+  tipoInstalacao: InstallationType,
+  relacaoImovel: PropertyRelation,
+  docFlags: ReturnType<typeof buildDocFlags>
+): { status: StatusResultado; motivosInternos: string[]; statusInterno: string } {
   const motivosInternos: string[] = [];
+  let statusInterno: string = 'PRE_APROVADO';
 
   if (consumo < 200) {
     motivosInternos.push('Consumo abaixo do mínimo de 200 kWh/mês');
-    return { status: 'NAO_ELEGIVEL', motivosInternos };
+    return { status: 'NAO_ELEGIVEL', motivosInternos, statusInterno: 'NAO_ELEGIVEL' };
   }
 
   if (!cpfCnpjValido) motivosInternos.push('CPF/CNPJ inválido');
@@ -298,34 +447,45 @@ function calcularStatus(
     return {
       status: 'PENDENTE',
       motivosInternos: ['Consumo abaixo do mínimo padrão (300) — avaliar caso a caso'],
+      statusInterno: 'PENDENTE_REVISAO',
     };
   }
 
   if (tarifa !== undefined && (tarifa <= 0.9 || tarifa >= 2.5)) {
     motivosInternos.push('Tarifa fora do range típico (0,90 - 2,50)');
+    statusInterno = 'PENDENTE_REVISAO';
   }
 
   if (!contaEnviada) {
     motivosInternos.push('Conta não enviada — análise manual necessária');
+    statusInterno = 'PENDENTE_CONTA';
   }
 
   if (tipoInstalacao === 'Outro') {
     motivosInternos.push('Tipo de instalação "Outro" — validar viabilidade');
+    statusInterno = 'PENDENTE_REVISAO';
+  }
+
+  if (docFlags.missingRequired.length > 0 && relacaoImovel !== 'Proprietário') {
+    motivosInternos.push(
+      `Documentos obrigatórios faltando: ${docFlags.missingRequired.join(', ')}`
+    );
+    statusInterno = 'PENDENTE_DOCS_IMOVEL';
   }
 
   if (motivosInternos.length === 0) {
-    return { status: 'PRE_APROVADO', motivosInternos: ['Perfil forte para leasing'] };
+    return { status: 'PRE_APROVADO', motivosInternos: ['Perfil forte para leasing'], statusInterno };
   }
 
-  return { status: 'PENDENTE', motivosInternos };
+  return { status: 'PENDENTE', motivosInternos, statusInterno };
 }
 
-async function fileToBase64(file: File): Promise<AttachmentPayload> {
+async function fileToBase64(anexo: AttachmentWithMeta): Promise<AttachmentPayload> {
   const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-  if (!allowed.includes(file.type)) {
+  if (!allowed.includes(anexo.file.type)) {
     throw new Error('Envie apenas PDF ou imagem (JPEG/PNG).');
   }
-  if (file.size > 7 * 1024 * 1024) {
+  if (anexo.file.size > 7 * 1024 * 1024) {
     throw new Error('Arquivo maior que 7MB.');
   }
 
@@ -337,13 +497,15 @@ async function fileToBase64(file: File): Promise<AttachmentPayload> {
       resolve(content);
     };
     reader.onerror = (err) => reject(err);
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(anexo.file);
   });
 
   return {
-    filename: file.name,
+    filename: anexo.file.name,
     content: base64,
-    contentType: file.type,
+    contentType: anexo.file.type,
+    tag: anexo.tag as DocTag,
+    note: anexo.note,
   };
 }
 
@@ -359,6 +521,11 @@ export default function PreApprovalForm({
   const [pendencias, setPendencias] = useState<string[]>([]);
   const [cpfCnpjMasked, setCpfCnpjMasked] = useState(false);
   const [honeypotValue, setHoneypotValue] = useState('');
+  const [documentos, setDocumentos] = useState<AttachmentWithMeta[]>([]);
+  const [taggingQueue, setTaggingQueue] = useState<File[]>([]);
+  const [tagModalFile, setTagModalFile] = useState<File | null>(null);
+  const [tagModalNote, setTagModalNote] = useState('');
+  const [tagModalTag, setTagModalTag] = useState<DocTag | ''>('');
 
   const consumoNormalizado = useMemo(() => parseConsumo(form.consumoMedio), [form.consumoMedio]);
   const tarifaNormalizada = useMemo(() => parseTarifa(form.tarifa), [form.tarifa]);
@@ -372,10 +539,8 @@ export default function PreApprovalForm({
     [cpfCnpjMasked, form.cpfCnpj]
   );
 
-  const relacaoImovelDocChecklist = useMemo(
-    () => buildChecklist(form.relacaoImovel),
-    [form.relacaoImovel]
-  );
+  const relacaoImovelDocRules = useMemo(() => getDocRules(form.relacaoImovel), [form.relacaoImovel]);
+  const docFlags = useMemo(() => buildDocFlags(form.relacaoImovel, documentos), [documentos, form.relacaoImovel]);
 
   const atualizarCampo = (campo: keyof FormState, valor: string | File | File[] | undefined) => {
     setForm((prev) => ({
@@ -383,6 +548,14 @@ export default function PreApprovalForm({
       [campo]: Array.isArray(valor) ? valor : valor instanceof File ? valor : valor ?? '',
     }));
   };
+
+  useEffect(() => {
+    if (tagModalFile || taggingQueue.length === 0) return;
+    setTagModalFile(taggingQueue[0]);
+    setTaggingQueue((prev) => prev.slice(1));
+    setTagModalNote('');
+    setTagModalTag('');
+  }, [taggingQueue, tagModalFile]);
 
   useEffect(() => {
     const digits = onlyDigits(form.cep);
@@ -501,8 +674,12 @@ export default function PreApprovalForm({
       if (mensagem) avisos.push(mensagem);
     });
 
-    if (!form.contasDeEnergia.length) {
+    if (!docFlags.hasBill) {
       avisos.push('Conta de energia não enviada. A análise será manual e pode levar mais tempo.');
+    }
+
+    if (docFlags.missingRequired.length) {
+      avisos.push(`Documentos obrigatórios pendentes: ${docFlags.missingRequired.join(', ')}`);
     }
 
     if (consumoNormalizado && consumoNormalizado < 300) {
@@ -518,7 +695,22 @@ export default function PreApprovalForm({
     }
 
     setPendencias(avisos);
-  }, [coletarErros, form.contasDeEnergia.length, form.tipoInstalacao, consumoNormalizado, tarifaNormalizada]);
+  }, [coletarErros, documentos.length, form.tipoInstalacao, consumoNormalizado, tarifaNormalizada, docFlags]);
+
+  const confirmarEtiqueta = () => {
+    if (!tagModalFile || !tagModalTag) return;
+    setDocumentos((prev) => [
+      ...prev,
+      { id: `${tagModalFile.name}-${Date.now()}`, file: tagModalFile, tag: tagModalTag, note: tagModalNote.trim() },
+    ]);
+    setTagModalFile(null);
+    setTagModalNote('');
+    setTagModalTag('');
+  };
+
+  const removerDocumento = (id: string) => {
+    setDocumentos((prev) => prev.filter((doc) => doc.id !== id));
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -543,9 +735,13 @@ export default function PreApprovalForm({
     }
 
     try {
-      const attachments = await Promise.all(
-        (form.contasDeEnergia ?? []).map(async (file) => fileToBase64(file))
-      );
+      if (tagModalFile) {
+        setErrors({ geral: 'Finalize a etiqueta do documento selecionado.' });
+        setSubmission({ loading: false });
+        return;
+      }
+
+      const attachments = await Promise.all(documentos.map((doc) => fileToBase64(doc)));
 
       const cpfCnpjValido = validarCpfOuCnpj(form.cpfCnpj);
       const whatsappValido = validarWhatsapp(form.whatsapp);
@@ -555,15 +751,17 @@ export default function PreApprovalForm({
       const tarifa = tarifaNormalizada;
       const whatsappNormalizado = normalizarWhatsappBrasil(form.whatsapp);
 
-      const { status, motivosInternos } = calcularStatus(
+      const { status, motivosInternos, statusInterno } = calcularStatus(
         consumo,
         tarifa,
-        attachments.length > 0,
+        docFlags.hasBill,
         cepValido,
         cpfCnpjValido,
         whatsappValido,
         emailValido,
-        form.tipoInstalacao
+        form.tipoInstalacao,
+        form.relacaoImovel,
+        docFlags
       );
 
       const prioridade = calcularPrioridade(consumo);
@@ -579,9 +777,10 @@ export default function PreApprovalForm({
         consumoMedio: consumo,
         tarifa: tarifa ?? 0,
         status,
+        statusInterno,
         prioridade,
         motivosInternos,
-        checklist: relacaoImovelDocChecklist,
+        checklist: relacaoImovelDocRules.required,
         attachments,
       };
 
@@ -599,6 +798,9 @@ export default function PreApprovalForm({
 
       setSubmission({ status, message: statusMessages[status], loading: false });
       setForm(initialState);
+      setDocumentos([]);
+      setTaggingQueue([]);
+      setTagModalFile(null);
       setCpfCnpjMasked(false);
       setErrors({});
       onSubmitted?.({ status, message: statusMessages[status] });
@@ -650,6 +852,82 @@ export default function PreApprovalForm({
         {errors.geral && (
           <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-4 text-sm">
             {errors.geral}
+          </div>
+        )}
+
+        {tagModalFile && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Arquivo</p>
+                  <p className="font-semibold text-gray-900 break-all">{tagModalFile.name}</p>
+                </div>
+                <button
+                  type="button"
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => {
+                    setTagModalFile(null);
+                    setTagModalNote('');
+                    setTagModalTag('');
+                  }}
+                  aria-label="Fechar modal"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Selecione a etiqueta</label>
+                <select
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  value={tagModalTag}
+                  onChange={(e) => setTagModalTag(e.target.value as DocTag)}
+                >
+                  <option value="" disabled>
+                    Escolha uma etiqueta
+                  </option>
+                  {(relacaoImovelDocRules.options.length ? relacaoImovelDocRules.options : ALL_DOC_TAGS).map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Observação (opcional)</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  value={tagModalNote}
+                  onChange={(e) => setTagModalNote(e.target.value)}
+                  placeholder="Ex.: autorização assinada pelo proprietário"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                  onClick={() => {
+                    setTagModalFile(null);
+                    setTagModalNote('');
+                    setTagModalTag('');
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={!tagModalTag}
+                  className="inline-flex items-center justify-center rounded-xl bg-orange-600 text-white font-semibold px-4 py-2 shadow-md hover:bg-orange-700 transition disabled:opacity-60"
+                  onClick={confirmarEtiqueta}
+                >
+                  Salvar etiqueta
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -846,7 +1124,11 @@ export default function PreApprovalForm({
                   className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
                   placeholder="0,95"
                   value={form.tarifa}
-                  onChange={(e) => atualizarCampo('tarifa', e.target.value)}
+                  onChange={(e) => atualizarCampo('tarifa', formatTarifaInput(e.target.value))}
+                  onBlur={() => {
+                    const valor = parseTarifa(form.tarifa);
+                    atualizarCampo('tarifa', valor !== undefined ? valor.toFixed(3).replace('.', ',') : '');
+                  }}
                   required
                 />
                 {errors.tarifa && <p className="text-xs text-red-600 mt-1">{errors.tarifa}</p>}
@@ -858,23 +1140,39 @@ export default function PreApprovalForm({
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Conta de energia (PDF ou foto)</label>
+              <label className="block text-sm font-medium text-gray-700">Conta de energia / Documentos</label>
               <input
                 type="file"
                 accept="application/pdf,image/*"
                 className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none bg-white"
                 multiple
-                onChange={(e) => atualizarCampo('contasDeEnergia', Array.from(e.target.files ?? []))}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  if (files.length) {
+                    setTaggingQueue((prev) => [...prev, ...files]);
+                  }
+                }}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Envie para agilizar a análise. Sem a conta, o pedido entra como pendente.
+                Cada arquivo precisa de uma etiqueta. Sem conta de energia, a análise fica manual.
               </p>
-              {form.contasDeEnergia.length > 0 && (
-                <ul className="text-xs text-gray-700 mt-2 space-y-1">
-                  {form.contasDeEnergia.map((file) => (
-                    <li key={file.name} className="flex items-center gap-2">
-                      <span className="inline-block h-2 w-2 rounded-full bg-orange-400" aria-hidden />
-                      <span>{file.name}</span>
+              {documentos.length > 0 && (
+                <ul className="text-xs text-gray-700 mt-2 space-y-2">
+                  {documentos.map((item) => (
+                    <li key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-gray-800">{item.file.name}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">{item.tag}</span>
+                        {item.note && <span className="text-[11px] text-gray-600">Obs.: {item.note}</span>}
+                      </div>
+                      <button
+                        type="button"
+                        className="text-xs text-red-600 hover:text-red-700"
+                        onClick={() => removerDocumento(item.id)}
+                        aria-label={`Remover ${item.file.name}`}
+                      >
+                        Remover
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -927,14 +1225,29 @@ export default function PreApprovalForm({
               </select>
             </div>
 
-            {relacaoImovelDocChecklist.length > 0 && (
-              <div className="bg-white border border-orange-100 rounded-xl p-3 text-sm text-gray-700">
-                <p className="font-semibold text-orange-700">Documentos complementares</p>
-                <ul className="list-disc list-inside space-y-1 mt-2">
-                  {relacaoImovelDocChecklist.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+            {relacaoImovelDocRules.options.length > 0 && (
+              <div className="bg-white border border-orange-100 rounded-xl p-3 text-sm text-gray-700 space-y-2">
+                <p className="font-semibold text-orange-700">Checklist automático</p>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {relacaoImovelDocRules.required.map((tag) => {
+                    const ok = documentos.some((doc) => doc.tag === tag);
+                    return (
+                      <span
+                        key={tag}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
+                          ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-amber-200 bg-amber-50 text-amber-800'
+                        }`}
+                      >
+                        {ok ? '✅' : '⏳'} {tag}
+                      </span>
+                    );
+                  })}
+                  {!relacaoImovelDocRules.required.length && (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 border border-slate-200 bg-slate-50 text-slate-700">
+                      Opcional — envie o que tiver
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>
