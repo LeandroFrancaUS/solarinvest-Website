@@ -521,8 +521,13 @@ export default function PreApprovalForm({
     }
 
     const novoErros = coletarErros();
-    setErrors(novoErros);
-    if (Object.keys(novoErros).length > 0) {
+    const hasErrors = Object.keys(novoErros).length > 0;
+    setErrors(
+      hasErrors
+        ? { ...novoErros, geral: 'Não foi enviado. Complete os campos destacados para prosseguir.' }
+        : novoErros
+    );
+    if (hasErrors) {
       setSubmission({ loading: false });
       return;
     }
