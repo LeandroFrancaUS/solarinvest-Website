@@ -47,9 +47,12 @@ const submissionLog = new Map<string, number[]>();
 
 function normalizarWhatsapp(numero: string) {
   const digits = numero.replace(/\D/g, '');
-  if (digits.startsWith('55')) return digits;
-  if (digits.length === 11 || digits.length === 12 || digits.length === 13) return `55${digits}`;
-  return digits;
+  const semDdi = digits.startsWith('55') ? digits.slice(2) : digits;
+  const local = semDdi.slice(-11);
+
+  if (local.length < 10) return '';
+
+  return `55${local}`;
 }
 
 async function enviarWhatsapp(to: string, body: string, imageUrl?: string) {
@@ -163,6 +166,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: rateResult.reason }, { status: 429 });
   }
 
+  const whatsappNormalizado = normalizarWhatsapp(body.whatsapp);
+
+  if (!whatsappNormalizado) {
+    return NextResponse.json({ success: false, error: 'WhatsApp inválido.' }, { status: 400 });
+  }
+
   const assunto = `[Pré-Qualificação] ${body.status} — ${body.nome} — ${body.cep} — ${body.consumoMedio} kWh/mês`;
 
   const valorContaEstimado = Number((body.consumoMedio * body.tarifa).toFixed(2));
@@ -204,7 +213,7 @@ export async function POST(req: Request) {
             <li><strong>CPF/CNPJ:</strong> ${sanitize(body.cpfCnpj)}</li>
             <li><strong>Tipo de cliente:</strong> ${sanitize(body.tipoCliente)} ${sanitize(body.tipoClienteOutro)}</li>
             <li><strong>Relação com imóvel:</strong> ${sanitize(body.relacaoImovel)} ${sanitize(body.relacaoOutro)}</li>
-            <li><strong>Telefone:</strong> ${sanitize(body.whatsapp)}</li>
+            <li><strong>Telefone:</strong> +${sanitize(whatsappNormalizado)}</li>
             <li><strong>E-mail:</strong> ${sanitize(body.email)}</li>
             <li><strong>CEP:</strong> ${sanitize(body.cep)}</li>
             <li><strong>Município:</strong> ${sanitize(body.municipio)}</li>
@@ -268,7 +277,7 @@ export async function POST(req: Request) {
           <p style="margin: 0 0 10px 0;">Olá, ${sanitize(body.nome)}.</p>
           <p style="margin: 0 0 12px 0;">Recebemos sua solicitação de pré-análise de leasing SolarInvest.</p>
           <p style="margin: 0 0 12px 0;">Status automático: <strong>${sanitize(body.status)}</strong></p>
-          <p style="margin: 0 0 12px 0;">Em breve nossa equipe entrará em contato pelo WhatsApp ${sanitize(body.whatsapp)} para confirmar próximos passos.</p>
+          <p style="margin: 0 0 12px 0;">Em breve nossa equipe entrará em contato pelo WhatsApp +${sanitize(whatsappNormalizado)} para confirmar próximos passos.</p>
           <h3 style="margin: 16px 0 8px 0;">Resumo informado</h3>
           <ul>
             <li><strong>CEP:</strong> ${sanitize(body.cep)} — ${sanitize(body.municipio)}</li>
@@ -287,7 +296,7 @@ export async function POST(req: Request) {
 
     try {
       await enviarWhatsapp(
-        normalizarWhatsapp(body.whatsapp),
+        whatsappNormalizado,
         `Olá, ${body.nome}! Recebemos sua solicitação de pré-análise de leasing SolarInvest. Status automático: ${body.status}. Em breve entraremos em contato.`,
         solarinvestLogoUrl
       );

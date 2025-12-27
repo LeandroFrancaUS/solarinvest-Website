@@ -153,6 +153,16 @@ function formatCEP(value: string) {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
+function normalizarWhatsappBrasil(numero: string) {
+  const digits = onlyDigits(numero);
+  const semDdi = digits.startsWith('55') ? digits.slice(2) : digits;
+  const local = semDdi.slice(-11);
+
+  if (local.length < 10) return '';
+
+  return `55${local}`;
+}
+
 function maskCpfCnpj(value: string) {
   const digits = onlyDigits(value);
   if (digits.length !== 11 && digits.length !== 14) return value;
@@ -181,8 +191,7 @@ function validarEmail(email: string) {
 }
 
 function validarWhatsapp(numero: string) {
-  const digits = onlyDigits(numero);
-  return digits.length >= 11 && digits.length <= 13;
+  return Boolean(normalizarWhatsappBrasil(numero));
 }
 
 function validarCEP(cep: string) {
@@ -543,6 +552,7 @@ export default function PreApprovalForm({
       const cepValido = validarCEP(form.cep);
       const consumo = consumoNormalizado as number;
       const tarifa = tarifaNormalizada;
+      const whatsappNormalizado = normalizarWhatsappBrasil(form.whatsapp);
 
       const { status, motivosInternos } = calcularStatus(
         consumo,
@@ -559,6 +569,7 @@ export default function PreApprovalForm({
 
       const payload = {
         ...form,
+        whatsapp: whatsappNormalizado,
         municipio: form.municipio,
         tipoClienteOutro: form.tipoCliente === 'Outro' ? form.tipoClienteOutro : '',
         tipoInstalacaoOutro: form.tipoInstalacao === 'Outro' ? form.tipoInstalacaoOutro : '',
