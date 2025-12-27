@@ -10,6 +10,7 @@ import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage, logoPath, logoUrl, baseKeywords, socialProfiles } = seoConstants;
+const gtmId = 'GTM-MK55QTV5';
 const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_VERCEL_TRACKING === 'true';
 const speedInsightsId =
   analyticsEnabled &&
@@ -217,6 +218,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR">
       <head>
+        <Script id="gtm-head" strategy="afterInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmId}');`}
+        </Script>
         <meta property="og:image" content={defaultImage} />
         <meta name="twitter:image" content={defaultImage} />
         <link rel="icon" href="/favicon.png" sizes="any" type="image/png" />
@@ -263,6 +271,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ) : null}
       </head>
       <body className="font-sans text-gray-900 bg-white pt-[72px]">
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         <SplashScreen>
           {/* Compensar header fixo */}
           <Header />
