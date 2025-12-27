@@ -303,8 +303,9 @@ function formatTarifaInput(raw: string) {
 
   const inteiro = digits[0];
   const decimais = digits.slice(1);
+  const hasSeparator = raw.includes(',') || raw.includes('.') || decimais.length > 0;
 
-  return decimais.length ? `${inteiro},${decimais}` : `${inteiro},`;
+  return hasSeparator && decimais.length ? `${inteiro},${decimais}` : hasSeparator ? `${inteiro},` : inteiro;
 }
 
 function parseTarifa(valor: string) {
@@ -1159,6 +1160,7 @@ export default function PreApprovalForm({
                   if (files.length) {
                     setTaggingQueue((prev) => [...prev, ...files]);
                   }
+                  e.target.value = '';
                 }}
               />
               <p className="text-xs text-gray-500 mt-1">
