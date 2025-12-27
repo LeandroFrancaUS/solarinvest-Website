@@ -36,6 +36,20 @@ module.exports = {
           },
         ],
       },
+      {
+        source:
+          '/:path(_next/static/.*|favicon\\.png|icon\\.png|site\\.webmanifest|LogoNatal\\.png|LogoNatal2\\.png|logo\\.png|logo%20original\\.png|hero-solar-house\\.png|images/.*)',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, OPTIONS',
+          },
+        ],
+      },
     ];
   },
 

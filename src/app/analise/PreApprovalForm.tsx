@@ -2,6 +2,13 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
+declare global {
+  interface Window {
+    dataLayer?: Array<Record<string, unknown>>;
+    __leadSent?: boolean;
+  }
+}
+
 type ClientType =
   | 'Residencial'
   | 'Comercial'
@@ -722,6 +729,16 @@ export default function PreApprovalForm({
     setDocumentos((prev) => prev.filter((doc) => doc.id !== id));
   };
 
+  const pushLeadSubmitEvent = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    window.dataLayer = window.dataLayer || [];
+    if (!window.__leadSent) {
+      window.__leadSent = true;
+      window.dataLayer.push({ event: 'lead_submit' });
+    }
+  }, []);
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setSubmission({ loading: true });
@@ -806,6 +823,7 @@ export default function PreApprovalForm({
         throw new Error(result.error || 'Erro ao enviar a solicitação.');
       }
 
+      pushLeadSubmitEvent();
       setSubmission({ status, message: statusMessages[status], loading: false });
       setForm(initialState);
       setDocumentos([]);
