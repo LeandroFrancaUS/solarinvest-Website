@@ -20,6 +20,7 @@ export default function Header() {
     { name: 'Início', href: '/' },
     { name: 'Como Funciona', href: '/comofunciona' },
     { name: 'Soluções', href: '/solucoes' },
+    { name: 'Vídeos', href: '/videos' },
     { name: 'Sobre', href: '/sobre' },
     { name: 'Contato', href: '/contato' },
   ];
@@ -44,11 +45,11 @@ export default function Header() {
             className="w-10 h-10 object-contain"
           />
           <div className="flex flex-col leading-tight">
-            <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900">
+            <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
               SolarInvest
             </span>
-            <span className="text-xs sm:text-sm font-medium text-muted-foreground -mt-1 whitespace-nowrap">
-              da economia mensal a patrimônio real
+            <span className="text-xs sm:text-sm font-semibold text-neutral-700 -mt-1 whitespace-nowrap tracking-wide">
+              da economia mensal ao patrimônio real
             </span>
           </div>
         </Link>

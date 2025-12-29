@@ -27,6 +27,46 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+const estadosBrasil = [
+  'AC',
+  'AL',
+  'AP',
+  'AM',
+  'BA',
+  'CE',
+  'DF',
+  'ES',
+  'GO',
+  'MA',
+  'MT',
+  'MS',
+  'MG',
+  'PA',
+  'PB',
+  'PR',
+  'PE',
+  'PI',
+  'RJ',
+  'RN',
+  'RS',
+  'RO',
+  'RR',
+  'SC',
+  'SP',
+  'SE',
+  'TO',
+];
+
+const normalizeWhatsapp = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+  const semDdi = digits.startsWith('55') ? digits.slice(2) : digits;
+  const local = semDdi.slice(-11);
+
+  if (local.length < 10) return '';
+
+  return `55${local}`;
+};
+
 export async function POST(req: Request) {
   if (!resend) {
     console.error('[❌ Missing RESEND_API_KEY]');
@@ -48,12 +88,25 @@ export async function POST(req: Request) {
 
   const nome = typeof body.nome === 'string' ? body.nome.trim() : '';
   const email = typeof body.email === 'string' ? body.email.trim() : '';
+  const consumo = typeof body.consumo === 'string' ? body.consumo.trim() : '';
+  const municipio = typeof body.municipio === 'string' ? body.municipio.trim() : '';
+  const estado = typeof body.estado === 'string' ? body.estado.trim().toUpperCase() : '';
+  const whatsapp = typeof body.whatsapp === 'string' ? normalizeWhatsapp(body.whatsapp) : '';
   const mensagem = typeof body.mensagem === 'string' ? body.mensagem.trim() : '';
 
   if (
     !nome ||
     nome.length > 100 ||
     !isValidEmail(email) ||
+    !consumo ||
+    consumo.length > 200 ||
+    !municipio ||
+    municipio.length > 200 ||
+    !estado ||
+    !estadosBrasil.includes(estado) ||
+    !whatsapp ||
+    whatsapp.length < 12 ||
+    whatsapp.length > 15 ||
     !mensagem ||
     mensagem.length > 2000
   ) {
@@ -69,12 +122,15 @@ export async function POST(req: Request) {
     const { data, error } = await resend.emails.send({
       from: remetente,
       to: ['brsolarinvest@gmail.com'],
-      subject: 'Nova mensagem via site SolarInvest',
+      subject: `Nova mensagem via site SolarInvest (${sanitize(municipio)}/${sanitize(estado)})`,
       html: `
         <div style="font-family: Arial, sans-serif; color: #333; padding: 20px;">
           <h2 style="color: #E15800;">📬 Nova mensagem recebida</h2>
           <p><strong>👤 Nome:</strong> ${sanitize(nome)}</p>
           <p><strong>✉️ Email:</strong> ${sanitize(email)}</p>
+          <p><strong>📊 Consumo médio (12 meses):</strong> ${sanitize(consumo)}</p>
+          <p><strong>📍 Local de instalação:</strong> ${sanitize(municipio)} / ${sanitize(estado)}</p>
+          <p><strong>📱 WhatsApp:</strong> +${sanitize(whatsapp)}</p>
           <p><strong>📝 Mensagem:</strong></p>
           <div style="margin-top: 10px; padding: 15px; background: #f9f9f9; border-left: 4px solid #E15800;">
             ${mensagemSanitizada}

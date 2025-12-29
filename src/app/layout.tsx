@@ -10,8 +10,10 @@ import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage, logoPath, logoUrl, baseKeywords, socialProfiles } = seoConstants;
+const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_VERCEL_TRACKING === 'true';
 const speedInsightsId =
-  process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID;
+  analyticsEnabled &&
+  (process.env.NEXT_PUBLIC_VERCEL_SPEED_INSIGHTS_ID || process.env.NEXT_PUBLIC_VERCEL_INSIGHTS_ID);
 const analyticsModeEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_MODE?.toLowerCase();
 const analyticsDebugEnv = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_DEBUG?.toLowerCase();
 const analyticsEndpoint = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ENDPOINT;
@@ -74,9 +76,9 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: logoUrl,
-        width: 512,
-        height: 512,
+        url: defaultImage,
+        width: 1024,
+        height: 1024,
         alt: siteName,
       },
     ],
@@ -85,14 +87,14 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: siteName,
     description: defaultMetaDescription,
-    images: [logoUrl],
+    images: [defaultImage],
   },
   icons: {
     icon: [
-      { url: logoPath, type: 'image/png' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', type: 'image/png', sizes: '1024x1024' },
+      { url: '/icon.png', type: 'image/png', sizes: '1024x1024' },
     ],
-    shortcut: [logoPath],
+    shortcut: ['/favicon.png'],
     apple: [{ url: logoPath }],
   },
   manifest: '/site.webmanifest',
@@ -133,14 +135,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       areaServed: 'BR',
       availableLanguage: ['Portuguese', 'English'],
     },
-    sameAs: [
-      socialProfiles.instagram,
-      socialProfiles.linkedin,
-      socialProfiles.whatsapp,
-      socialProfiles.facebook,
-      socialProfiles.google,
-      socialProfiles.maps,
-    ],
+    sameAs: [socialProfiles.instagram, socialProfiles.facebook, socialProfiles.whatsapp, socialProfiles.linkedin],
   };
 
   const websiteJsonLd = {
@@ -154,14 +149,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       target: `${siteUrl}/search?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
-    sameAs: [
-      socialProfiles.instagram,
-      socialProfiles.linkedin,
-      socialProfiles.whatsapp,
-      socialProfiles.facebook,
-      socialProfiles.google,
-      socialProfiles.maps,
-    ],
+    sameAs: [socialProfiles.instagram, socialProfiles.facebook, socialProfiles.whatsapp, socialProfiles.linkedin],
   };
 
   const localBusinessJsonLd = {
@@ -172,14 +160,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     image: logoUrl,
     logo: logoUrl,
     telephone: '+55-62-99515-0975',
-    sameAs: [
-      socialProfiles.instagram,
-      socialProfiles.linkedin,
-      socialProfiles.whatsapp,
-      socialProfiles.facebook,
-      socialProfiles.google,
-      socialProfiles.maps,
-    ],
+    sameAs: [socialProfiles.instagram, socialProfiles.facebook, socialProfiles.whatsapp, socialProfiles.linkedin],
     areaServed: {
       '@type': 'AdministrativeArea',
       name: 'Brasil',
@@ -236,11 +217,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR">
       <head>
-        <meta property="og:image" content={logoUrl} />
-        <meta name="twitter:image" content={logoUrl} />
-        <link rel="icon" href="/favicon.png" sizes="64x64" type="image/png" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/favicon.svg" />
+        <meta property="og:image" content={defaultImage} />
+        <meta name="twitter:image" content={defaultImage} />
+        <link rel="icon" href="/favicon.png" sizes="any" type="image/png" />
+        <link rel="icon" href="/icon.png" type="image/png" sizes="1024x1024" />
+        <link rel="apple-touch-icon" href={logoPath} />
+        <link rel="manifest" href="/site.webmanifest" />
         <Script
           id="organization-jsonld"
           type="application/ld+json"
@@ -288,13 +270,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <WhatsappButton />
         </SplashScreen>
-        <Analytics
-          {...(analyticsMode ? { mode: analyticsMode } : {})}
-          {...(typeof analyticsDebug === 'boolean' ? { debug: analyticsDebug } : {})}
-          {...(analyticsEndpoint ? { endpoint: analyticsEndpoint } : {})}
-          {...(analyticsScriptSrc ? { scriptSrc: analyticsScriptSrc } : {})}
-          {...(beforeSendHandler ? { beforeSend: beforeSendHandler } : {})}
-        />
+        {analyticsEnabled ? (
+          <Analytics
+            {...(analyticsMode ? { mode: analyticsMode } : {})}
+            {...(typeof analyticsDebug === 'boolean' ? { debug: analyticsDebug } : {})}
+            {...(analyticsEndpoint ? { endpoint: analyticsEndpoint } : {})}
+            {...(analyticsScriptSrc ? { scriptSrc: analyticsScriptSrc } : {})}
+            {...(beforeSendHandler ? { beforeSend: beforeSendHandler } : {})}
+          />
+        ) : null}
       </body>
     </html>
   );

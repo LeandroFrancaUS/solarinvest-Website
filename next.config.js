@@ -9,7 +9,7 @@ const ContentSecurityPolicy = `
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com;
   frame-src 'self' https://www.youtube.com https://vercel.live;
-  connect-src 'self';
+  connect-src 'self' https://viacep.com.br;
 `;
 
 module.exports = {
@@ -33,6 +33,20 @@ module.exports = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+      {
+        source:
+          '/:path(_next/static/.*|favicon\\.png|icon\\.png|site\\.webmanifest|LogoNatal\\.png|LogoNatal2\\.png|logo\\.png|logo%20original\\.png|hero-solar-house\\.png|images/.*)',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, OPTIONS',
           },
         ],
       },

@@ -47,14 +47,7 @@ export default function Beneficios() {
       name: siteName,
       url: siteUrl,
       logo: logoUrl,
-      sameAs: [
-        socialProfiles.instagram,
-        socialProfiles.linkedin,
-        socialProfiles.whatsapp,
-        socialProfiles.facebook,
-        socialProfiles.google,
-        socialProfiles.maps,
-      ],
+      sameAs: [socialProfiles.instagram, socialProfiles.facebook, socialProfiles.whatsapp, socialProfiles.linkedin],
     },
   };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FaWhatsapp, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaWhatsapp, FaInstagram, FaLinkedin, FaFacebook } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -24,6 +24,7 @@ export default function Footer() {
         <div className="flex flex-col space-y-2 text-sm">
           <Link href="/" className="hover:text-orange-400 transition">Início</Link>
           <Link href="/solucoes" className="hover:text-orange-400 transition">Soluções</Link>
+          <Link href="/videos" className="hover:text-orange-400 transition">Vídeos</Link>
           <Link href="/sobre" className="hover:text-orange-400 transition">Sobre</Link>
           <Link href="/contato" className="hover:text-orange-400 transition">Contato</Link>
         </div>
@@ -31,27 +32,39 @@ export default function Footer() {
         {/* 🌐 Redes sociais com ícones coloridos */}
         <div className="flex items-start md:justify-end space-x-6 pt-1">
           <a
-            href="https://wa.me/5562995150975"
+            href="https://api.whatsapp.com/send/?phone=5562995150975&text=Ol%C3%A1%21+Gostaria+de+saber+mais+sobre+a+energia+solar+da+SolarInvest.&type=phone_number&app_absent=0"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="me noopener noreferrer"
             aria-label="WhatsApp"
           >
+            <span className="sr-only">WhatsApp oficial SolarInvest</span>
             <FaWhatsapp size={24} className="text-green-400 hover:text-green-300 transition" />
           </a>
           <a
             href="https://www.instagram.com/solarinvest.br/"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="me noopener noreferrer"
             aria-label="Instagram"
           >
+            <span className="sr-only">Instagram oficial SolarInvest</span>
             <FaInstagram size={24} className="text-pink-400 hover:text-pink-300 transition" />
+          </a>
+          <a
+            href="https://www.facebook.com/SolarInvestSolutions"
+            target="_blank"
+            rel="me noopener noreferrer"
+            aria-label="Facebook"
+          >
+            <span className="sr-only">Facebook oficial SolarInvest</span>
+            <FaFacebook size={24} className="text-blue-500 hover:text-blue-400 transition" />
           </a>
           <a
             href="https://www.linkedin.com/company/solarinvest-solutions"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="me noopener noreferrer"
             aria-label="LinkedIn"
           >
+            <span className="sr-only">LinkedIn oficial SolarInvest</span>
             <FaLinkedin size={24} className="text-blue-400 hover:text-blue-300 transition" />
           </a>
         </div>

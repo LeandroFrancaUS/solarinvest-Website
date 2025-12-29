@@ -5,9 +5,21 @@ import { useEffect, useState } from 'react';
 
 export default function SplashScreen({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
+  const splashCooldownMs = 5 * 60 * 1000;
+  const splashStorageKey = 'solarinvest:splash:lastShown';
 
   useEffect(() => {
+    const now = Date.now();
+    const lastShown = localStorage.getItem(splashStorageKey);
+
+    if (lastShown && now - Number(lastShown) < splashCooldownMs) {
+      setShowSplash(false);
+      return;
+    }
+
+    localStorage.setItem(splashStorageKey, String(now));
     const timer = setTimeout(() => setShowSplash(false), 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
