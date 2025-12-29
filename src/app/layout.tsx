@@ -10,6 +10,7 @@ import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 import { seoConstants } from '@/lib/seo';
 
 const { siteUrl, siteName, defaultImage, logoPath, logoUrl, baseKeywords, socialProfiles } = seoConstants;
+const gtmId = 'GTM-MK55QTV5';
 const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_VERCEL_TRACKING === 'true';
 const speedInsightsId =
   analyticsEnabled &&
@@ -91,11 +92,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png', sizes: '1024x1024' },
-      { url: '/icon.png', type: 'image/png', sizes: '1024x1024' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
     ],
-    shortcut: ['/favicon.png'],
-    apple: [{ url: logoPath }],
+    shortcut: ['/favicon-32x32.png'],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
   manifest: '/site.webmanifest',
   robots: {
@@ -217,11 +218,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR">
       <head>
+        <Script id="gtm-head" strategy="afterInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmId}');`}
+        </Script>
         <meta property="og:image" content={defaultImage} />
         <meta name="twitter:image" content={defaultImage} />
-        <link rel="icon" href="/favicon.png" sizes="any" type="image/png" />
-        <link rel="icon" href="/icon.png" type="image/png" sizes="1024x1024" />
-        <link rel="apple-touch-icon" href={logoPath} />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <Script
           id="organization-jsonld"
@@ -263,6 +271,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ) : null}
       </head>
       <body className="font-sans text-gray-900 bg-white pt-[72px]">
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         <SplashScreen>
           {/* Compensar header fixo */}
           <Header />
