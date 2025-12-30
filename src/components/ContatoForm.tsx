@@ -25,16 +25,18 @@ export default function ContatoForm() {
 
   const [enviado, setEnviado] = useState(false); // ✅ Para feedback visual
   const [erro, setErro] = useState<string | null>(null);
-  const [exibirValidacao, setExibirValidacao] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [touched, setTouched] = useState<Partial<Record<keyof typeof formData, boolean>>>({});
   const [errosCampos, setErrosCampos] = useState<Record<keyof typeof formData, string>>(
     () => criarEstadoInicialErros()
   );
 
   useEffect(() => {
-    setExibirValidacao(false);
+    setHasSubmitted(false);
     setErrosCampos(criarEstadoInicialErros());
     setErro(null);
     setEnviado(false);
+    setTouched({});
   }, []);
 
   const estadosBrasil = useMemo(
@@ -117,21 +119,34 @@ export default function ContatoForm() {
     return erros;
   };
 
-  const atualizarErros = (dados: typeof formData, whatsappDigits: string) => {
+  const atualizarErros = (dados: typeof formData, whatsappDigits: string, shouldUpdateMensagem = false) => {
     const novosErros = validarFormulario(dados, whatsappDigits);
     setErrosCampos(novosErros);
+
+    if (shouldUpdateMensagem) {
+      const mensagemPrimeiroErro = Object.values(novosErros).find(Boolean) ?? null;
+      setErro(mensagemPrimeiroErro);
+    }
+
     return novosErros;
   };
 
+  const marcarComoTocado = (nomeCampo: keyof typeof formData) => {
+    setTouched((prev) => ({ ...prev, [nomeCampo]: true }));
+  };
+
+  const deveExibirErroCampo = (nomeCampo: keyof typeof formData) =>
+    (hasSubmitted || touched[nomeCampo]) && !!errosCampos[nomeCampo];
+
   const classeCampo = (nomeCampo: keyof typeof formData) =>
     `w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none ${
-      exibirValidacao && errosCampos[nomeCampo]
+      deveExibirErroCampo(nomeCampo)
         ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
         : 'border-gray-300 focus:ring-2 focus:ring-orange-400 focus:border-orange-300'
     }`;
 
   const mensagemErroCampo = (nomeCampo: keyof typeof formData) =>
-    exibirValidacao && errosCampos[nomeCampo] ? (
+    deveExibirErroCampo(nomeCampo) ? (
       <p className="text-sm text-red-600 mt-1">{errosCampos[nomeCampo]}</p>
     ) : null;
 
@@ -148,10 +163,24 @@ export default function ContatoForm() {
     setFormData(atualizado);
     setEnviado(false);
 
-    if (exibirValidacao) {
-      const whatsappDigits = name === 'whatsapp' ? normalizarWhatsapp(value) : normalizarWhatsapp(atualizado.whatsapp);
-      atualizarErros(atualizado, whatsappDigits);
+    const whatsappDigits =
+      name === 'whatsapp' ? normalizarWhatsapp(value) : normalizarWhatsapp(atualizado.whatsapp);
+
+    if (hasSubmitted || touched[name as keyof typeof formData]) {
+      atualizarErros(atualizado, whatsappDigits, hasSubmitted);
     }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name } = e.target;
+    const nomeCampo = name as keyof typeof formData;
+
+    marcarComoTocado(nomeCampo);
+
+    const whatsappDigits =
+      nomeCampo === 'whatsapp' ? normalizarWhatsapp(formData.whatsapp) : normalizarWhatsapp(formData.whatsapp);
+
+    atualizarErros(formData, whatsappDigits, hasSubmitted);
   };
 
   // 📩 Envia formulário para API
@@ -160,13 +189,21 @@ export default function ContatoForm() {
 
     const whatsappDigits = normalizarWhatsapp(formData.whatsapp);
     setErro(null);
-    setExibirValidacao(true);
+    setHasSubmitted(true);
 
-    const novosErros = atualizarErros(formData, whatsappDigits);
-    const mensagemPrimeiroErro = Object.values(novosErros).find(Boolean);
+    const novosErros = atualizarErros(formData, whatsappDigits, true);
+    const primeiroErro = Object.entries(novosErros).find(([, mensagem]) => mensagem);
 
-    if (mensagemPrimeiroErro) {
+    if (primeiroErro) {
+      const [campo, mensagemPrimeiroErro] = primeiroErro;
       setErro(mensagemPrimeiroErro);
+
+      const elementoInvalido = document.getElementById(campo);
+      if (elementoInvalido) {
+        elementoInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        elementoInvalido.focus({ preventScroll: true });
+      }
+
       return;
     }
 
@@ -179,9 +216,11 @@ export default function ContatoForm() {
 
       if (res.ok) {
         setEnviado(true);
-        setExibirValidacao(false);
+        setHasSubmitted(false);
+        setTouched({});
         setErrosCampos({ nome: '', email: '', consumo: '', municipio: '', estado: '', whatsapp: '', mensagem: '' });
         setFormData({ nome: '', email: '', consumo: '', municipio: '', estado: '', whatsapp: '', mensagem: '' });
+        setErro(null);
       } else {
         alert('Erro ao enviar. Tente novamente mais tarde.');
       }
@@ -191,7 +230,7 @@ export default function ContatoForm() {
     }
   };
 
-  const deveExibirErroGeral = exibirValidacao && !!erro;
+  const deveExibirErroGeral = hasSubmitted && !!erro;
 
   return (
     <form
@@ -225,8 +264,9 @@ export default function ContatoForm() {
           name="nome"
           value={formData.nome}
           onChange={handleChange}
+          onBlur={handleBlur}
           aria-required
-          aria-invalid={exibirValidacao && !!errosCampos.nome ? true : undefined}
+          aria-invalid={deveExibirErroCampo('nome') ? true : undefined}
           className={classeCampo('nome')}
         />
         {mensagemErroCampo('nome')}
@@ -243,8 +283,9 @@ export default function ContatoForm() {
           name="email"
           value={formData.email}
           onChange={handleChange}
+          onBlur={handleBlur}
           aria-required
-          aria-invalid={exibirValidacao && !!errosCampos.email ? true : undefined}
+          aria-invalid={deveExibirErroCampo('email') ? true : undefined}
           className={classeCampo('email')}
         />
         {mensagemErroCampo('email')}
@@ -262,8 +303,9 @@ export default function ContatoForm() {
           placeholder="Ex.: 500 kWh/mês ou R$ 300,00"
           value={formData.consumo}
           onChange={handleChange}
+          onBlur={handleBlur}
           aria-required
-          aria-invalid={exibirValidacao && !!errosCampos.consumo ? true : undefined}
+          aria-invalid={deveExibirErroCampo('consumo') ? true : undefined}
           className={classeCampo('consumo')}
         />
         {mensagemErroCampo('consumo')}
@@ -282,8 +324,9 @@ export default function ContatoForm() {
             placeholder="Cidade"
             value={formData.municipio}
             onChange={handleChange}
+            onBlur={handleBlur}
             aria-required
-            aria-invalid={exibirValidacao && !!errosCampos.municipio ? true : undefined}
+            aria-invalid={deveExibirErroCampo('municipio') ? true : undefined}
             className={classeCampo('municipio')}
           />
           {mensagemErroCampo('municipio')}
@@ -300,8 +343,9 @@ export default function ContatoForm() {
             placeholder="UF"
             value={formData.estado}
             onChange={handleChange}
+            onBlur={handleBlur}
             aria-required
-            aria-invalid={exibirValidacao && !!errosCampos.estado ? true : undefined}
+            aria-invalid={deveExibirErroCampo('estado') ? true : undefined}
             className={classeCampo('estado')}
           />
           {mensagemErroCampo('estado')}
@@ -321,8 +365,9 @@ export default function ContatoForm() {
           placeholder="(DD) 90000-0000"
           value={formData.whatsapp}
           onChange={handleChange}
+          onBlur={handleBlur}
           aria-required
-          aria-invalid={exibirValidacao && !!errosCampos.whatsapp ? true : undefined}
+          aria-invalid={deveExibirErroCampo('whatsapp') ? true : undefined}
           className={classeCampo('whatsapp')}
         />
         {mensagemErroCampo('whatsapp')}
@@ -340,8 +385,9 @@ export default function ContatoForm() {
           rows={5}
           value={formData.mensagem}
           onChange={handleChange}
+          onBlur={handleBlur}
           aria-required
-          aria-invalid={exibirValidacao && !!errosCampos.mensagem ? true : undefined}
+          aria-invalid={deveExibirErroCampo('mensagem') ? true : undefined}
           className={`${classeCampo('mensagem')} resize-none`}
         ></textarea>
         {mensagemErroCampo('mensagem')}
