@@ -47,6 +47,7 @@ const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
 const RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_COOLDOWN_MS = 20 * 1000;
 const submissionLog = new Map<string, number[]>();
+const legalNameRegex = /^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9 .,&\-/]*$/u;
 
 function normalizarWhatsapp(numero: string) {
   const digits = numero.replace(/\D/g, '');
@@ -141,6 +142,14 @@ function sanitize(input: string | undefined) {
   });
 }
 
+function sanitizeLegalName(raw: string) {
+  const cleaned = raw.replace(/[^\p{L}\p{N}\s.,&/-]/gu, '');
+  const normalizedSpaces = cleaned.replace(/\s+/g, ' ').trim();
+  const normalizedHyphens = normalizedSpaces.replace(/-+/g, '-');
+  const normalizedSlashes = normalizedHyphens.replace(/\/+/g, '/');
+  return normalizedSlashes.replace(/^[\s.,&/-]+|[\s.,&/-]+$/g, '');
+}
+
 function isRateLimited(ip: string) {
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW_MS;
@@ -195,6 +204,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: 'Campos obrigatórios ausentes.' }, { status: 400 });
   }
 
+  const legalName = sanitizeLegalName(body.nome);
+
+  if (!legalName || !legalNameRegex.test(legalName)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Nome / razão social inválido. Use apenas letras, números, espaço, ponto, vírgula, hífen (-), & ou /.',
+      },
+      { status: 400 }
+    );
+  }
+
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
   const rateResult = isRateLimited(ip);
   if (rateResult.limited) {
@@ -210,7 +231,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: 'WhatsApp inválido.' }, { status: 400 });
   }
 
-  const assunto = `[Pré-Qualificação] ${body.status} — ${body.nome} — ${body.cep} — ${body.consumoMedio} kWh/mês`;
+  const assunto = `[Pré-Qualificação] ${body.status} — ${legalName} — ${body.cep} — ${body.consumoMedio} kWh/mês`;
 
   const valorContaEstimado = Number((body.consumoMedio * body.tarifa).toFixed(2));
 
@@ -262,7 +283,7 @@ export async function POST(req: Request) {
 
           <h3>Dados do cliente</h3>
           <ul>
-            <li><strong>Nome/Razão Social:</strong> ${sanitize(body.nome)}</li>
+            <li><strong>Nome/Razão Social:</strong> ${sanitize(legalName)}</li>
             <li><strong>CPF/CNPJ:</strong> ${sanitize(body.cpfCnpj)}</li>
             <li><strong>Tipo de cliente:</strong> ${sanitize(body.tipoCliente)} ${sanitize(body.tipoClienteOutro)}</li>
             <li><strong>Relação com imóvel:</strong> ${sanitize(body.relacaoImovel)} ${sanitize(body.relacaoOutro)}</li>
@@ -339,7 +360,7 @@ export async function POST(req: Request) {
             <div style="font-weight: 600; color: #e15800;">SolarInvest</div>
           </div>
           <h2 style="color: #e15800; margin: 0 0 12px 0;">Solicitação recebida</h2>
-          <p style="margin: 0 0 10px 0;">Olá, ${sanitize(body.nome)}.</p>
+          <p style="margin: 0 0 10px 0;">Olá, ${sanitize(legalName)}.</p>
           <p style="margin: 0 0 12px 0;">Recebemos sua solicitação de pré-análise de leasing SolarInvest.</p>
           <p style="margin: 0 0 12px 0;">Status automático: <strong>${sanitize(body.status)}</strong></p>
           <p style="margin: 0 0 12px 0;">Em breve nossa equipe entrará em contato pelo WhatsApp +${sanitize(whatsappNormalizado)} para confirmar próximos passos.</p>
@@ -362,7 +383,7 @@ export async function POST(req: Request) {
     try {
       await enviarWhatsapp(
         whatsappNormalizado,
-        `Olá, ${body.nome}! Recebemos sua solicitação de pré-análise de leasing SolarInvest. Status automático: ${body.status}. Em breve entraremos em contato.`,
+        `Olá, ${legalName}! Recebemos sua solicitação de pré-análise de leasing SolarInvest. Status automático: ${body.status}. Em breve entraremos em contato.`,
         solarinvestLogoUrl
       );
     } catch (err) {
