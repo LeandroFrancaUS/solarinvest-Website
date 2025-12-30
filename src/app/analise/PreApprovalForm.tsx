@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { ClipboardEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 declare global {
   interface Window {
@@ -207,6 +207,25 @@ function formatCEP(value: string) {
   const digits = onlyDigits(value).slice(0, 8);
   if (digits.length <= 5) return digits;
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+}
+
+const legalNameRegex = /^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9 .,&\-/]*$/u;
+
+function sanitizeLegalName(raw: string, options?: { trimEdges?: boolean }) {
+  const cleaned = raw.replace(/[^\p{L}\p{N}\s.,&/-]/gu, '');
+  const normalizedSpaces = cleaned.replace(/\s+/g, ' ');
+  const normalizedHyphens = normalizedSpaces.replace(/-+/g, '-');
+  const normalizedSlashes = normalizedHyphens.replace(/\/+/g, '/');
+  const shouldTrim = options?.trimEdges !== false;
+  const cleanedEdges = shouldTrim
+    ? normalizedSlashes.replace(/^[\s.,&/-]+|[\s.,&/-]+$/g, '')
+    : normalizedSlashes.replace(/^[\s.,&/-]+/, '');
+  return { value: cleanedEdges, changed: cleanedEdges !== raw };
+}
+
+function isValidLegalName(value: string) {
+  if (!value) return false;
+  return legalNameRegex.test(value.trim());
 }
 
 function normalizarWhatsappBrasil(numero: string) {
@@ -536,6 +555,9 @@ export default function PreApprovalForm({
   const [tagModalFile, setTagModalFile] = useState<File | null>(null);
   const [tagModalNote, setTagModalNote] = useState('');
   const [tagModalTag, setTagModalTag] = useState<DocTag | ''>('');
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
+  const [nomePasteSanitized, setNomePasteSanitized] = useState(false);
 
   const consumoNormalizado = useMemo(() => parseConsumo(form.consumoMedio), [form.consumoMedio]);
   const tarifaNormalizada = useMemo(() => parseTarifa(form.tarifa), [form.tarifa]);
@@ -560,10 +582,18 @@ export default function PreApprovalForm({
   const docFlags = useMemo(() => buildDocFlags(form.relacaoImovel, documentos), [documentos, form.relacaoImovel]);
 
   const atualizarCampo = (campo: keyof FormState, valor: string | File | File[] | undefined) => {
-    setForm((prev) => ({
-      ...prev,
-      [campo]: Array.isArray(valor) ? valor : valor instanceof File ? valor : valor ?? '',
-    }));
+    setForm((prev) => {
+      const proximo = {
+        ...prev,
+        [campo]: Array.isArray(valor) ? valor : valor instanceof File ? valor : valor ?? '',
+      };
+
+      if (hasSubmitted || touched[campo]) {
+        validarEstado(proximo, hasSubmitted);
+      }
+
+      return proximo;
+    });
   };
 
   useEffect(() => {
@@ -611,52 +641,58 @@ export default function PreApprovalForm({
     return () => controller.abort();
   }, [form.cep]);
 
-  const coletarErros = useCallback((): ValidationErrors => {
+  const coletarErros = (state: FormState = form): ValidationErrors => {
     const novoErros: ValidationErrors = {};
+    const consumoNormalizadoLocal = parseConsumo(state.consumoMedio);
+    const tarifaNormalizadaLocal = parseTarifa(state.tarifa);
 
-    if (!form.nome.trim()) novoErros.nome = 'Informe o nome ou razão social.';
+    const nomeSanitizado = sanitizeLegalName(state.nome).value;
+    if (!nomeSanitizado) novoErros.nome = 'Informe o nome ou razão social.';
+    else if (!isValidLegalName(nomeSanitizado)) {
+      novoErros.nome = 'Use apenas letras, números, espaço, ponto, vírgula, hífen (-), & ou /. Sem emojis ou símbolos.';
+    }
 
-    if (!validarCpfOuCnpj(form.cpfCnpj)) {
+    if (!validarCpfOuCnpj(state.cpfCnpj)) {
       novoErros.cpfCnpj = 'CPF ou CNPJ inválido.';
     }
 
-    if (!validarWhatsapp(form.whatsapp)) {
+    if (!validarWhatsapp(state.whatsapp)) {
       novoErros.whatsapp = 'Informe um WhatsApp válido com DDD.';
     }
 
-    if (!validarEmail(form.email)) {
+    if (!validarEmail(state.email)) {
       novoErros.email = 'E-mail inválido.';
     }
 
-    if (!validarCEP(form.cep)) {
+    if (!validarCEP(state.cep)) {
       novoErros.cep = 'CEP inválido.';
     }
 
-    if (!form.tipoCliente) {
+    if (!state.tipoCliente) {
       novoErros.tipoCliente = 'Selecione o tipo de cliente.';
     }
 
-    if (form.tipoCliente === 'Outro' && !form.tipoClienteOutro.trim()) {
+    if (state.tipoCliente === 'Outro' && !state.tipoClienteOutro.trim()) {
       novoErros.tipoClienteOutro = 'Descreva o tipo de cliente.';
     }
 
-    if (!form.relacaoImovel) {
+    if (!state.relacaoImovel) {
       novoErros.relacaoImovel = 'Selecione a relação com o imóvel.';
     }
 
-    if (form.relacaoImovel === 'Inquilino (locatário)' && !form.relacaoOutro.trim()) {
+    if (state.relacaoImovel === 'Inquilino (locatário)' && !state.relacaoOutro.trim()) {
       novoErros.relacaoOutro = 'Informe detalhes sobre a relação com o imóvel.';
     }
 
-    if (form.tipoInstalacao === 'Outro' && !form.tipoInstalacaoOutro.trim()) {
+    if (state.tipoInstalacao === 'Outro' && !state.tipoInstalacaoOutro.trim()) {
       novoErros.tipoInstalacaoOutro = 'Descreva o tipo de instalação.';
     }
 
-    if (!consumoNormalizado) {
+    if (!consumoNormalizadoLocal) {
       novoErros.consumoMedio = 'Informe o consumo médio mensal em kWh.';
     }
 
-    if (tarifaNormalizada === undefined) {
+    if (tarifaNormalizadaLocal === undefined) {
       novoErros.tarifa = 'Informe a tarifa atual no formato 1,20.';
     }
 
@@ -665,54 +701,160 @@ export default function PreApprovalForm({
     }
 
     return novoErros;
-  }, [
-    consumoNormalizado,
-    form.cpfCnpj,
-    form.email,
-    form.cep,
-    form.nome,
-    form.relacaoImovel,
-    form.relacaoOutro,
-    form.tipoCliente,
-    form.tipoClienteOutro,
-    form.tipoInstalacao,
-    form.tipoInstalacaoOutro,
-    form.whatsapp,
-    municipioState.status,
-    tarifaNormalizada,
-  ]);
+  };
 
-  useEffect(() => {
-    const novoErros = coletarErros();
-    setErrors((prev) => ({ ...novoErros, geral: prev.geral }));
+  const atualizarPendencias = useCallback(
+    (novoErros: ValidationErrors, shouldShow: boolean) => {
+      if (!shouldShow) {
+        setPendencias([]);
+        return;
+      }
 
-    const avisos: string[] = [];
-    Object.values(novoErros).forEach((mensagem) => {
-      if (mensagem) avisos.push(mensagem);
-    });
+      const avisos: string[] = [];
+      Object.values(novoErros).forEach((mensagem) => {
+        if (mensagem) avisos.push(mensagem);
+      });
 
-    if (!docFlags.hasBill) {
-      avisos.push('Conta de energia não enviada. A análise será manual e pode levar mais tempo.');
+      if (!docFlags.hasBill) {
+        avisos.push('Conta de energia não enviada. A análise será manual e pode levar mais tempo.');
+      }
+
+      if (docFlags.missingRequired.length) {
+        avisos.push(`Documentos obrigatórios pendentes: ${docFlags.missingRequired.join(', ')}`);
+      }
+
+      if (consumoNormalizado && consumoNormalizado < 300) {
+        avisos.push('Consumo informado abaixo de 300 kWh/mês: tende a ir para análise manual.');
+      }
+
+      if (tarifaNormalizada !== undefined && (tarifaNormalizada <= 0.9 || tarifaNormalizada >= 2.5)) {
+        avisos.push('Tarifa fora do intervalo típico (0,90 a 2,50). Confirme o valor.');
+      }
+
+      if (form.tipoInstalacao === 'Outro') {
+        avisos.push('Tipo de instalação marcado como Outro — precisaremos validar a viabilidade.');
+      }
+
+      setPendencias(avisos);
+    },
+    [consumoNormalizado, docFlags, form.tipoInstalacao, tarifaNormalizada]
+  );
+
+  const validarEstado = (
+    estadoAtualizado: FormState,
+    shouldShowGeneral: boolean,
+    touchedMapa: Partial<Record<keyof FormState, boolean>> = touched
+  ) => {
+    const novoErros = coletarErros(estadoAtualizado);
+    const hasErrors = Object.keys(novoErros).length > 0;
+
+    const payload = shouldShowGeneral && hasErrors ? { ...novoErros, geral: 'Não foi enviado. Complete os campos destacados para prosseguir.' } : { ...novoErros };
+
+    setErrors(payload);
+    const mostrarPendencias = shouldShowGeneral;
+    atualizarPendencias(novoErros, mostrarPendencias);
+
+    return { novoErros, hasErrors };
+  };
+
+  const marcarCampoTocado = (campo: keyof FormState) => {
+    const atualizado = { ...touched, [campo]: true };
+    setTouched(atualizado);
+    return atualizado;
+  };
+
+  const showError = (campo: keyof FormState) => (hasSubmitted || touched[campo]) && !!errors[campo];
+
+  const classeCampo = (campo: keyof FormState) =>
+    `mt-1 w-full rounded-xl border px-3 py-2 focus:outline-none ${
+      showError(campo)
+        ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500'
+        : 'border-gray-200 focus:border-orange-500'
+    }`;
+
+  const handleLegalNameKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const navigationKeys = new Set([
+      'Backspace',
+      'Delete',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
+      'End',
+      'Tab',
+      'Enter',
+    ]);
+
+    if (navigationKeys.has(event.key)) return;
+    if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) return;
+
+    if (!/[\p{L}\p{N}\s.,&/-]/u.test(event.key)) {
+      event.preventDefault();
     }
+  };
 
-    if (docFlags.missingRequired.length) {
-      avisos.push(`Documentos obrigatórios pendentes: ${docFlags.missingRequired.join(', ')}`);
+  const atualizarNome = (valor: string, mapaTocado: Partial<Record<keyof FormState, boolean>> = touched) => {
+    const { value: sanitizado } = sanitizeLegalName(valor, { trimEdges: false });
+    setNomePasteSanitized(false);
+    const proximo = { ...form, nome: sanitizado };
+    setForm(proximo);
+
+    if (hasSubmitted || mapaTocado.nome) {
+      validarEstado(proximo, hasSubmitted, mapaTocado);
     }
+  };
 
-    if (consumoNormalizado && consumoNormalizado < 300) {
-      avisos.push('Consumo informado abaixo de 300 kWh/mês: tende a ir para análise manual.');
+  const handleNomeBlur = () => {
+    const mapaTocado = marcarCampoTocado('nome');
+    const { value: sanitizado } = sanitizeLegalName(form.nome);
+    const proximo = { ...form, nome: sanitizado };
+    setForm(proximo);
+    validarEstado(proximo, hasSubmitted, mapaTocado);
+  };
+
+  const handleNomePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const pastedText = event.clipboardData.getData('text');
+    const { value: sanitizado, changed } = sanitizeLegalName(pastedText);
+    const mapaTocado = marcarCampoTocado('nome');
+    setNomePasteSanitized(changed);
+    const proximo = { ...form, nome: sanitizado };
+    setForm(proximo);
+    validarEstado(proximo, hasSubmitted, mapaTocado);
+  };
+
+  const handleBlurCampo = (campo: keyof FormState) => {
+    const mapaTocado = marcarCampoTocado(campo);
+    validarEstado(form, hasSubmitted, mapaTocado);
+  };
+
+  const ordemCampos: (keyof FormState)[] = [
+    'nome',
+    'cpfCnpj',
+    'whatsapp',
+    'email',
+    'cep',
+    'tipoCliente',
+    'tipoClienteOutro',
+    'relacaoImovel',
+    'relacaoOutro',
+    'consumoMedio',
+    'tarifa',
+    'tipoInstalacao',
+    'tipoInstalacaoOutro',
+  ];
+
+  const focarPrimeiroErro = (novoErros: ValidationErrors) => {
+    const campo = ordemCampos.find((chave) => novoErros[chave]);
+    if (!campo) return;
+
+    const elemento = document.querySelector<HTMLElement>(`[name="${campo}"]`);
+    if (elemento) {
+      elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      elemento.focus({ preventScroll: true });
     }
-
-    if (tarifaNormalizada !== undefined && (tarifaNormalizada <= 0.9 || tarifaNormalizada >= 2.5)) {
-      avisos.push('Tarifa fora do intervalo típico (0,90 a 2,50). Confirme o valor.');
-    }
-
-    if (form.tipoInstalacao === 'Outro') {
-      avisos.push('Tipo de instalação marcado como Outro — precisaremos validar a viabilidade.');
-    }
-
-    setPendencias(avisos);
-  }, [coletarErros, documentos.length, form.tipoInstalacao, consumoNormalizado, tarifaNormalizada, docFlags]);
+  };
 
   const confirmarEtiqueta = () => {
     if (!tagModalFile || !tagModalTag) return;
@@ -742,6 +884,7 @@ export default function PreApprovalForm({
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setSubmission({ loading: true });
+    setHasSubmitted(true);
 
     if (honeypotValue.trim()) {
       setErrors({ geral: 'Não foi possível enviar. Tente novamente.' });
@@ -749,13 +892,13 @@ export default function PreApprovalForm({
       return;
     }
 
-    const novoErros = coletarErros();
-    const hasErrors = Object.keys(novoErros).length > 0;
-    setErrors(
-      hasErrors
-        ? { ...novoErros, geral: 'Não foi enviado. Complete os campos destacados para prosseguir.' }
-        : novoErros
-    );
+    const nomeSanitizado = sanitizeLegalName(form.nome).value;
+    const formSanitizado = { ...form, nome: nomeSanitizado };
+    setForm(formSanitizado);
+
+    const { novoErros, hasErrors } = validarEstado(formSanitizado, true);
+    focarPrimeiroErro(novoErros);
+
     if (hasErrors) {
       setSubmission({ loading: false });
       return;
@@ -770,13 +913,13 @@ export default function PreApprovalForm({
 
       const attachments = await Promise.all(documentos.map((doc) => fileToBase64(doc)));
 
-      const cpfCnpjValido = validarCpfOuCnpj(form.cpfCnpj);
-      const whatsappValido = validarWhatsapp(form.whatsapp);
-      const emailValido = validarEmail(form.email);
-      const cepValido = validarCEP(form.cep);
+      const cpfCnpjValido = validarCpfOuCnpj(formSanitizado.cpfCnpj);
+      const whatsappValido = validarWhatsapp(formSanitizado.whatsapp);
+      const emailValido = validarEmail(formSanitizado.email);
+      const cepValido = validarCEP(formSanitizado.cep);
       const consumo = consumoNormalizado as number;
       const tarifa = tarifaNormalizada;
-      const whatsappNormalizado = normalizarWhatsappBrasil(form.whatsapp);
+      const whatsappNormalizado = normalizarWhatsappBrasil(formSanitizado.whatsapp);
 
       const { status, motivosInternos, statusInterno } = calcularStatus(
         consumo,
@@ -786,21 +929,22 @@ export default function PreApprovalForm({
         cpfCnpjValido,
         whatsappValido,
         emailValido,
-        form.tipoInstalacao,
-        form.relacaoImovel,
+        formSanitizado.tipoInstalacao,
+        formSanitizado.relacaoImovel,
         docFlags
       );
 
       const prioridade = calcularPrioridade(consumo);
 
       const payload = {
-        ...form,
+        ...formSanitizado,
         whatsapp: whatsappNormalizado,
-        municipio: form.municipio,
-        tipoClienteOutro: form.tipoCliente === 'Outro' ? form.tipoClienteOutro : '',
-        tipoInstalacaoOutro: form.tipoInstalacao === 'Outro' ? form.tipoInstalacaoOutro : '',
-        relacaoOutro: form.relacaoImovel === 'Inquilino (locatário)' ? form.relacaoOutro : '',
-        tipoRede: form.tipoRede,
+        municipio: formSanitizado.municipio,
+        tipoClienteOutro: formSanitizado.tipoCliente === 'Outro' ? formSanitizado.tipoClienteOutro : '',
+        tipoInstalacaoOutro: formSanitizado.tipoInstalacao === 'Outro' ? formSanitizado.tipoInstalacaoOutro : '',
+        relacaoOutro:
+          formSanitizado.relacaoImovel === 'Inquilino (locatário)' ? formSanitizado.relacaoOutro : '',
+        tipoRede: formSanitizado.tipoRede,
         consumoMedio: consumo,
         tarifa: tarifa ?? 0,
         status,
@@ -831,6 +975,10 @@ export default function PreApprovalForm({
       setTagModalFile(null);
       setCpfCnpjMasked(false);
       setErrors({});
+      setHasSubmitted(false);
+      setTouched({});
+      setPendencias([]);
+      setNomePasteSanitized(false);
       onSubmitted?.({ status, message: statusMessages[status] });
     } catch (error: unknown) {
       const mensagem = error instanceof Error ? error.message : 'Erro ao enviar a solicitação.';
@@ -965,19 +1113,32 @@ export default function PreApprovalForm({
               <label className="block text-sm font-medium text-gray-700">Nome / Razão Social *</label>
               <input
                 type="text"
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                name="nome"
+                className={classeCampo('nome')}
                 value={form.nome}
-                onChange={(e) => atualizarCampo('nome', e.target.value)}
+                onChange={(e) => atualizarNome(e.target.value)}
+                onBlur={handleNomeBlur}
+                onPaste={handleNomePaste}
+                onKeyDown={handleLegalNameKeyDown}
                 required
+                aria-invalid={showError('nome') || undefined}
               />
-              {errors.nome && <p className="text-xs text-red-600 mt-1">{errors.nome}</p>}
+              {nomePasteSanitized && (
+                <p className="text-xs text-amber-700 mt-1">Alguns caracteres foram removidos para manter o formato válido.</p>
+              )}
+              {showError('nome') && (
+                <p className="text-xs text-red-600 mt-1" aria-live="polite">
+                  {errors.nome}
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">CPF/CNPJ *</label>
                 <input
                   type="text"
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  name="cpfCnpj"
+                  className={classeCampo('cpfCnpj')}
                   value={cpfCnpjDisplay}
                   onChange={(e) => {
                     setCpfCnpjMasked(false);
@@ -987,51 +1148,58 @@ export default function PreApprovalForm({
                   onBlur={() => {
                     const digitsLength = onlyDigits(form.cpfCnpj).length;
                     setCpfCnpjMasked(digitsLength === 11 || digitsLength === 14);
+                    handleBlurCampo('cpfCnpj');
                   }}
                   required
                 />
-                {errors.cpfCnpj && <p className="text-xs text-red-600 mt-1">{errors.cpfCnpj}</p>}
+                {showError('cpfCnpj') && <p className="text-xs text-red-600 mt-1">{errors.cpfCnpj}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Telefone (WhatsApp) *</label>
                 <input
                   type="tel"
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  name="whatsapp"
+                  className={classeCampo('whatsapp')}
                   placeholder="(DDD) 9 9999-9999"
                   value={form.whatsapp}
                   onChange={(e) => atualizarCampo('whatsapp', formatWhatsapp(e.target.value))}
+                  onBlur={() => handleBlurCampo('whatsapp')}
                   required
                 />
-                {errors.whatsapp && <p className="text-xs text-red-600 mt-1">{errors.whatsapp}</p>}
+                {showError('whatsapp') && <p className="text-xs text-red-600 mt-1">{errors.whatsapp}</p>}
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">E-mail *</label>
               <input
                 type="email"
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                name="email"
+                className={classeCampo('email')}
                 value={form.email}
                 onChange={(e) => atualizarCampo('email', e.target.value)}
+                onBlur={() => handleBlurCampo('email')}
                 required
               />
-              {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
+              {showError('email') && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
             </div>
           </div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Local da instalação</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">CEP *</label>
-                <input
-                  type="text"
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
-                  placeholder="00000-000"
-                  value={form.cep}
-                  onChange={(e) => atualizarCampo('cep', formatCEP(e.target.value))}
-                  required
-                />
-                {errors.cep && <p className="text-xs text-red-600 mt-1">{errors.cep}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">CEP *</label>
+                  <input
+                    type="text"
+                    name="cep"
+                    className={classeCampo('cep')}
+                    placeholder="00000-000"
+                    value={form.cep}
+                    onChange={(e) => atualizarCampo('cep', formatCEP(e.target.value))}
+                    onBlur={() => handleBlurCampo('cep')}
+                    required
+                  />
+                  {showError('cep') && <p className="text-xs text-red-600 mt-1">{errors.cep}</p>}
                 <div className="mt-2">
                   <label className="block text-xs font-medium text-gray-500">Município</label>
                   <input
@@ -1049,26 +1217,29 @@ export default function PreApprovalForm({
                   />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Endereço completo</label>
-                <input
-                  type="text"
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
-                  placeholder="Rua, nº, bairro, cidade/UF"
-                  value={form.endereco}
-                  onChange={(e) => atualizarCampo('endereco', e.target.value)}
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Endereço completo</label>
+                  <input
+                    type="text"
+                    name="endereco"
+                    className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                    placeholder="Rua, nº, bairro, cidade/UF"
+                    value={form.endereco}
+                    onChange={(e) => atualizarCampo('endereco', e.target.value)}
+                  />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tipo de cliente *</label>
-                <select
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
-                  value={form.tipoCliente}
-                  onChange={(e) => atualizarCampo('tipoCliente', e.target.value as ClientType)}
-                  required
-                >
+                  <label className="block text-sm font-medium text-gray-700">Tipo de cliente *</label>
+                  <select
+                    name="tipoCliente"
+                    className={classeCampo('tipoCliente')}
+                    value={form.tipoCliente}
+                    onChange={(e) => atualizarCampo('tipoCliente', e.target.value as ClientType)}
+                    onBlur={() => handleBlurCampo('tipoCliente')}
+                    required
+                  >
                   <option value="" disabled>
                     Selecione
                   </option>
@@ -1078,24 +1249,28 @@ export default function PreApprovalForm({
                   <option>Condomínio (horizontal)</option>
                   <option>Outro</option>
                 </select>
-                {errors.tipoCliente && <p className="text-xs text-red-600 mt-1">{errors.tipoCliente}</p>}
+                {showError('tipoCliente') && <p className="text-xs text-red-600 mt-1">{errors.tipoCliente}</p>}
                 {form.tipoCliente === 'Outro' && (
                   <input
                     type="text"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                    name="tipoClienteOutro"
+                    className={classeCampo('tipoClienteOutro')}
                     placeholder="Qual?"
                     value={form.tipoClienteOutro}
                     onChange={(e) => atualizarCampo('tipoClienteOutro', e.target.value)}
+                    onBlur={() => handleBlurCampo('tipoClienteOutro')}
                   />
                 )}
-                {errors.tipoClienteOutro && <p className="text-xs text-red-600 mt-1">{errors.tipoClienteOutro}</p>}
+                {showError('tipoClienteOutro') && <p className="text-xs text-red-600 mt-1">{errors.tipoClienteOutro}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Relação com o imóvel *</label>
                 <select
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  name="relacaoImovel"
+                  className={classeCampo('relacaoImovel')}
                   value={form.relacaoImovel}
                   onChange={(e) => atualizarCampo('relacaoImovel', e.target.value as PropertyRelation)}
+                  onBlur={() => handleBlurCampo('relacaoImovel')}
                   required
                 >
                   <option value="" disabled>
@@ -1108,17 +1283,19 @@ export default function PreApprovalForm({
                   <option>Familiar do proprietário</option>
                   <option>Administrador / Síndico</option>
                 </select>
-                {errors.relacaoImovel && <p className="text-xs text-red-600 mt-1">{errors.relacaoImovel}</p>}
+                {showError('relacaoImovel') && <p className="text-xs text-red-600 mt-1">{errors.relacaoImovel}</p>}
                 {form.relacaoImovel === 'Inquilino (locatário)' && (
                   <input
                     type="text"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                    name="relacaoOutro"
+                    className={classeCampo('relacaoOutro')}
                     placeholder="Detalhes"
                     value={form.relacaoOutro}
                     onChange={(e) => atualizarCampo('relacaoOutro', e.target.value)}
+                    onBlur={() => handleBlurCampo('relacaoOutro')}
                   />
                 )}
-                {errors.relacaoOutro && <p className="text-xs text-red-600 mt-1">{errors.relacaoOutro}</p>}
+                {showError('relacaoOutro') && <p className="text-xs text-red-600 mt-1">{errors.relacaoOutro}</p>}
               </div>
             </div>
           </div>
@@ -1134,12 +1311,14 @@ export default function PreApprovalForm({
                   type="number"
                   min={0}
                   step="0.01"
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  name="consumoMedio"
+                  className={classeCampo('consumoMedio')}
                   value={form.consumoMedio}
                   onChange={(e) => atualizarCampo('consumoMedio', e.target.value)}
+                  onBlur={() => handleBlurCampo('consumoMedio')}
                   required
                 />
-                {errors.consumoMedio && <p className="text-xs text-red-600 mt-1">{errors.consumoMedio}</p>}
+                {showError('consumoMedio') && <p className="text-xs text-red-600 mt-1">{errors.consumoMedio}</p>}
                 {consumoNormalizado && (
                   <p className="text-xs text-gray-500 mt-1">Consumo considerado: {consumoNormalizado} kWh/mês</p>
                 )}
@@ -1148,16 +1327,18 @@ export default function PreApprovalForm({
                 <label className="block text-sm font-medium text-gray-700">Tarifa da concessionária (R$/kWh) *</label>
                 <input
                   type="text"
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  name="tarifa"
+                  className={classeCampo('tarifa')}
                   placeholder="0,95"
                   value={form.tarifa}
                   onChange={(e) => atualizarCampo('tarifa', formatTarifaInput(e.target.value))}
                   onBlur={() => {
                     atualizarCampo('tarifa', formatTarifaInput(form.tarifa));
+                    handleBlurCampo('tarifa');
                   }}
                   required
                 />
-                {errors.tarifa && <p className="text-xs text-red-600 mt-1">{errors.tarifa}</p>}
+                {showError('tarifa') && <p className="text-xs text-red-600 mt-1">{errors.tarifa}</p>}
                 {valorContaEstimado !== undefined && (
                   <p className="text-xs text-gray-600 mt-1">
                     Conta atual estimada: <span className="font-semibold">R$ {valorContaEstimado.toFixed(2)}</span> / mês
@@ -1212,9 +1393,11 @@ export default function PreApprovalForm({
             <div>
               <label className="block text-sm font-medium text-gray-700">Tipo de instalação *</label>
               <select
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                name="tipoInstalacao"
+                className={classeCampo('tipoInstalacao')}
                 value={form.tipoInstalacao}
                 onChange={(e) => atualizarCampo('tipoInstalacao', e.target.value as InstallationType)}
+                onBlur={() => handleBlurCampo('tipoInstalacao')}
                 required
               >
                 <option>Telhado fibrocimento</option>
@@ -1227,13 +1410,15 @@ export default function PreApprovalForm({
               {form.tipoInstalacao === 'Outro' && (
                 <input
                   type="text"
-                  className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  name="tipoInstalacaoOutro"
+                  className={classeCampo('tipoInstalacaoOutro')}
                   placeholder="Qual?"
                   value={form.tipoInstalacaoOutro}
                   onChange={(e) => atualizarCampo('tipoInstalacaoOutro', e.target.value)}
+                  onBlur={() => handleBlurCampo('tipoInstalacaoOutro')}
                 />
               )}
-              {errors.tipoInstalacaoOutro && (
+              {showError('tipoInstalacaoOutro') && (
                 <p className="text-xs text-red-600 mt-1">{errors.tipoInstalacaoOutro}</p>
               )}
             </div>

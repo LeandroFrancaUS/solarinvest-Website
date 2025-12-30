@@ -1,8 +1,18 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 export default function ContatoForm() {
+  const criarEstadoInicialErros = () => ({
+    nome: '',
+    email: '',
+    consumo: '',
+    municipio: '',
+    estado: '',
+    whatsapp: '',
+    mensagem: '',
+  });
+
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -15,6 +25,19 @@ export default function ContatoForm() {
 
   const [enviado, setEnviado] = useState(false); // ✅ Para feedback visual
   const [erro, setErro] = useState<string | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [touched, setTouched] = useState<Partial<Record<keyof typeof formData, boolean>>>({});
+  const [errosCampos, setErrosCampos] = useState<Record<keyof typeof formData, string>>(
+    () => criarEstadoInicialErros()
+  );
+
+  useEffect(() => {
+    setHasSubmitted(false);
+    setErrosCampos(criarEstadoInicialErros());
+    setErro(null);
+    setEnviado(false);
+    setTouched({});
+  }, []);
 
   const estadosBrasil = useMemo(
     () => [
@@ -70,6 +93,63 @@ export default function ContatoForm() {
     return `55${local}`;
   };
 
+  const validarEmail = (email: string) =>
+    /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/.test(email.trim());
+
+  const validarFormulario = (dados: typeof formData, whatsappDigits: string) => {
+    const erros: Record<keyof typeof formData, string> = {
+      nome: '',
+      email: '',
+      consumo: '',
+      municipio: '',
+      estado: '',
+      whatsapp: '',
+      mensagem: '',
+    };
+
+    if (!dados.nome.trim()) erros.nome = 'Nome é obrigatório.';
+    if (!dados.email.trim() || !validarEmail(dados.email)) erros.email = 'Informe um e-mail válido.';
+    if (!dados.consumo.trim()) erros.consumo = 'Informe o consumo médio de energia ou valor da conta.';
+    if (!dados.municipio.trim() || dados.municipio.length < 3)
+      erros.municipio = 'Informe o município onde o sistema será instalado.';
+    if (!estadosBrasil.includes(dados.estado)) erros.estado = 'Selecione um estado válido (UF).';
+    if (whatsappDigits.length < 12) erros.whatsapp = 'Informe um número de WhatsApp válido com DDD.';
+    if (!dados.mensagem.trim()) erros.mensagem = 'Mensagem é obrigatória.';
+
+    return erros;
+  };
+
+  const atualizarErros = (dados: typeof formData, whatsappDigits: string, shouldUpdateMensagem = false) => {
+    const novosErros = validarFormulario(dados, whatsappDigits);
+    setErrosCampos(novosErros);
+
+    if (shouldUpdateMensagem) {
+      const mensagemPrimeiroErro = Object.values(novosErros).find(Boolean) ?? null;
+      setErro(mensagemPrimeiroErro);
+    }
+
+    return novosErros;
+  };
+
+  const marcarComoTocado = (nomeCampo: keyof typeof formData) => {
+    setTouched((prev) => ({ ...prev, [nomeCampo]: true }));
+  };
+
+  const deveExibirErroCampo = (nomeCampo: keyof typeof formData) =>
+    (hasSubmitted || touched[nomeCampo]) && !!errosCampos[nomeCampo];
+
+  const classeCampo = (nomeCampo: keyof typeof formData) =>
+    `w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none ${
+      deveExibirErroCampo(nomeCampo)
+        ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+        : 'border-gray-300 focus:ring-2 focus:ring-orange-400 focus:border-orange-300'
+    }`;
+
+  const mensagemErroCampo = (nomeCampo: keyof typeof formData) =>
+    deveExibirErroCampo(nomeCampo) ? (
+      <p className="text-sm text-red-600 mt-1">{errosCampos[nomeCampo]}</p>
+    ) : null;
+
   // 🔄 Atualiza campos do formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name } = e.target;
@@ -79,7 +159,28 @@ export default function ContatoForm() {
     if (name === 'estado') value = normalizarEstado(value);
     if (name === 'whatsapp') value = sanitizeWhatsappInput(value);
 
-    setFormData({ ...formData, [name]: value });
+    const atualizado = { ...formData, [name]: value };
+    setFormData(atualizado);
+    setEnviado(false);
+
+    const whatsappDigits =
+      name === 'whatsapp' ? normalizarWhatsapp(value) : normalizarWhatsapp(atualizado.whatsapp);
+
+    if (hasSubmitted || touched[name as keyof typeof formData]) {
+      atualizarErros(atualizado, whatsappDigits, hasSubmitted);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name } = e.target;
+    const nomeCampo = name as keyof typeof formData;
+
+    marcarComoTocado(nomeCampo);
+
+    const whatsappDigits =
+      nomeCampo === 'whatsapp' ? normalizarWhatsapp(formData.whatsapp) : normalizarWhatsapp(formData.whatsapp);
+
+    atualizarErros(formData, whatsappDigits, hasSubmitted);
   };
 
   // 📩 Envia formulário para API
@@ -88,24 +189,21 @@ export default function ContatoForm() {
 
     const whatsappDigits = normalizarWhatsapp(formData.whatsapp);
     setErro(null);
+    setHasSubmitted(true);
 
-    if (!formData.consumo.trim()) {
-      setErro('Informe o consumo médio de energia ou valor da conta.');
-      return;
-    }
+    const novosErros = atualizarErros(formData, whatsappDigits, true);
+    const primeiroErro = Object.entries(novosErros).find(([, mensagem]) => mensagem);
 
-    if (!formData.municipio.trim() || formData.municipio.length < 3) {
-      setErro('Informe o município onde o sistema será instalado.');
-      return;
-    }
+    if (primeiroErro) {
+      const [campo, mensagemPrimeiroErro] = primeiroErro;
+      setErro(mensagemPrimeiroErro);
 
-    if (!estadosBrasil.includes(formData.estado)) {
-      setErro('Selecione um estado válido (UF).');
-      return;
-    }
+      const elementoInvalido = document.getElementById(campo);
+      if (elementoInvalido) {
+        elementoInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        elementoInvalido.focus({ preventScroll: true });
+      }
 
-    if (whatsappDigits.length < 12) {
-      setErro('Informe um número de WhatsApp válido com DDD.');
       return;
     }
 
@@ -118,7 +216,11 @@ export default function ContatoForm() {
 
       if (res.ok) {
         setEnviado(true);
+        setHasSubmitted(false);
+        setTouched({});
+        setErrosCampos({ nome: '', email: '', consumo: '', municipio: '', estado: '', whatsapp: '', mensagem: '' });
         setFormData({ nome: '', email: '', consumo: '', municipio: '', estado: '', whatsapp: '', mensagem: '' });
+        setErro(null);
       } else {
         alert('Erro ao enviar. Tente novamente mais tarde.');
       }
@@ -128,9 +230,12 @@ export default function ContatoForm() {
     }
   };
 
+  const deveExibirErroGeral = hasSubmitted && !!erro;
+
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate
       className="space-y-6 bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto text-left"
     >
       {/* ✅ Mensagem de sucesso */}
@@ -140,93 +245,110 @@ export default function ContatoForm() {
         </div>
       )}
 
-      {erro && (
+      {deveExibirErroGeral && (
         <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded text-sm">
           {erro}
         </div>
       )}
 
+      <p className="text-sm text-gray-600">Campos marcados com <span className="text-red-600">*</span> são obrigatórios.</p>
+
       {/* 📛 Nome */}
       <div>
         <label htmlFor="nome" className="block font-semibold text-gray-800 mb-1">
-          Nome
+          Nome <span className="text-red-600" aria-hidden>*</span>
         </label>
         <input
           type="text"
           id="nome"
           name="nome"
-          required
           value={formData.nome}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          onBlur={handleBlur}
+          aria-required
+          aria-invalid={deveExibirErroCampo('nome') ? true : undefined}
+          className={classeCampo('nome')}
         />
+        {mensagemErroCampo('nome')}
       </div>
 
       {/* 📧 Email */}
       <div>
         <label htmlFor="email" className="block font-semibold text-gray-800 mb-1">
-          E-mail
+          E-mail <span className="text-red-600" aria-hidden>*</span>
         </label>
         <input
           type="email"
           id="email"
           name="email"
-          required
           value={formData.email}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          onBlur={handleBlur}
+          aria-required
+          aria-invalid={deveExibirErroCampo('email') ? true : undefined}
+          className={classeCampo('email')}
         />
+        {mensagemErroCampo('email')}
       </div>
 
       {/* 🔌 Consumo médio */}
       <div>
         <label htmlFor="consumo" className="block font-semibold text-gray-800 mb-1">
-          Consumo médio de energia (12 meses)
+          Consumo médio de energia (12 meses) <span className="text-red-600" aria-hidden>*</span>
         </label>
         <input
           type="text"
           id="consumo"
           name="consumo"
-          required
           placeholder="Ex.: 500 kWh/mês ou R$ 300,00"
           value={formData.consumo}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          onBlur={handleBlur}
+          aria-required
+          aria-invalid={deveExibirErroCampo('consumo') ? true : undefined}
+          className={classeCampo('consumo')}
         />
+        {mensagemErroCampo('consumo')}
       </div>
 
       {/* 🗺️ Localização */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="municipio" className="block font-semibold text-gray-800 mb-1">
-            Município para instalação
+            Município para instalação <span className="text-red-600" aria-hidden>*</span>
           </label>
           <input
             type="text"
             id="municipio"
             name="municipio"
-            required
             placeholder="Cidade"
             value={formData.municipio}
             onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+            onBlur={handleBlur}
+            aria-required
+            aria-invalid={deveExibirErroCampo('municipio') ? true : undefined}
+            className={classeCampo('municipio')}
           />
+          {mensagemErroCampo('municipio')}
         </div>
 
         <div>
           <label htmlFor="estado" className="block font-semibold text-gray-800 mb-1">
-            Estado (UF)
+            Estado (UF) <span className="text-red-600" aria-hidden>*</span>
           </label>
           <input
             type="text"
             id="estado"
             name="estado"
-            required
             placeholder="UF"
             value={formData.estado}
             onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+            onBlur={handleBlur}
+            aria-required
+            aria-invalid={deveExibirErroCampo('estado') ? true : undefined}
+            className={classeCampo('estado')}
           />
+          {mensagemErroCampo('estado')}
           <p className="text-xs text-gray-500 mt-1">O estado é validado automaticamente (ex.: SP, RJ, MG).</p>
         </div>
       </div>
@@ -234,35 +356,41 @@ export default function ContatoForm() {
       {/* 📱 WhatsApp */}
       <div>
         <label htmlFor="whatsapp" className="block font-semibold text-gray-800 mb-1">
-          Número de WhatsApp para contato
+          Número de WhatsApp para contato <span className="text-red-600" aria-hidden>*</span>
         </label>
         <input
           type="tel"
           id="whatsapp"
           name="whatsapp"
-          required
           placeholder="(DD) 90000-0000"
           value={formData.whatsapp}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          onBlur={handleBlur}
+          aria-required
+          aria-invalid={deveExibirErroCampo('whatsapp') ? true : undefined}
+          className={classeCampo('whatsapp')}
         />
+        {mensagemErroCampo('whatsapp')}
         <p className="text-xs text-gray-500 mt-1">Nós removemos automaticamente caracteres especiais para validar o número.</p>
       </div>
 
       {/* ✍️ Mensagem */}
       <div>
         <label htmlFor="mensagem" className="block font-semibold text-gray-800 mb-1">
-          Mensagem
+          Mensagem <span className="text-red-600" aria-hidden>*</span>
         </label>
         <textarea
           id="mensagem"
           name="mensagem"
-          required
           rows={5}
           value={formData.mensagem}
           onChange={handleChange}
-          className="w-full px-4 py-2 border rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
+          onBlur={handleBlur}
+          aria-required
+          aria-invalid={deveExibirErroCampo('mensagem') ? true : undefined}
+          className={`${classeCampo('mensagem')} resize-none`}
         ></textarea>
+        {mensagemErroCampo('mensagem')}
       </div>
 
       {/* 📤 Botão de envio */}
