@@ -1,8 +1,18 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 export default function ContatoForm() {
+  const criarEstadoInicialErros = () => ({
+    nome: '',
+    email: '',
+    consumo: '',
+    municipio: '',
+    estado: '',
+    whatsapp: '',
+    mensagem: '',
+  });
+
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -16,15 +26,14 @@ export default function ContatoForm() {
   const [enviado, setEnviado] = useState(false); // ✅ Para feedback visual
   const [erro, setErro] = useState<string | null>(null);
   const [exibirValidacao, setExibirValidacao] = useState(false);
-  const [errosCampos, setErrosCampos] = useState<Record<keyof typeof formData, string>>({
-    nome: '',
-    email: '',
-    consumo: '',
-    municipio: '',
-    estado: '',
-    whatsapp: '',
-    mensagem: '',
-  });
+  const [errosCampos, setErrosCampos] = useState<Record<keyof typeof formData, string>>(criarEstadoInicialErros);
+
+  useEffect(() => {
+    setExibirValidacao(false);
+    setErrosCampos(criarEstadoInicialErros());
+    setErro(null);
+    setEnviado(false);
+  }, []);
 
   const estadosBrasil = useMemo(
     () => [
@@ -213,7 +222,7 @@ export default function ContatoForm() {
           value={formData.nome}
           onChange={handleChange}
           aria-required
-          aria-invalid={!!errosCampos.nome}
+          aria-invalid={exibirValidacao && !!errosCampos.nome ? true : undefined}
           className={classeCampo('nome')}
         />
         {mensagemErroCampo('nome')}
@@ -231,7 +240,7 @@ export default function ContatoForm() {
           value={formData.email}
           onChange={handleChange}
           aria-required
-          aria-invalid={!!errosCampos.email}
+          aria-invalid={exibirValidacao && !!errosCampos.email ? true : undefined}
           className={classeCampo('email')}
         />
         {mensagemErroCampo('email')}
@@ -250,7 +259,7 @@ export default function ContatoForm() {
           value={formData.consumo}
           onChange={handleChange}
           aria-required
-          aria-invalid={!!errosCampos.consumo}
+          aria-invalid={exibirValidacao && !!errosCampos.consumo ? true : undefined}
           className={classeCampo('consumo')}
         />
         {mensagemErroCampo('consumo')}
@@ -270,7 +279,7 @@ export default function ContatoForm() {
             value={formData.municipio}
             onChange={handleChange}
             aria-required
-            aria-invalid={!!errosCampos.municipio}
+            aria-invalid={exibirValidacao && !!errosCampos.municipio ? true : undefined}
             className={classeCampo('municipio')}
           />
           {mensagemErroCampo('municipio')}
@@ -288,7 +297,7 @@ export default function ContatoForm() {
             value={formData.estado}
             onChange={handleChange}
             aria-required
-            aria-invalid={!!errosCampos.estado}
+            aria-invalid={exibirValidacao && !!errosCampos.estado ? true : undefined}
             className={classeCampo('estado')}
           />
           {mensagemErroCampo('estado')}
@@ -309,7 +318,7 @@ export default function ContatoForm() {
           value={formData.whatsapp}
           onChange={handleChange}
           aria-required
-          aria-invalid={!!errosCampos.whatsapp}
+          aria-invalid={exibirValidacao && !!errosCampos.whatsapp ? true : undefined}
           className={classeCampo('whatsapp')}
         />
         {mensagemErroCampo('whatsapp')}
@@ -328,7 +337,7 @@ export default function ContatoForm() {
           value={formData.mensagem}
           onChange={handleChange}
           aria-required
-          aria-invalid={!!errosCampos.mensagem}
+          aria-invalid={exibirValidacao && !!errosCampos.mensagem ? true : undefined}
           className={`${classeCampo('mensagem')} resize-none`}
         ></textarea>
         {mensagemErroCampo('mensagem')}
