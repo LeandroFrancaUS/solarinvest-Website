@@ -47,7 +47,7 @@ const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
 const RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_COOLDOWN_MS = 20 * 1000;
 const submissionLog = new Map<string, number[]>();
-const legalNameRegex = /^(?![-\s])(?!.*--)(?!.*\s{2,})[\p{L}\p{N}]+(?:[\s-][\p{L}\p{N}]+)*$/u;
+const legalNameRegex = /^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9 .,&\-/]*$/u;
 
 function normalizarWhatsapp(numero: string) {
   const digits = numero.replace(/\D/g, '');
@@ -143,10 +143,11 @@ function sanitize(input: string | undefined) {
 }
 
 function sanitizeLegalName(raw: string) {
-  const cleaned = raw.replace(/[^\p{L}\p{N}\s-]/gu, '');
+  const cleaned = raw.replace(/[^\p{L}\p{N}\s.,&/-]/gu, '');
   const normalizedSpaces = cleaned.replace(/\s+/g, ' ').trim();
   const normalizedHyphens = normalizedSpaces.replace(/-+/g, '-');
-  return normalizedHyphens.replace(/^[-\s]+|[-\s]+$/g, '');
+  const normalizedSlashes = normalizedHyphens.replace(/\/+/g, '/');
+  return normalizedSlashes.replace(/^[\s.,&/-]+|[\s.,&/-]+$/g, '');
 }
 
 function isRateLimited(ip: string) {
@@ -207,7 +208,10 @@ export async function POST(req: Request) {
 
   if (!legalName || !legalNameRegex.test(legalName)) {
     return NextResponse.json(
-      { success: false, error: 'Nome / razão social inválido. Use apenas letras, números, espaço e hífen.' },
+      {
+        success: false,
+        error: 'Nome / razão social inválido. Use apenas letras, números, espaço, ponto, vírgula, hífen (-), & ou /.',
+      },
       { status: 400 }
     );
   }

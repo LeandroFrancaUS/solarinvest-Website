@@ -209,19 +209,23 @@ function formatCEP(value: string) {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
-const legalNameRegex = /^(?![-\s])(?!.*--)(?!.*\s{2,})[\p{L}\p{N}]+(?:[\s-][\p{L}\p{N}]+)*$/u;
+const legalNameRegex = /^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9 .,&\-/]*$/u;
 
-function sanitizeLegalName(raw: string) {
-  const cleaned = raw.replace(/[^\p{L}\p{N}\s-]/gu, '');
-  const normalizedSpaces = cleaned.replace(/\s+/g, ' ').trim();
+function sanitizeLegalName(raw: string, options?: { trimEdges?: boolean }) {
+  const cleaned = raw.replace(/[^\p{L}\p{N}\s.,&/-]/gu, '');
+  const normalizedSpaces = cleaned.replace(/\s+/g, ' ');
   const normalizedHyphens = normalizedSpaces.replace(/-+/g, '-');
-  const value = normalizedHyphens.replace(/^[-\s]+|[-\s]+$/g, '');
-  return { value, changed: value !== raw };
+  const normalizedSlashes = normalizedHyphens.replace(/\/+/g, '/');
+  const shouldTrim = options?.trimEdges !== false;
+  const cleanedEdges = shouldTrim
+    ? normalizedSlashes.replace(/^[\s.,&/-]+|[\s.,&/-]+$/g, '')
+    : normalizedSlashes.replace(/^[\s.,&/-]+/, '');
+  return { value: cleanedEdges, changed: cleanedEdges !== raw };
 }
 
 function isValidLegalName(value: string) {
   if (!value) return false;
-  return legalNameRegex.test(value);
+  return legalNameRegex.test(value.trim());
 }
 
 function normalizarWhatsappBrasil(numero: string) {
@@ -645,7 +649,7 @@ export default function PreApprovalForm({
     const nomeSanitizado = sanitizeLegalName(state.nome).value;
     if (!nomeSanitizado) novoErros.nome = 'Informe o nome ou razão social.';
     else if (!isValidLegalName(nomeSanitizado)) {
-      novoErros.nome = 'Use apenas letras, números, espaço e hífen (-). Sem emojis ou símbolos.';
+      novoErros.nome = 'Use apenas letras, números, espaço, ponto, vírgula, hífen (-), & ou /. Sem emojis ou símbolos.';
     }
 
     if (!validarCpfOuCnpj(state.cpfCnpj)) {
@@ -785,27 +789,13 @@ export default function PreApprovalForm({
     if (navigationKeys.has(event.key)) return;
     if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) return;
 
-    if (!/[\p{L}\p{N}\s-]/u.test(event.key)) {
-      event.preventDefault();
-      return;
-    }
-
-    const { selectionStart, selectionEnd, value } = event.currentTarget;
-    const start = selectionStart ?? value.length;
-    const end = selectionEnd ?? value.length;
-    const nextValue = `${value.slice(0, start)}${event.key}${value.slice(end)}`;
-
-    const startsWithSeparator = /^[-\s]/u.test(nextValue);
-    const hasDoubleHyphen = nextValue.includes('--');
-    const hasConsecutiveSpaces = /\s{2,}/u.test(nextValue);
-
-    if (startsWithSeparator || hasDoubleHyphen || hasConsecutiveSpaces) {
+    if (!/[\p{L}\p{N}\s.,&/-]/u.test(event.key)) {
       event.preventDefault();
     }
   };
 
   const atualizarNome = (valor: string, mapaTocado: Partial<Record<keyof FormState, boolean>> = touched) => {
-    const { value: sanitizado } = sanitizeLegalName(valor);
+    const { value: sanitizado } = sanitizeLegalName(valor, { trimEdges: false });
     setNomePasteSanitized(false);
     const proximo = { ...form, nome: sanitizado };
     setForm(proximo);
