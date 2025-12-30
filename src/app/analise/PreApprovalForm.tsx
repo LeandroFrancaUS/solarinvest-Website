@@ -795,7 +795,11 @@ export default function PreApprovalForm({
     const end = selectionEnd ?? value.length;
     const nextValue = `${value.slice(0, start)}${event.key}${value.slice(end)}`;
 
-    if (/^[-\s]/u.test(nextValue) || /[-\s]$/u.test(nextValue) || nextValue.includes('--') || /\s{2,}/u.test(nextValue)) {
+    const startsWithSeparator = /^[-\s]/u.test(nextValue);
+    const hasDoubleHyphen = nextValue.includes('--');
+    const hasConsecutiveSpaces = /\s{2,}/u.test(nextValue);
+
+    if (startsWithSeparator || hasDoubleHyphen || hasConsecutiveSpaces) {
       event.preventDefault();
     }
   };
