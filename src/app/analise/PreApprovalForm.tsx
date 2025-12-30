@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { ClipboardEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 declare global {
   interface Window {
@@ -207,6 +207,21 @@ function formatCEP(value: string) {
   const digits = onlyDigits(value).slice(0, 8);
   if (digits.length <= 5) return digits;
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+}
+
+const legalNameRegex = /^(?![-\s])(?!.*--)(?!.*\s{2,})[\p{L}\p{N}]+(?:[\s-][\p{L}\p{N}]+)*$/u;
+
+function sanitizeLegalName(raw: string) {
+  const cleaned = raw.replace(/[^\p{L}\p{N}\s-]/gu, '');
+  const normalizedSpaces = cleaned.replace(/\s+/g, ' ').trim();
+  const normalizedHyphens = normalizedSpaces.replace(/-+/g, '-');
+  const value = normalizedHyphens.replace(/^[-\s]+|[-\s]+$/g, '');
+  return { value, changed: value !== raw };
+}
+
+function isValidLegalName(value: string) {
+  if (!value) return false;
+  return legalNameRegex.test(value);
 }
 
 function normalizarWhatsappBrasil(numero: string) {
@@ -538,6 +553,7 @@ export default function PreApprovalForm({
   const [tagModalTag, setTagModalTag] = useState<DocTag | ''>('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
+  const [nomePasteSanitized, setNomePasteSanitized] = useState(false);
 
   const consumoNormalizado = useMemo(() => parseConsumo(form.consumoMedio), [form.consumoMedio]);
   const tarifaNormalizada = useMemo(() => parseTarifa(form.tarifa), [form.tarifa]);
@@ -626,7 +642,11 @@ export default function PreApprovalForm({
     const consumoNormalizadoLocal = parseConsumo(state.consumoMedio);
     const tarifaNormalizadaLocal = parseTarifa(state.tarifa);
 
-    if (!state.nome.trim()) novoErros.nome = 'Informe o nome ou razão social.';
+    const nomeSanitizado = sanitizeLegalName(state.nome).value;
+    if (!nomeSanitizado) novoErros.nome = 'Informe o nome ou razão social.';
+    else if (!isValidLegalName(nomeSanitizado)) {
+      novoErros.nome = 'Use apenas letras, números, espaço e hífen (-). Sem emojis ou símbolos.';
+    }
 
     if (!validarCpfOuCnpj(state.cpfCnpj)) {
       novoErros.cpfCnpj = 'CPF ou CNPJ inválido.';
@@ -748,6 +768,68 @@ export default function PreApprovalForm({
         : 'border-gray-200 focus:border-orange-500'
     }`;
 
+  const handleLegalNameKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const navigationKeys = new Set([
+      'Backspace',
+      'Delete',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
+      'End',
+      'Tab',
+      'Enter',
+    ]);
+
+    if (navigationKeys.has(event.key)) return;
+    if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) return;
+
+    if (!/[\p{L}\p{N}\s-]/u.test(event.key)) {
+      event.preventDefault();
+      return;
+    }
+
+    const { selectionStart, selectionEnd, value } = event.currentTarget;
+    const start = selectionStart ?? value.length;
+    const end = selectionEnd ?? value.length;
+    const nextValue = `${value.slice(0, start)}${event.key}${value.slice(end)}`;
+
+    if (/^[-\s]/u.test(nextValue) || /[-\s]$/u.test(nextValue) || nextValue.includes('--') || /\s{2,}/u.test(nextValue)) {
+      event.preventDefault();
+    }
+  };
+
+  const atualizarNome = (valor: string, mapaTocado: Partial<Record<keyof FormState, boolean>> = touched) => {
+    const { value: sanitizado } = sanitizeLegalName(valor);
+    setNomePasteSanitized(false);
+    const proximo = { ...form, nome: sanitizado };
+    setForm(proximo);
+
+    if (hasSubmitted || mapaTocado.nome) {
+      validarEstado(proximo, hasSubmitted, mapaTocado);
+    }
+  };
+
+  const handleNomeBlur = () => {
+    const mapaTocado = marcarCampoTocado('nome');
+    const { value: sanitizado } = sanitizeLegalName(form.nome);
+    const proximo = { ...form, nome: sanitizado };
+    setForm(proximo);
+    validarEstado(proximo, hasSubmitted, mapaTocado);
+  };
+
+  const handleNomePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const pastedText = event.clipboardData.getData('text');
+    const { value: sanitizado, changed } = sanitizeLegalName(pastedText);
+    const mapaTocado = marcarCampoTocado('nome');
+    setNomePasteSanitized(changed);
+    const proximo = { ...form, nome: sanitizado };
+    setForm(proximo);
+    validarEstado(proximo, hasSubmitted, mapaTocado);
+  };
+
   const handleBlurCampo = (campo: keyof FormState) => {
     const mapaTocado = marcarCampoTocado(campo);
     validarEstado(form, hasSubmitted, mapaTocado);
@@ -816,7 +898,11 @@ export default function PreApprovalForm({
       return;
     }
 
-    const { novoErros, hasErrors } = validarEstado(form, true);
+    const nomeSanitizado = sanitizeLegalName(form.nome).value;
+    const formSanitizado = { ...form, nome: nomeSanitizado };
+    setForm(formSanitizado);
+
+    const { novoErros, hasErrors } = validarEstado(formSanitizado, true);
     focarPrimeiroErro(novoErros);
 
     if (hasErrors) {
@@ -833,13 +919,13 @@ export default function PreApprovalForm({
 
       const attachments = await Promise.all(documentos.map((doc) => fileToBase64(doc)));
 
-      const cpfCnpjValido = validarCpfOuCnpj(form.cpfCnpj);
-      const whatsappValido = validarWhatsapp(form.whatsapp);
-      const emailValido = validarEmail(form.email);
-      const cepValido = validarCEP(form.cep);
+      const cpfCnpjValido = validarCpfOuCnpj(formSanitizado.cpfCnpj);
+      const whatsappValido = validarWhatsapp(formSanitizado.whatsapp);
+      const emailValido = validarEmail(formSanitizado.email);
+      const cepValido = validarCEP(formSanitizado.cep);
       const consumo = consumoNormalizado as number;
       const tarifa = tarifaNormalizada;
-      const whatsappNormalizado = normalizarWhatsappBrasil(form.whatsapp);
+      const whatsappNormalizado = normalizarWhatsappBrasil(formSanitizado.whatsapp);
 
       const { status, motivosInternos, statusInterno } = calcularStatus(
         consumo,
@@ -849,21 +935,22 @@ export default function PreApprovalForm({
         cpfCnpjValido,
         whatsappValido,
         emailValido,
-        form.tipoInstalacao,
-        form.relacaoImovel,
+        formSanitizado.tipoInstalacao,
+        formSanitizado.relacaoImovel,
         docFlags
       );
 
       const prioridade = calcularPrioridade(consumo);
 
       const payload = {
-        ...form,
+        ...formSanitizado,
         whatsapp: whatsappNormalizado,
-        municipio: form.municipio,
-        tipoClienteOutro: form.tipoCliente === 'Outro' ? form.tipoClienteOutro : '',
-        tipoInstalacaoOutro: form.tipoInstalacao === 'Outro' ? form.tipoInstalacaoOutro : '',
-        relacaoOutro: form.relacaoImovel === 'Inquilino (locatário)' ? form.relacaoOutro : '',
-        tipoRede: form.tipoRede,
+        municipio: formSanitizado.municipio,
+        tipoClienteOutro: formSanitizado.tipoCliente === 'Outro' ? formSanitizado.tipoClienteOutro : '',
+        tipoInstalacaoOutro: formSanitizado.tipoInstalacao === 'Outro' ? formSanitizado.tipoInstalacaoOutro : '',
+        relacaoOutro:
+          formSanitizado.relacaoImovel === 'Inquilino (locatário)' ? formSanitizado.relacaoOutro : '',
+        tipoRede: formSanitizado.tipoRede,
         consumoMedio: consumo,
         tarifa: tarifa ?? 0,
         status,
@@ -897,6 +984,7 @@ export default function PreApprovalForm({
       setHasSubmitted(false);
       setTouched({});
       setPendencias([]);
+      setNomePasteSanitized(false);
       onSubmitted?.({ status, message: statusMessages[status] });
     } catch (error: unknown) {
       const mensagem = error instanceof Error ? error.message : 'Erro ao enviar a solicitação.';
@@ -1034,11 +1122,21 @@ export default function PreApprovalForm({
                 name="nome"
                 className={classeCampo('nome')}
                 value={form.nome}
-                onChange={(e) => atualizarCampo('nome', e.target.value)}
-                onBlur={() => handleBlurCampo('nome')}
+                onChange={(e) => atualizarNome(e.target.value)}
+                onBlur={handleNomeBlur}
+                onPaste={handleNomePaste}
+                onKeyDown={handleLegalNameKeyDown}
                 required
+                aria-invalid={showError('nome') || undefined}
               />
-              {showError('nome') && <p className="text-xs text-red-600 mt-1">{errors.nome}</p>}
+              {nomePasteSanitized && (
+                <p className="text-xs text-amber-700 mt-1">Alguns caracteres foram removidos para manter o formato válido.</p>
+              )}
+              {showError('nome') && (
+                <p className="text-xs text-red-600 mt-1" aria-live="polite">
+                  {errors.nome}
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
