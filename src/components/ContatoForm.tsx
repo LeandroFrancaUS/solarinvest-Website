@@ -26,7 +26,9 @@ export default function ContatoForm() {
   const [enviado, setEnviado] = useState(false); // ✅ Para feedback visual
   const [erro, setErro] = useState<string | null>(null);
   const [exibirValidacao, setExibirValidacao] = useState(false);
-  const [errosCampos, setErrosCampos] = useState<Record<keyof typeof formData, string>>(criarEstadoInicialErros);
+  const [errosCampos, setErrosCampos] = useState<Record<keyof typeof formData, string>>(
+    () => criarEstadoInicialErros()
+  );
 
   useEffect(() => {
     setExibirValidacao(false);
@@ -189,6 +191,8 @@ export default function ContatoForm() {
     }
   };
 
+  const deveExibirErroGeral = exibirValidacao && !!erro;
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -202,7 +206,7 @@ export default function ContatoForm() {
         </div>
       )}
 
-      {erro && (
+      {deveExibirErroGeral && (
         <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded text-sm">
           {erro}
         </div>
