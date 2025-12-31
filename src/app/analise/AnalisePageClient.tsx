@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import Script from 'next/script';
 import { useSearchParams } from 'next/navigation';
@@ -77,6 +77,15 @@ export default function AnalisePageClient() {
   const searchParams = useSearchParams();
   const shouldAutoOpenParam = searchParams?.get('abrir');
   const shouldAutoOpen = shouldAutoOpenParam ? shouldAutoOpenParam === 'true' : true;
+  const utmParams = useMemo(
+    () => ({
+      utm_source: searchParams?.get('utm_source') ?? null,
+      utm_medium: searchParams?.get('utm_medium') ?? null,
+      utm_campaign: searchParams?.get('utm_campaign') ?? null,
+      utm_content: searchParams?.get('utm_content') ?? null,
+    }),
+    [searchParams]
+  );
   const [mostrarFormulario, setMostrarFormulario] = useState(shouldAutoOpen);
   const [resultado, setResultado] = useState<{ status: StatusResultado; message: string } | null>(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
@@ -175,7 +184,7 @@ export default function AnalisePageClient() {
 
       {mostrarFormulario && (
         <section className="max-w-7xl mx-auto" id="pre-aprovacao">
-          <PreApprovalForm onSubmitted={handleSubmitted} />
+          <PreApprovalForm onSubmitted={handleSubmitted} utmParams={utmParams} />
         </section>
       )}
 

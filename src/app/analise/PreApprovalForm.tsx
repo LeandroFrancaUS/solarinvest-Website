@@ -538,11 +538,17 @@ async function fileToBase64(anexo: AttachmentWithMeta): Promise<AttachmentPayloa
   };
 }
 
-export default function PreApprovalForm({
-  onSubmitted,
-}: {
+type PreApprovalFormProps = {
   onSubmitted?: (payload: { status: StatusResultado; message: string }) => void;
-}) {
+  utmParams?: Partial<{
+    utm_source: string | null;
+    utm_medium: string | null;
+    utm_campaign: string | null;
+    utm_content: string | null;
+  }>;
+};
+
+export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalFormProps) {
   const [form, setForm] = useState<FormState>(initialState);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submission, setSubmission] = useState<SubmissionState>({ loading: false });
@@ -911,8 +917,6 @@ export default function PreApprovalForm({
         return;
       }
 
-      const attachments = await Promise.all(documentos.map((doc) => fileToBase64(doc)));
-
       const cpfCnpjValido = validarCpfOuCnpj(formSanitizado.cpfCnpj);
       const whatsappValido = validarWhatsapp(formSanitizado.whatsapp);
       const emailValido = validarEmail(formSanitizado.email);
@@ -920,6 +924,7 @@ export default function PreApprovalForm({
       const consumo = consumoNormalizado as number;
       const tarifa = tarifaNormalizada;
       const whatsappNormalizado = normalizarWhatsappBrasil(formSanitizado.whatsapp);
+      const whatsappComPrefixo = whatsappNormalizado ? `+${whatsappNormalizado}` : '';
 
       const { status, motivosInternos, statusInterno } = calcularStatus(
         consumo,
@@ -936,35 +941,38 @@ export default function PreApprovalForm({
 
       const prioridade = calcularPrioridade(consumo);
 
-      const payload = {
-        ...formSanitizado,
-        whatsapp: whatsappNormalizado,
-        municipio: formSanitizado.municipio,
-        tipoClienteOutro: formSanitizado.tipoCliente === 'Outro' ? formSanitizado.tipoClienteOutro : '',
-        tipoInstalacaoOutro: formSanitizado.tipoInstalacao === 'Outro' ? formSanitizado.tipoInstalacaoOutro : '',
-        relacaoOutro:
-          formSanitizado.relacaoImovel === 'Inquilino (locatário)' ? formSanitizado.relacaoOutro : '',
-        tipoRede: formSanitizado.tipoRede,
-        consumoMedio: consumo,
-        tarifa: tarifa ?? 0,
-        status,
-        statusInterno,
-        prioridade,
-        motivosInternos,
-        checklist: relacaoImovelDocRules.required,
-        attachments,
-      };
+      const cleanUtmValue = (value?: string | null) => (value ? value.trim() || undefined : undefined);
 
-      const response = await fetch('/api/pre-aprovacao', {
+      const response = await fetch('/api/kommo/pre-analise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          nomeRazao: formSanitizado.nome,
+          email: formSanitizado.email,
+          whatsapp: whatsappComPrefixo,
+          municipio: formSanitizado.municipio,
+          tipoImovel:
+            formSanitizado.tipoCliente === 'Outro' ? formSanitizado.tipoClienteOutro : formSanitizado.tipoCliente,
+          consumoMedioMensal: consumo,
+          tipoSistema:
+            formSanitizado.tipoInstalacao === 'Outro'
+              ? formSanitizado.tipoInstalacaoOutro
+              : formSanitizado.tipoInstalacao,
+          utm: utmParams
+            ? {
+                utm_source: cleanUtmValue(utmParams.utm_source),
+                utm_medium: cleanUtmValue(utmParams.utm_medium),
+                utm_campaign: cleanUtmValue(utmParams.utm_campaign),
+                utm_content: cleanUtmValue(utmParams.utm_content),
+              }
+            : undefined,
+        }),
       });
 
       const result = await response.json();
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Erro ao enviar a solicitação.');
+      if (!response.ok || !result.ok) {
+        throw new Error(result.message || 'Erro ao enviar a solicitação.');
       }
 
       pushLeadSubmitEvent();
