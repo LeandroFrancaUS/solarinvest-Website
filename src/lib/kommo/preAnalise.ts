@@ -47,7 +47,6 @@ const optionalLeadFieldEnvVars = {
 
 function sanitizeText(value: unknown, maxLength = 200) {
   if (!value || typeof value !== "string") return "";
-  // mantém espaços internos (nome/razão social), remove apenas espaços externos
   return value.trim().slice(0, maxLength);
 }
 
@@ -56,24 +55,23 @@ function sanitizeEmail(value: unknown) {
 }
 
 /**
- * Normaliza WhatsApp para algo próximo de E.164.
+ * Normaliza WhatsApp para algo próximo de E.164:
  * - Remove não-dígitos.
  * - Se vier sem DDI e parecer BR (10 ou 11 dígitos), prefixa +55.
- * - Caso venha com DDI (ex.: 55...), garante o '+'.
+ * - Se vier com DDI, garante o '+'.
  */
 function sanitizeWhatsapp(value: unknown) {
   if (!value || typeof value !== "string") return "";
   const digits = value.replace(/\D/g, "");
   if (!digits) return "";
 
-  // Brasil sem DDI: 10 (fixo) ou 11 (celular)
+  // Brasil sem DDI (10/11 dígitos)
   if (digits.length === 10 || digits.length === 11) {
-    // se já começa com 55 e tem 12/13 não cai aqui; se for 10/11, assume BR
     return `+55${digits}`;
   }
 
-  // Já veio com DDI (qualquer país)
-  return digits.startsWith("55") ? `+${digits}` : `+${digits}`;
+  // Já com DDI (qualquer país)
+  return `+${digits}`;
 }
 
 function sanitizeNumber(value: unknown) {
@@ -197,11 +195,11 @@ async function fetchKommo<T>(
   return (await response.json()) as T;
 }
 
-function extractFieldValue(contact: any, fieldId: number) {
+function extractFieldValue(contact: any, fieldId: number): string[] {
   const field = (contact?.custom_fields_values ?? []).find(
     (f: any) => f.field_id === fieldId
   );
-  if (!field) return [] as string[];
+  if (!field) return [];
   return (field.values ?? []).map((v: any) => String(v.value ?? ""));
 }
 
@@ -226,20 +224,20 @@ async function findExistingContact(
 
     for (const contact of contacts) {
       if (emailFieldId) {
-        const emails = extractFieldValue(contact, emailFieldId).map((e) =>
-          e.toLowerCase()
+        const emails = extractFieldValue(contact, emailFieldId).map(
+          (e: string) => e.toLowerCase()
         );
         if (email && emails.includes(email)) return contact.id as number;
       }
 
       if (phoneFieldId) {
-        const phones = extractFieldValue(contact, phoneFieldId).map((p) =>
-          p.replace(/\D/g, "")
+        const phones = extractFieldValue(contact, phoneFieldId).map(
+          (p: string) => p.replace(/\D/g, "")
         );
         const normalizedPhone = whatsapp.replace(/\D/g, "");
         if (
           normalizedPhone &&
-          phones.some((p) => p.endsWith(normalizedPhone))
+          phones.some((p: string) => p.endsWith(normalizedPhone))
         ) {
           return contact.id as number;
         }
@@ -324,7 +322,11 @@ export async function processKommoPreAnalise(
   }
 
   try {
-    const existingContactId = await findExistingContact(email, whatsapp, requestId);
+    const existingContactId = await findExistingContact(
+      email,
+      whatsapp,
+      requestId
+    );
 
     const leadCustomFields = [
       buildCustomField(optionalLeadFieldEnvVars.municipio, municipio),
@@ -350,7 +352,10 @@ export async function processKommoPreAnalise(
         optionalLeadFieldEnvVars.utm_content,
         sanitizeText(payload.utm?.utm_content)
       ),
-    ].filter(Boolean) as Array<{ field_id: number; values: Array<{ value: string | number }> }>;
+    ].filter(Boolean) as Array<{
+      field_id: number;
+      values: Array<{ value: string | number }>;
+    }>;
 
     const leadPayload: any = {
       name: "Pré-análise — Site",
