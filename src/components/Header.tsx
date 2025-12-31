@@ -10,6 +10,11 @@ import clsx from 'clsx';
 export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoSrc, setLogoSrc] = useState('/logos_festivos/2026_Logo.png');
+
+  const handleLogoError = () => {
+    setLogoSrc((current) => (current === '/icon.png' ? current : '/icon.png'));
+  };
 
   // 🔁 Fecha o menu mobile automaticamente ao mudar de rota
   useEffect(() => {
@@ -38,11 +43,12 @@ export default function Header() {
           className="flex items-center gap-3 transition-colors duration-200"
         >
           <Image
-            src="/LogoNatal.png"
-            alt="Logo natalino da SolarInvest"
+            src={logoSrc}
+            alt="Logo comemorativo da SolarInvest"
             width={40}
             height={40}
             className="w-10 h-10 object-contain"
+            onError={handleLogoError}
           />
           <div className="flex flex-col leading-tight">
             <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">

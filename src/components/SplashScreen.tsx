@@ -5,8 +5,13 @@ import { useEffect, useState } from 'react';
 
 export default function SplashScreen({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
+  const [splashSrc, setSplashSrc] = useState('/splash_festivos/Feliz_2026.png');
   const splashCooldownMs = 5 * 60 * 1000;
   const splashStorageKey = 'solarinvest:splash:lastShown';
+
+  const handleSplashError = () => {
+    setSplashSrc((current) => (current === '/icon.png' ? current : '/icon.png'));
+  };
 
   useEffect(() => {
     const now = Date.now();
@@ -21,7 +26,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
     const timer = setTimeout(() => setShowSplash(false), 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [splashCooldownMs, splashStorageKey]);
 
   return (
     <>
@@ -29,13 +34,14 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
           <div className="flex items-center justify-center p-6">
             <Image
-              src="/LogoNatal.png"
+              src={splashSrc}
               alt="SolarInvest"
               width={360}
               height={360}
               priority
               className="h-auto w-auto max-h-[70vh] max-w-[70vw] object-contain sm:max-h-[60vh] sm:max-w-[50vw]"
               unoptimized
+              onError={handleSplashError}
             />
           </div>
         </div>
