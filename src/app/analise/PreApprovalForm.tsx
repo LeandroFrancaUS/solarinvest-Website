@@ -952,7 +952,9 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
           whatsapp: whatsappComPrefixo,
           municipio: formSanitizado.municipio,
           tipoImovel:
-            formSanitizado.tipoCliente === 'Outro' ? formSanitizado.tipoClienteOutro : formSanitizado.tipoCliente,
+            formSanitizado.tipoCliente === 'Outro'
+              ? formSanitizado.tipoClienteOutro
+              : formSanitizado.tipoCliente,
           consumoMedioMensal: consumo,
           tipoSistema:
             formSanitizado.tipoInstalacao === 'Outro'
@@ -969,10 +971,19 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         }),
       });
 
-      const result = await response.json();
+      let result: { ok?: boolean; message?: string } = {};
+      try {
+        result = await response.json();
+      } catch (error) {
+        console.error('Falha ao interpretar resposta do servidor (pré-análise)', error);
+      }
 
       if (!response.ok || !result.ok) {
-        throw new Error(result.message || 'Erro ao enviar a solicitação.');
+        const mensagemErro =
+          typeof result.message === 'string'
+            ? result.message
+            : 'Erro ao enviar a solicitação. Tente novamente em instantes.';
+        throw new Error(mensagemErro);
       }
 
       pushLeadSubmitEvent();
