@@ -34,7 +34,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-white/70 to-orange-50/30 backdrop-blur-xl shadow-md border-b border-orange-100">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
 
         {/* 🔆 Logo + nome fixo e profissional */}
         <Link
@@ -45,9 +45,9 @@ export default function Header() {
           <Image
             src={logoSrc}
             alt="Logo comemorativo da SolarInvest"
-            width={40}
-            height={40}
-            className="w-10 h-10 object-contain"
+            width={64}
+            height={64}
+            className="w-16 h-16 object-contain"
             onError={handleLogoError}
           />
           <div className="flex flex-col leading-tight">
