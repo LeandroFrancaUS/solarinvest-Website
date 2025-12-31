@@ -1,18 +1,4 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    },
-    {
-      "src": "public/LogoNatal.png",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "public/LogoNatal2.png",
-      "use": "@vercel/static"
-    }
-  ],
   "rewrites": [
     {
       "source": "/sitemap.xml",
