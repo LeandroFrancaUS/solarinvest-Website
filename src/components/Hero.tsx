@@ -64,7 +64,7 @@ export default function Hero() {
               Economize na conta de luz, proteja-se contra apagões e invista em sustentabilidade com a SolarInvest Solutions.
             </p>
             <Link
-              href="/contato"
+              href="https://solarinvest.info/analise"
               className="inline-block bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow hover:bg-orange-500 transition-colors"
             >
               Solicite uma análise gratuita
