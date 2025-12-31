@@ -979,10 +979,13 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       }
 
       if (!response.ok || !result.ok) {
+        const isUnavailable = response.status === 503;
         const mensagemErro =
           typeof result.message === 'string'
             ? result.message
-            : 'Erro ao enviar a solicitação. Tente novamente em instantes.';
+            : isUnavailable
+              ? 'Serviço temporariamente indisponível. Tente novamente em instantes.'
+              : 'Erro ao enviar a solicitação. Tente novamente em instantes.';
         throw new Error(mensagemErro);
       }
 
