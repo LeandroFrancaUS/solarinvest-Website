@@ -404,15 +404,22 @@ export async function processKommoPreAnalise(
     const msg = (error as Error).message;
     const isKommoError = msg.startsWith("KOMMO_HTTP_");
     const isAuthError = msg === "KOMMO_HTTP_401" || msg === "KOMMO_HTTP_403";
+    const isGatewayError = msg === "KOMMO_HTTP_502" || msg === "KOMMO_HTTP_504";
 
     return {
-      status: isAuthError ? 500 : isKommoError ? 502 : 500,
+      status: isAuthError ? 500 : isKommoError ? 503 : 500,
       body: {
         ok: false,
-        errorCode: isAuthError ? "KOMMO_AUTH_ERROR" : "KOMMO_ERROR",
+        errorCode: isAuthError
+          ? "KOMMO_AUTH_ERROR"
+          : isGatewayError
+            ? "KOMMO_UNAVAILABLE"
+            : "KOMMO_ERROR",
         message: isAuthError
           ? "Integração temporariamente indisponível."
-          : "Não conseguimos enviar sua pré-análise agora. Tente novamente em alguns minutos.",
+          : isGatewayError
+            ? "Serviço de CRM indisponível no momento. Tente novamente em instantes."
+            : "Não conseguimos enviar sua pré-análise agora. Tente novamente em alguns minutos.",
       },
     };
   }
