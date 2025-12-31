@@ -45,3 +45,17 @@ Para testar localmente:
 2. Visite `http://localhost:3000/search`.
 3. Digite um termo como "soluções" para ver os resultados filtrados.
 
+## Integração Kommo (pré-análise)
+
+- Defina as variáveis em `.env.local` e no painel da Vercel (nunca commit das chaves):
+  - `KOMMO_SUBDOMAIN`, `KOMMO_LONG_LIVED_TOKEN`
+  - `KOMMO_PIPELINE_ID`, `KOMMO_STATUS_ID`
+  - `KOMMO_CONTACT_EMAIL_FIELD_ID`, `KOMMO_CONTACT_PHONE_FIELD_ID`
+  - Campos de lead (quando configurados): `KOMMO_LEAD_FIELD_ID_MUNICIPIO`, `KOMMO_LEAD_FIELD_ID_TIPO_IMOVEL`,
+    `KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO`, `KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA`, `KOMMO_LEAD_FIELD_ID_UTM_SOURCE`,
+    `KOMMO_LEAD_FIELD_ID_UTM_MEDIUM`, `KOMMO_LEAD_FIELD_ID_UTM_CAMPAIGN`, `KOMMO_LEAD_FIELD_ID_UTM_CONTENT`.
+- Para mapear os IDs no Kommo, use o script `scripts/kommo_dump_ids.ts`:
+  ```bash
+  KOMMO_SUBDOMAIN=... KOMMO_LONG_LIVED_TOKEN=... npx ts-node scripts/kommo_dump_ids.ts
+  ```
+

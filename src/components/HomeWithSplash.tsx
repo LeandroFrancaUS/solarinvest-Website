@@ -25,7 +25,7 @@ export default function HomeWithSplash() {
     const timer = setTimeout(() => setShowSplash(false), 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [splashCooldownMs, splashStorageKey]);
 
   if (showSplash) {
     return (
