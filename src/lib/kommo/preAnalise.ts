@@ -156,7 +156,7 @@ async function fetchKommo<T>(path: string, options: RequestInit, requestId: stri
   return (await response.json()) as T;
 }
 
-function extractFieldValue(contact: any, fieldId: number): string[] {
+function extractFieldValue(contact: any, fieldId: number) {
   const field = (contact?.custom_fields_values ?? []).find((f: any) => f.field_id === fieldId);
   if (!field) return [] as string[];
   return (field.values ?? []).map((v: any) => String(v.value ?? ''));
@@ -174,14 +174,14 @@ async function findExistingContact(email: string, whatsapp: string, requestId: s
 
     for (const contact of contacts) {
       if (emailFieldId) {
-        const emails = extractFieldValue(contact, emailFieldId).map((emailValue: string) => emailValue.toLowerCase());
+        const emails = extractFieldValue(contact, emailFieldId).map((e) => e.toLowerCase());
         if (email && emails.includes(email)) return contact.id as number | undefined;
       }
 
       if (phoneFieldId) {
-        const phones = extractFieldValue(contact, phoneFieldId).map((phoneValue: string) => phoneValue.replace(/\D/g, ''));
+        const phones = extractFieldValue(contact, phoneFieldId).map((p) => p.replace(/\D/g, ''));
         const normalizedPhone = whatsapp.replace(/\D/g, '');
-        if (normalizedPhone && phones.some((p: string) => p.endsWith(normalizedPhone))) {
+        if (normalizedPhone && phones.some((p) => p.endsWith(normalizedPhone))) {
           return contact.id as number | undefined;
         }
       }
