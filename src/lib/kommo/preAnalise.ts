@@ -179,7 +179,7 @@ async function findExistingContact(email: string, whatsapp: string, requestId: s
       }
 
       if (phoneFieldId) {
-        const phones = extractFieldValue(contact, phoneFieldId).map((p) => p.replace(/\D/g, ''));
+        const phones = extractFieldValue(contact, phoneFieldId).map((phoneValue: string) => phoneValue.replace(/\D/g, ''));
         const normalizedPhone = whatsapp.replace(/\D/g, '');
         if (normalizedPhone && phones.some((p) => p.endsWith(normalizedPhone))) {
           return contact.id as number | undefined;
