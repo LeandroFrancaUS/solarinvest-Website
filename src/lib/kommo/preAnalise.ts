@@ -1,5 +1,9 @@
 import crypto from "crypto";
 
+/* =========================================================
+   TIPOS
+========================================================= */
+
 export type PreAnalisePayload = {
   nomeRazao?: string;
   email?: string;
@@ -21,9 +25,17 @@ type ProcessResult = {
   body: { ok: true } | { ok: false; errorCode: string; message: string };
 };
 
+/* =========================================================
+   RATE LIMIT
+========================================================= */
+
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 min
 const RATE_LIMIT_MAX = 10;
 const rateLimitLog = new Map<string, number[]>();
+
+/* =========================================================
+   ENV OBRIGATÓRIAS
+========================================================= */
 
 const REQUIRED_ENV_VARS = [
   "KOMMO_SUBDOMAIN",
@@ -32,55 +44,60 @@ const REQUIRED_ENV_VARS = [
   "KOMMO_STATUS_ID",
   "KOMMO_CONTACT_EMAIL_FIELD_ID",
   "KOMMO_CONTACT_PHONE_FIELD_ID",
+  "KOMMO_LEAD_FIELD_ID_MUNICIPIO",
+  "KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO",
+  "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
+  "KOMMO_LEAD_FIELD_ID_ORIGEM",
+  "KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL",
 ];
 
-const optionalLeadFieldEnvVars = {
-  municipio: "KOMMO_LEAD_FIELD_ID_MUNICIPIO",
-  tipoImovel: "KOMMO_LEAD_FIELD_ID_TIPO_IMOVEL",
-  consumoMedioMensal: "KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO",
-  tipoSistema: "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
-  utm_source: "KOMMO_LEAD_FIELD_ID_UTM_SOURCE",
-  utm_medium: "KOMMO_LEAD_FIELD_ID_UTM_MEDIUM",
-  utm_campaign: "KOMMO_LEAD_FIELD_ID_UTM_CAMPAIGN",
-  utm_content: "KOMMO_LEAD_FIELD_ID_UTM_CONTENT",
-} as const;
+/* =========================================================
+   ENUMS (IDs REAIS DO KOMMO)
+========================================================= */
 
-function sanitizeText(value: unknown, maxLength = 200) {
+const ENUM_TIPO_SISTEMA: Record<string, number> = {
+  "On-grid": 2402525,
+  "hibrido": 2402527,
+  "Off-grid": 2402529,
+};
+
+const ENUM_ORIGEM: Record<string, number> = {
+  "Pre Analise": 2402517,
+  "Whatsapp": 2402519,
+  "facebook": 2402521,
+  "instagram": 2402523,
+};
+
+const ENUM_RELACAO_IMOVEL: Record<string, number> = {
+  "Proprietario": 2402531,
+  "Inquilino": 2402533,
+  "Locatario": 2402535,
+  "Sindico": 2402537,
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function sanitizeText(value: unknown, max = 200) {
   if (!value || typeof value !== "string") return "";
-  return value.trim().slice(0, maxLength);
+  return value.trim().slice(0, max);
 }
 
 function sanitizeEmail(value: unknown) {
   return sanitizeText(value, 254).toLowerCase();
 }
 
-/**
- * Normaliza WhatsApp para algo próximo de E.164:
- * - Remove não-dígitos.
- * - Se vier sem DDI e parecer BR (10 ou 11 dígitos), prefixa +55.
- * - Se vier com DDI, garante o '+'.
- */
 function sanitizeWhatsapp(value: unknown) {
   if (!value || typeof value !== "string") return "";
   const digits = value.replace(/\D/g, "");
   if (!digits) return "";
-
-  // Brasil sem DDI (10/11 dígitos)
-  if (digits.length === 10 || digits.length === 11) {
-    return `+55${digits}`;
-  }
-
-  // Já com DDI (qualquer país)
+  if (digits.length === 10 || digits.length === 11) return `+55${digits}`;
   return `+${digits}`;
 }
 
 function sanitizeNumber(value: unknown) {
-  if (
-    typeof value !== "number" ||
-    Number.isNaN(value) ||
-    !Number.isFinite(value) ||
-    value < 0
-  ) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
     return undefined;
   }
   return value;
@@ -93,50 +110,11 @@ function getEnvNumber(name: string) {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-function validatePayload(payload: PreAnalisePayload) {
-  const nomeRazao = sanitizeText(payload.nomeRazao);
-  const email = sanitizeEmail(payload.email);
-  const whatsapp = sanitizeWhatsapp(payload.whatsapp);
-  const municipio = sanitizeText(payload.municipio);
-  const tipoImovel = sanitizeText(payload.tipoImovel);
-  const tipoSistema = sanitizeText(payload.tipoSistema);
-  const consumoMedioMensal = sanitizeNumber(payload.consumoMedioMensal);
-
-  const missing = !nomeRazao || !email || !whatsapp;
-  if (missing) {
-    return {
-      valid: false as const,
-      response: {
-        status: 400,
-        body: {
-          ok: false as const,
-          errorCode: "VALIDATION_ERROR",
-          message:
-            "Preencha nome, e-mail e WhatsApp para enviar sua pré-análise.",
-        },
-      },
-    };
-  }
-
-  return {
-    valid: true as const,
-    data: {
-      nomeRazao,
-      email,
-      whatsapp,
-      municipio,
-      tipoImovel,
-      tipoSistema,
-      consumoMedioMensal,
-    },
-  };
-}
-
 function isRateLimited(ip: string) {
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW_MS;
   const history =
-    rateLimitLog.get(ip)?.filter((timestamp) => timestamp > windowStart) ?? [];
+    rateLimitLog.get(ip)?.filter((t) => t > windowStart) ?? [];
 
   if (history.length >= RATE_LIMIT_MAX) {
     rateLimitLog.set(ip, history);
@@ -148,27 +126,17 @@ function isRateLimited(ip: string) {
   return false;
 }
 
-function maskEmail(email: string) {
-  const [user, domain] = email.split("@");
-  if (!domain) return "***";
-  if (user.length <= 2) return `***@${domain}`;
-  return `${user.slice(0, 1)}***${user.slice(-1)}@${domain}`;
-}
-
-function maskPhone(phone: string) {
-  if (!phone) return "";
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length <= 4) return "***";
-  return `***${digits.slice(-4)}`;
-}
+/* =========================================================
+   KOMMO FETCH
+========================================================= */
 
 async function fetchKommo<T>(
   path: string,
   options: RequestInit,
   requestId: string
 ) {
-  const subdomain = process.env.KOMMO_SUBDOMAIN;
-  const token = process.env.KOMMO_LONG_LIVED_TOKEN;
+  const subdomain = process.env.KOMMO_SUBDOMAIN!;
+  const token = process.env.KOMMO_LONG_LIVED_TOKEN!;
   const url = `https://${subdomain}.kommo.com/api/v4${path}`;
 
   const response = await fetch(url, {
@@ -182,12 +150,12 @@ async function fetchKommo<T>(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
+    const text = await response.text();
     console.error("[kommo-pre-analise] Request failed", {
       requestId,
       status: response.status,
       path,
-      error: errorText,
+      error: text,
     });
     throw new Error(`KOMMO_HTTP_${response.status}`);
   }
@@ -195,67 +163,15 @@ async function fetchKommo<T>(
   return (await response.json()) as T;
 }
 
-function extractFieldValue(contact: any, fieldId: number): string[] {
-  const field = (contact?.custom_fields_values ?? []).find(
-    (f: any) => f.field_id === fieldId
-  );
-  if (!field) return [];
-  return (field.values ?? []).map((v: any) => String(v.value ?? ""));
-}
+/* =========================================================
+   CUSTOM FIELDS
+========================================================= */
 
-async function findExistingContact(
-  email: string,
-  whatsapp: string,
-  requestId: string
+function buildTextOrNumberField(
+  envName: string,
+  value?: string | number
 ) {
-  const query = email || whatsapp;
-  if (!query) return undefined;
-
-  try {
-    const data = await fetchKommo<{ _embedded?: { contacts?: any[] } }>(
-      `/contacts?query=${encodeURIComponent(query)}`,
-      { method: "GET" },
-      requestId
-    );
-
-    const contacts = data._embedded?.contacts ?? [];
-    const emailFieldId = getEnvNumber("KOMMO_CONTACT_EMAIL_FIELD_ID");
-    const phoneFieldId = getEnvNumber("KOMMO_CONTACT_PHONE_FIELD_ID");
-
-    for (const contact of contacts) {
-      if (emailFieldId) {
-        const emails = extractFieldValue(contact, emailFieldId).map(
-          (e: string) => e.toLowerCase()
-        );
-        if (email && emails.includes(email)) return contact.id as number;
-      }
-
-      if (phoneFieldId) {
-        const phones = extractFieldValue(contact, phoneFieldId).map(
-          (p: string) => p.replace(/\D/g, "")
-        );
-        const normalizedPhone = whatsapp.replace(/\D/g, "");
-        if (
-          normalizedPhone &&
-          phones.some((p: string) => p.endsWith(normalizedPhone))
-        ) {
-          return contact.id as number;
-        }
-      }
-    }
-
-    return contacts[0]?.id as number | undefined;
-  } catch (error) {
-    console.error("[kommo-pre-analise] Failed to search contact", {
-      requestId,
-      error: (error as Error).message,
-    });
-    return undefined;
-  }
-}
-
-function buildCustomField(fieldIdEnv: string, value?: string | number) {
-  const fieldId = getEnvNumber(fieldIdEnv);
+  const fieldId = getEnvNumber(envName);
   if (!fieldId || value === undefined || value === "") return null;
   return {
     field_id: fieldId,
@@ -263,11 +179,34 @@ function buildCustomField(fieldIdEnv: string, value?: string | number) {
   };
 }
 
+function buildSelectField(
+  envName: string,
+  enumMap: Record<string, number>,
+  value?: string
+) {
+  const fieldId = getEnvNumber(envName);
+  if (!fieldId || !value) return null;
+  const enumId = enumMap[value];
+  if (!enumId) return null;
+
+  return {
+    field_id: fieldId,
+    values: [{ enum_id: enumId }],
+  };
+}
+
+/* =========================================================
+   PROCESSADOR PRINCIPAL
+========================================================= */
+
 export async function processKommoPreAnalise(
   payload: PreAnalisePayload,
   clientIp = "unknown"
 ): Promise<ProcessResult> {
-  const missingEnv = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
+  const missingEnv = REQUIRED_ENV_VARS.filter(
+    (k) => !process.env[k]
+  );
+
   if (missingEnv.length > 0) {
     return {
       status: 500,
@@ -285,141 +224,101 @@ export async function processKommoPreAnalise(
       body: {
         ok: false,
         errorCode: "RATE_LIMITED",
-        message:
-          "Detectamos muitas tentativas. Aguarde alguns minutos e tente novamente.",
+        message: "Aguarde alguns minutos e tente novamente.",
       },
     };
   }
 
-  const validation = validatePayload(payload);
-  if (!validation.valid) return validation.response;
+  const nomeRazao = sanitizeText(payload.nomeRazao);
+  const email = sanitizeEmail(payload.email);
+  const whatsapp = sanitizeWhatsapp(payload.whatsapp);
 
-  const {
-    nomeRazao,
-    email,
-    whatsapp,
-    municipio,
-    tipoImovel,
-    tipoSistema,
-    consumoMedioMensal,
-  } = validation.data;
-
-  const pipelineId = getEnvNumber("KOMMO_PIPELINE_ID");
-  const statusId = getEnvNumber("KOMMO_STATUS_ID");
-  const contactEmailFieldId = getEnvNumber("KOMMO_CONTACT_EMAIL_FIELD_ID");
-  const contactPhoneFieldId = getEnvNumber("KOMMO_CONTACT_PHONE_FIELD_ID");
-  const requestId = crypto.randomUUID();
-
-  if (!pipelineId || !statusId || !contactEmailFieldId || !contactPhoneFieldId) {
+  if (!nomeRazao || !email || !whatsapp) {
     return {
-      status: 500,
+      status: 400,
       body: {
         ok: false,
-        errorCode: "SERVER_NOT_CONFIGURED",
-        message: "Servidor sem configuração da integração.",
+        errorCode: "VALIDATION_ERROR",
+        message: "Nome, e-mail e WhatsApp são obrigatórios.",
       },
     };
   }
 
+  const requestId = crypto.randomUUID();
+
   try {
-    const existingContactId = await findExistingContact(
-      email,
-      whatsapp,
-      requestId
-    );
-
-    const leadCustomFields = [
-      buildCustomField(optionalLeadFieldEnvVars.municipio, municipio),
-      buildCustomField(optionalLeadFieldEnvVars.tipoImovel, tipoImovel),
-      buildCustomField(
-        optionalLeadFieldEnvVars.consumoMedioMensal,
-        consumoMedioMensal ?? undefined
-      ),
-      buildCustomField(optionalLeadFieldEnvVars.tipoSistema, tipoSistema),
-      buildCustomField(
-        optionalLeadFieldEnvVars.utm_source,
-        sanitizeText(payload.utm?.utm_source)
-      ),
-      buildCustomField(
-        optionalLeadFieldEnvVars.utm_medium,
-        sanitizeText(payload.utm?.utm_medium)
-      ),
-      buildCustomField(
-        optionalLeadFieldEnvVars.utm_campaign,
-        sanitizeText(payload.utm?.utm_campaign)
-      ),
-      buildCustomField(
-        optionalLeadFieldEnvVars.utm_content,
-        sanitizeText(payload.utm?.utm_content)
-      ),
-    ].filter(Boolean) as Array<{
-      field_id: number;
-      values: Array<{ value: string | number }>;
-    }>;
-
-    const leadPayload: any = {
+    const leadPayload = {
       name: "Pré-análise — Site",
-      pipeline_id: pipelineId,
-      status_id: statusId,
+      pipeline_id: getEnvNumber("KOMMO_PIPELINE_ID"),
+      status_id: getEnvNumber("KOMMO_STATUS_ID"),
       tags_to_add: ["origem:site", "pre-analise"],
-      custom_fields_values: leadCustomFields,
+      custom_fields_values: [
+        buildTextOrNumberField(
+          "KOMMO_LEAD_FIELD_ID_MUNICIPIO",
+          sanitizeText(payload.municipio)
+        ),
+        buildTextOrNumberField(
+          "KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO",
+          sanitizeNumber(payload.consumoMedioMensal)
+        ),
+        buildSelectField(
+          "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
+          ENUM_TIPO_SISTEMA,
+          payload.tipoSistema
+        ),
+        buildSelectField(
+          "KOMMO_LEAD_FIELD_ID_ORIGEM",
+          ENUM_ORIGEM,
+          "Pre Analise"
+        ),
+        buildSelectField(
+          "KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL",
+          ENUM_RELACAO_IMOVEL,
+          payload.tipoImovel
+        ),
+      ].filter(Boolean),
       _embedded: {
-        contacts: [],
+        contacts: [
+          {
+            name: nomeRazao,
+            custom_fields_values: [
+              buildTextOrNumberField(
+                "KOMMO_CONTACT_EMAIL_FIELD_ID",
+                email
+              ),
+              buildTextOrNumberField(
+                "KOMMO_CONTACT_PHONE_FIELD_ID",
+                whatsapp
+              ),
+            ].filter(Boolean),
+          },
+        ],
       },
     };
-
-    if (existingContactId) {
-      leadPayload._embedded.contacts.push({ id: existingContactId });
-    } else {
-      const contactFields = [
-        buildCustomField("KOMMO_CONTACT_EMAIL_FIELD_ID", email),
-        buildCustomField("KOMMO_CONTACT_PHONE_FIELD_ID", whatsapp),
-      ].filter(Boolean);
-
-      // ✅ Melhor para razão social / nome fantasia
-      leadPayload._embedded.contacts.push({
-        name: nomeRazao,
-        custom_fields_values: contactFields,
-      });
-    }
 
     await fetchKommo(
       "/leads/complex",
-      { method: "POST", body: JSON.stringify([leadPayload]) },
+      {
+        method: "POST",
+        body: JSON.stringify([leadPayload]),
+      },
       requestId
     );
 
     return { status: 200, body: { ok: true } };
   } catch (error) {
-    const maskedEmail = maskEmail(email);
-    const maskedPhone = maskPhone(whatsapp);
-
-    console.error("[kommo-pre-analise] Failed to create lead", {
+    console.error("[kommo-pre-analise] Failed", {
       requestId,
       error: (error as Error).message,
-      email: maskedEmail,
-      whatsapp: maskedPhone,
     });
 
-    const msg = (error as Error).message;
-    const isKommoError = msg.startsWith("KOMMO_HTTP_");
-    const isAuthError = msg === "KOMMO_HTTP_401" || msg === "KOMMO_HTTP_403";
-    const isGatewayError = msg === "KOMMO_HTTP_502" || msg === "KOMMO_HTTP_504";
-
     return {
-      status: isAuthError ? 500 : isKommoError ? 503 : 500,
+      status: 503,
       body: {
         ok: false,
-        errorCode: isAuthError
-          ? "KOMMO_AUTH_ERROR"
-          : isGatewayError
-            ? "KOMMO_UNAVAILABLE"
-            : "KOMMO_ERROR",
-        message: isAuthError
-          ? "Integração temporariamente indisponível."
-          : isGatewayError
-            ? "Serviço de CRM indisponível no momento. Tente novamente em instantes."
-            : "Não conseguimos enviar sua pré-análise agora. Tente novamente em alguns minutos.",
+        errorCode: "KOMMO_ERROR",
+        message:
+          "Não foi possível enviar sua pré-análise. Tente novamente em alguns minutos.",
       },
     };
   }
