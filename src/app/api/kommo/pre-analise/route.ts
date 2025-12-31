@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { processKommoPreAnalise } from "@/lib/kommo/preAnalise";
 
+export const runtime = "nodejs"; // ✅ OBRIGATÓRIO
+
 export async function POST(request: Request) {
   // 🔐 Validar credenciais Kommo (server-side)
   const subdomain = process.env.KOMMO_SUBDOMAIN;
@@ -11,7 +13,8 @@ export async function POST(request: Request) {
       {
         ok: false,
         errorCode: "KOMMO_NOT_CONFIGURED",
-        message: "Integração indisponível no momento. Tente novamente mais tarde.",
+        message:
+          "Integração indisponível no momento. Tente novamente mais tarde.",
       },
       { status: 500 }
     );
@@ -45,7 +48,6 @@ export async function POST(request: Request) {
       status: result.status,
     });
   } catch (error) {
-    // ⚠️ Falha inesperada (não expor detalhes internos)
     console.error("Erro ao processar pré-análise Kommo:", error);
 
     return NextResponse.json(
