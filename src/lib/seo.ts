@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 const siteUrl = 'https://solarinvest.info';
 const siteName = 'SolarInvest Solutions';
-const logoPath = '/logo.png';
+const logoPath = '/logos_festivos/2026_Logo.png';
 const logoUrl = `${siteUrl}${logoPath}`;
 const defaultImage = `${siteUrl}/favicon.png`;
 const baseKeywords = [
