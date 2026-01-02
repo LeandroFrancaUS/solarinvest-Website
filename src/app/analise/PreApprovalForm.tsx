@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  ClipboardEvent,
-  FormEvent,
-  KeyboardEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { ClipboardEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 declare global {
   interface Window {
@@ -17,13 +9,11 @@ declare global {
   }
 }
 
-type ClientType =
-  | 'Residencial'
-  | 'Comercial'
-  | 'Condomínio (vertical)'
-  | 'Condomínio (horizontal)'
-  | 'Outro'
-  | '';
+/* =========================================================
+   TIPOS (UI)
+========================================================= */
+
+type ClientType = 'Residencial' | 'Comercial' | 'Condomínio (vertical)' | 'Condomínio (horizontal)' | 'Outro' | '';
 
 type PropertyRelation =
   | 'Proprietário'
@@ -34,17 +24,11 @@ type PropertyRelation =
   | 'Administrador / Síndico'
   | '';
 
-type SystemType = 'On-grid' | 'Hibrido' | 'Off-grid' | '';
-
-type InstallationType =
-  | 'Telhado fibrocimento'
-  | 'Telhado metálico'
-  | 'Telhado cerâmico'
-  | 'Laje'
-  | 'Solo'
-  | 'Outro';
+type InstallationType = 'Telhado fibrocimento' | 'Telhado metálico' | 'Telhado cerâmico' | 'Laje' | 'Solo' | 'Outro';
 
 type RedeType = 'Monofásica' | 'Bifásica' | 'Trifásica' | '';
+
+type SystemType = 'On-grid' | 'Híbrido' | 'Off-grid' | '';
 
 type DocTag =
   | 'CONTA_ENERGIA_ATUAL'
@@ -97,15 +81,23 @@ type FormState = {
   cep: string;
   municipio: string;
   endereco: string;
+
   tipoCliente: ClientType;
   tipoClienteOutro: string;
+
   relacaoImovel: PropertyRelation;
   relacaoOutro: string;
+
   consumoMedio: string;
   tarifa: string;
+
+  // ✅ NOVO: tipo de sistema (obrigatório)
   tipoSistema: SystemType;
+
   tipoInstalacao: InstallationType;
   tipoInstalacaoOutro: string;
+
+  // ✅ já existia
   tipoRede: RedeType;
 };
 
@@ -132,10 +124,7 @@ type SubmissionState = {
   loading: boolean;
 };
 
-type MunicipioState = {
-  status: 'idle' | 'loading' | 'not_found' | 'error' | 'loaded';
-  label: string;
-};
+type MunicipioState = { status: 'idle' | 'loading' | 'not_found' | 'error' | 'loaded'; label: string };
 
 const initialState: FormState = {
   nome: '',
@@ -145,15 +134,22 @@ const initialState: FormState = {
   cep: '',
   municipio: '',
   endereco: '',
+
   tipoCliente: '',
   tipoClienteOutro: '',
+
   relacaoImovel: '',
   relacaoOutro: '',
+
   consumoMedio: '',
   tarifa: '',
-  tipoSistema: '',
+
+  // ✅ default on-grid (você pode trocar pra '' se quiser obrigar escolher)
+  tipoSistema: 'On-grid',
+
   tipoInstalacao: 'Telhado fibrocimento',
   tipoInstalacaoOutro: '',
+
   tipoRede: '',
 };
 
@@ -166,10 +162,7 @@ export const statusMessages: Record<StatusResultado, string> = {
     'Por enquanto, pode não ser o ideal. Pelo consumo informado, o leasing tende a não gerar o melhor custo-benefício. Mas podemos avaliar outras opções (compra/financiamento) ou uma solução sob medida.',
 };
 
-export const statusVisuals: Record<
-  StatusResultado,
-  { title: string; icon: string; styles: string; accent: string }
-> = {
+export const statusVisuals: Record<StatusResultado, { title: string; icon: string; styles: string; accent: string }> = {
   PRE_APROVADO: {
     title: 'PRÉ-APROVADO',
     icon: '✅',
@@ -189,6 +182,10 @@ export const statusVisuals: Record<
     accent: 'text-slate-700',
   },
 };
+
+/* =========================================================
+   HELPERS
+========================================================= */
 
 function onlyDigits(value: string) {
   return value.replace(/\D/g, '');
@@ -252,17 +249,7 @@ function normalizarWhatsappBrasil(numero: string) {
   const local = semDdi.slice(-11);
 
   if (local.length < 10) return '';
-
   return `55${local}`;
-}
-
-function normalizarRelacaoImovelKommo(value: string) {
-  if (!value) return '';
-  if (value.includes('Proprietário')) return 'Proprietario';
-  if (value.includes('Inquilino')) return 'Inquilino';
-  if (value.includes('locatário') || value.includes('Locatário')) return 'Locatario';
-  if (value.includes('Síndico') || value.includes('Administrador')) return 'Sindico';
-  return value;
 }
 
 function maskCpfCnpj(value: string) {
@@ -306,9 +293,7 @@ function validarCPF(cpf: string) {
 
   const calc = (factor: number) => {
     let total = 0;
-    for (let i = 0; i < factor - 1; i += 1) {
-      total += Number(digits[i]) * (factor - i);
-    }
+    for (let i = 0; i < factor - 1; i += 1) total += Number(digits[i]) * (factor - i);
     const rest = (total * 10) % 11;
     return rest === 10 ? 0 : rest;
   };
@@ -324,9 +309,7 @@ function validarCNPJ(cnpj: string) {
 
   const calc = (factors: number[]) => {
     let total = 0;
-    for (let i = 0; i < factors.length; i += 1) {
-      total += Number(digits[i]) * factors[i];
-    }
+    for (let i = 0; i < factors.length; i += 1) total += Number(digits[i]) * factors[i];
     const rest = total % 11;
     return rest < 2 ? 0 : 11 - rest;
   };
@@ -358,11 +341,7 @@ function formatTarifaInput(raw: string) {
   const decimais = digits.slice(1);
   const hasSeparator = raw.includes(',') || raw.includes('.') || decimais.length > 0;
 
-  return hasSeparator && decimais.length
-    ? `${inteiro},${decimais}`
-    : hasSeparator
-      ? `${inteiro},`
-      : inteiro;
+  return hasSeparator && decimais.length ? `${inteiro},${decimais}` : hasSeparator ? `${inteiro},` : inteiro;
 }
 
 function parseTarifa(valor: string) {
@@ -380,16 +359,17 @@ function calcularPrioridade(consumo: number) {
   return 'Baixa';
 }
 
+/* =========================================================
+   DOCS (CHECKLIST)
+========================================================= */
+
 function buildDocFlags(relacaoImovel: PropertyRelation, anexos: AttachmentWithMeta[]) {
   const hasTag = (tag: DocTag) => anexos.some((item) => item.tag === tag);
 
   return {
     hasBill: hasTag('CONTA_ENERGIA_ATUAL'),
     hasOwnerAuth: hasTag('AUTORIZACAO_PROPRIETARIO_ASSINADA'),
-    hasRelationContract:
-      hasTag('CONTRATO_LOCACAO') ||
-      hasTag('CONTRATO_COMODATO') ||
-      hasTag('CONTRATO_ARRENDAMENTO'),
+    hasRelationContract: hasTag('CONTRATO_LOCACAO') || hasTag('CONTRATO_COMODATO') || hasTag('CONTRATO_ARRENDAMENTO'),
     hasCondoApproval: hasTag('ATA_ASSEMBLEIA_APROVACAO'),
     missingRequired: getDocRules(relacaoImovel).required.filter((tag) => !hasTag(tag)),
   };
@@ -467,12 +447,7 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
       };
     case 'Proprietário':
       return {
-        options: [
-          'CONTA_ENERGIA_ATUAL',
-          'DOC_ID_SOLICITANTE',
-          'CPF_CNPJ_SOLICITANTE',
-          'FOTOS_LOCAL_INSTALACAO',
-        ],
+        options: ['CONTA_ENERGIA_ATUAL', 'DOC_ID_SOLICITANTE', 'CPF_CNPJ_SOLICITANTE', 'FOTOS_LOCAL_INSTALACAO'],
         required: [],
         recommended: BILL_RECOMMENDED,
       };
@@ -480,6 +455,10 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
       return { options: [], required: [], recommended: BILL_RECOMMENDED };
   }
 }
+
+/* =========================================================
+   STATUS
+========================================================= */
 
 function calcularStatus(
   consumo: number,
@@ -545,14 +524,14 @@ function calcularStatus(
   return { status: 'PENDENTE', motivosInternos, statusInterno };
 }
 
+/* =========================================================
+   ARQUIVOS
+========================================================= */
+
 async function fileToBase64(anexo: AttachmentWithMeta): Promise<AttachmentPayload> {
   const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-  if (!allowed.includes(anexo.file.type)) {
-    throw new Error('Envie apenas PDF ou imagem (JPEG/PNG).');
-  }
-  if (anexo.file.size > 7 * 1024 * 1024) {
-    throw new Error('Arquivo maior que 7MB.');
-  }
+  if (!allowed.includes(anexo.file.type)) throw new Error('Envie apenas PDF ou imagem (JPEG/PNG).');
+  if (anexo.file.size > 7 * 1024 * 1024) throw new Error('Arquivo maior que 7MB.');
 
   const base64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -573,6 +552,10 @@ async function fileToBase64(anexo: AttachmentWithMeta): Promise<AttachmentPayloa
     note: anexo.note,
   };
 }
+
+/* =========================================================
+   COMPONENT
+========================================================= */
 
 type PreApprovalFormProps = {
   onSubmitted?: (payload: { status: StatusResultado; message: string }) => void;
@@ -643,6 +626,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     setTagModalTag('');
   }, [taggingQueue, tagModalFile]);
 
+  // CEP -> ViaCEP
   useEffect(() => {
     const digits = onlyDigits(form.cep);
     if (digits.length !== 8) {
@@ -691,53 +675,28 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       novoErros.nome = 'Use apenas letras, números, espaço, ponto, vírgula, hífen (-), & ou /. Sem emojis ou símbolos.';
     }
 
-    if (!validarCpfOuCnpj(state.cpfCnpj)) {
-      novoErros.cpfCnpj = 'CPF ou CNPJ inválido.';
-    }
+    if (!validarCpfOuCnpj(state.cpfCnpj)) novoErros.cpfCnpj = 'CPF ou CNPJ inválido.';
+    if (!validarWhatsapp(state.whatsapp)) novoErros.whatsapp = 'Informe um WhatsApp válido com DDD.';
+    if (!validarEmail(state.email)) novoErros.email = 'E-mail inválido.';
+    if (!validarCEP(state.cep)) novoErros.cep = 'CEP inválido.';
 
-    if (!validarWhatsapp(state.whatsapp)) {
-      novoErros.whatsapp = 'Informe um WhatsApp válido com DDD.';
-    }
+    if (!state.tipoCliente) novoErros.tipoCliente = 'Selecione o tipo de cliente.';
+    if (state.tipoCliente === 'Outro' && !state.tipoClienteOutro.trim()) novoErros.tipoClienteOutro = 'Descreva o tipo de cliente.';
 
-    if (!validarEmail(state.email)) {
-      novoErros.email = 'E-mail inválido.';
-    }
-
-    if (!validarCEP(state.cep)) {
-      novoErros.cep = 'CEP inválido.';
-    }
-
-    if (!state.tipoCliente) {
-      novoErros.tipoCliente = 'Selecione o tipo de cliente.';
-    }
-
-    if (state.tipoCliente === 'Outro' && !state.tipoClienteOutro.trim()) {
-      novoErros.tipoClienteOutro = 'Descreva o tipo de cliente.';
-    }
-
-    if (!state.tipoSistema) {
-      novoErros.tipoSistema = 'Selecione o tipo de sistema (On-grid, Hibrido ou Off-grid).';
-    }
-
-    if (!state.relacaoImovel) {
-      novoErros.relacaoImovel = 'Selecione a relação com o imóvel.';
-    }
-
+    if (!state.relacaoImovel) novoErros.relacaoImovel = 'Selecione a relação com o imóvel.';
     if (state.relacaoImovel === 'Inquilino (locatário)' && !state.relacaoOutro.trim()) {
       novoErros.relacaoOutro = 'Informe detalhes sobre a relação com o imóvel.';
     }
+
+    // ✅ novo: tipoSistema obrigatório
+    if (!state.tipoSistema) novoErros.tipoSistema = 'Selecione o tipo de sistema.';
 
     if (state.tipoInstalacao === 'Outro' && !state.tipoInstalacaoOutro.trim()) {
       novoErros.tipoInstalacaoOutro = 'Descreva o tipo de instalação.';
     }
 
-    if (!consumoNormalizadoLocal) {
-      novoErros.consumoMedio = 'Informe o consumo médio mensal em kWh.';
-    }
-
-    if (tarifaNormalizadaLocal === undefined) {
-      novoErros.tarifa = 'Informe a tarifa atual no formato 1,20.';
-    }
+    if (!consumoNormalizadoLocal) novoErros.consumoMedio = 'Informe o consumo médio mensal em kWh.';
+    if (tarifaNormalizadaLocal === undefined) novoErros.tarifa = 'Informe a tarifa atual no formato 1,20.';
 
     if (municipioState.status === 'not_found' || municipioState.status === 'error') {
       novoErros.cep = 'Não foi possível identificar o município. Confirme o CEP.';
@@ -758,25 +717,14 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         if (mensagem) avisos.push(mensagem);
       });
 
-      if (!docFlags.hasBill) {
-        avisos.push('Conta de energia não enviada. A análise será manual e pode levar mais tempo.');
-      }
+      if (!docFlags.hasBill) avisos.push('Conta de energia não enviada. A análise será manual e pode levar mais tempo.');
+      if (docFlags.missingRequired.length) avisos.push(`Documentos obrigatórios pendentes: ${docFlags.missingRequired.join(', ')}`);
 
-      if (docFlags.missingRequired.length) {
-        avisos.push(`Documentos obrigatórios pendentes: ${docFlags.missingRequired.join(', ')}`);
-      }
-
-      if (consumoNormalizado && consumoNormalizado < 300) {
-        avisos.push('Consumo informado abaixo de 300 kWh/mês: tende a ir para análise manual.');
-      }
-
+      if (consumoNormalizado && consumoNormalizado < 300) avisos.push('Consumo informado abaixo de 300 kWh/mês: tende a ir para análise manual.');
       if (tarifaNormalizada !== undefined && (tarifaNormalizada <= 0.9 || tarifaNormalizada >= 2.5)) {
         avisos.push('Tarifa fora do intervalo típico (0,90 a 2,50). Confirme o valor.');
       }
-
-      if (form.tipoInstalacao === 'Outro') {
-        avisos.push('Tipo de instalação marcado como Outro — precisaremos validar a viabilidade.');
-      }
+      if (form.tipoInstalacao === 'Outro') avisos.push('Tipo de instalação marcado como Outro — precisaremos validar a viabilidade.');
 
       setPendencias(avisos);
     },
@@ -791,14 +739,13 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     const novoErros = coletarErros(estadoAtualizado);
     const hasErrors = Object.keys(novoErros).length > 0;
 
-    const payload =
+    const payloadErros =
       shouldShowGeneral && hasErrors
         ? { ...novoErros, geral: 'Não foi enviado. Complete os campos destacados para prosseguir.' }
         : { ...novoErros };
 
-    setErrors(payload);
-    const mostrarPendencias = shouldShowGeneral;
-    atualizarPendencias(novoErros, mostrarPendencias);
+    setErrors(payloadErros);
+    atualizarPendencias(novoErros, shouldShowGeneral);
 
     return { novoErros, hasErrors };
   };
@@ -813,31 +760,15 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
   const classeCampo = (campo: keyof FormState) =>
     `mt-1 w-full rounded-xl border px-3 py-2 focus:outline-none ${
-      showError(campo)
-        ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500'
-        : 'border-gray-200 focus:border-orange-500'
+      showError(campo) ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-200 focus:border-orange-500'
     }`;
 
   const handleLegalNameKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    const navigationKeys = new Set([
-      'Backspace',
-      'Delete',
-      'ArrowLeft',
-      'ArrowRight',
-      'ArrowUp',
-      'ArrowDown',
-      'Home',
-      'End',
-      'Tab',
-      'Enter',
-    ]);
-
+    const navigationKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab', 'Enter']);
     if (navigationKeys.has(event.key)) return;
     if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) return;
 
-    if (!/[\p{L}\p{N}\s.,&/-]/u.test(event.key)) {
-      event.preventDefault();
-    }
+    if (!/[\p{L}\p{N}\s.,&/-]/u.test(event.key)) event.preventDefault();
   };
 
   const atualizarNome = (valor: string, mapaTocado: Partial<Record<keyof FormState, boolean>> = touched) => {
@@ -846,9 +777,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     const proximo = { ...form, nome: sanitizado };
     setForm(proximo);
 
-    if (hasSubmitted || mapaTocado.nome) {
-      validarEstado(proximo, hasSubmitted, mapaTocado);
-    }
+    if (hasSubmitted || mapaTocado.nome) validarEstado(proximo, hasSubmitted, mapaTocado);
   };
 
   const handleNomeBlur = () => {
@@ -883,14 +812,14 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     'cep',
     'tipoCliente',
     'tipoClienteOutro',
-    'tipoSistema',
     'relacaoImovel',
     'relacaoOutro',
     'consumoMedio',
     'tarifa',
+    'tipoSistema',
     'tipoInstalacao',
     'tipoInstalacaoOutro',
-    // tipoRede é opcional
+    'tipoRede',
   ];
 
   const focarPrimeiroErro = (novoErros: ValidationErrors) => {
@@ -921,13 +850,48 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
   const pushLeadSubmitEvent = useCallback(() => {
     if (typeof window === 'undefined') return;
-
     window.dataLayer = window.dataLayer || [];
     if (!window.__leadSent) {
       window.__leadSent = true;
       window.dataLayer.push({ event: 'lead_submit' });
     }
   }, []);
+
+  // ✅ Kommo: normalizações mínimas para bater com enums do backend (preAnalise.ts)
+  const mapTipoSistemaParaBackend = (value: SystemType): string | undefined => {
+    if (!value) return undefined;
+    if (value === 'On-grid') return 'On-grid';
+    if (value === 'Híbrido') return 'Hibrido';
+    if (value === 'Off-grid') return 'Off-grid';
+    return undefined;
+  };
+
+  const mapTipoRedeParaBackend = (value: RedeType): string | undefined => {
+    if (!value) return undefined;
+    // backend normaliza acentos e espaços, então aqui só garantimos algo consistente
+    if (value === 'Monofásica') return 'Monofasico';
+    if (value === 'Bifásica') return 'Bifasico';
+    if (value === 'Trifásica') return 'Trifasico';
+    return undefined;
+  };
+
+  const mapRelacaoImovelParaBackend = (value: PropertyRelation): string | undefined => {
+    switch (value) {
+      case 'Proprietário':
+        return 'Proprietario';
+      case 'Inquilino (locatário)':
+        return 'Inquilino';
+      case 'Administrador / Síndico':
+        return 'Sindico';
+      // não existem como enum específico hoje no Kommo; mapeamos pro mais próximo
+      case 'Comodatário (uso gratuito)':
+      case 'Arrendatário':
+      case 'Familiar do proprietário':
+        return 'Locatario';
+      default:
+        return undefined;
+    }
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -963,8 +927,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       const whatsappValido = validarWhatsapp(formSanitizado.whatsapp);
       const emailValido = validarEmail(formSanitizado.email);
       const cepValido = validarCEP(formSanitizado.cep);
+
       const consumo = consumoNormalizado as number;
       const tarifa = tarifaNormalizada;
+
       const whatsappNormalizado = normalizarWhatsappBrasil(formSanitizado.whatsapp);
       const whatsappComPrefixo = whatsappNormalizado ? `+${whatsappNormalizado}` : '';
 
@@ -981,91 +947,36 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         docFlags
       );
 
-      calcularPrioridade(consumo); // prioridade calculada (mantido, mesmo que ainda não use)
+      // prioridade calculada (mantido, mesmo que ainda não use)
+      calcularPrioridade(consumo);
 
+      const cleanUtmValue = (value?: string | null) => (value ? value.trim() || undefined : undefined);
+
+      // ✅ ÚNICO payload (sem duplicações)
       const payload = {
         nomeRazao: formSanitizado.nome,
         email: formSanitizado.email,
         whatsapp: whatsappComPrefixo,
         municipio: formSanitizado.municipio,
 
-        consumoMedioMensal: consumo,
-
-        tipoSistema: formSanitizado.tipoSistema,
-
-        tipoInstalacao:
-          formSanitizado.tipoInstalacao === 'Outro'
-            ? formSanitizado.tipoInstalacaoOutro
-            : formSanitizado.tipoInstalacao,
-
-        tipoRede: formSanitizado.tipoRede ? formSanitizado.tipoRede : undefined,
-
-        relacaoImovel: normalizarRelacaoImovelKommo(formSanitizado.relacaoImovel),
-
-        cpfCnpj: formSanitizado.cpfCnpj,
-
-        utm: utmParams
-          ? {
-              utm_source: utmParams.utm_source ? utmParams.utm_source.trim() || undefined : undefined,
-              utm_medium: utmParams.utm_medium ? utmParams.utm_medium.trim() || undefined : undefined,
-              utm_campaign: utmParams.utm_campaign ? utmParams.utm_campaign.trim() || undefined : undefined,
-              utm_content: utmParams.utm_content ? utmParams.utm_content.trim() || undefined : undefined,
-            }
-          : undefined,
-      };
-
-      console.log('[pre-analise] payload', payload);
-
-      // ✅ Normaliza valores para o backend Kommo
-      const mapRelacaoImovelParaKommo = (value: PropertyRelation): string | undefined => {
-        switch (value) {
-          case 'Proprietário':
-            return 'Proprietario';
-          case 'Inquilino (locatário)':
-            return 'Inquilino';
-          case 'Administrador / Síndico':
-            return 'Sindico';
-          // As demais relações não existem como enum específico no Kommo hoje.
-          // Mapeamos para "Locatario" (mais próximo) ou deixamos vazio.
-          case 'Comodatário (uso gratuito)':
-          case 'Arrendatário':
-          case 'Familiar do proprietário':
-            return 'Locatario';
-          default:
-            return undefined;
-        }
-      };
-
-      const payload = {
-        nomeRazao: formSanitizado.nome,
-        email: formSanitizado.email,
-        whatsapp: whatsappComPrefixo,
-        municipio: formSanitizado.municipio,
-
-        // mantém se existir custom field no Kommo
         tipoImovel:
-          formSanitizado.tipoCliente === 'Outro'
-            ? formSanitizado.tipoClienteOutro
-            : formSanitizado.tipoCliente,
+          formSanitizado.tipoCliente === 'Outro' ? formSanitizado.tipoClienteOutro : formSanitizado.tipoCliente,
 
         consumoMedioMensal: consumo,
 
-        // ✅ tipoSistema (não existe select no form hoje)
-        tipoSistema: 'On-grid',
+        // ✅ AGORA vem do campo "Tipo de sistema"
+        tipoSistema: mapTipoSistemaParaBackend(formSanitizado.tipoSistema),
 
-        // ✅ instalação correta
         tipoInstalacao:
-          formSanitizado.tipoInstalacao === 'Outro'
-            ? formSanitizado.tipoInstalacaoOutro
-            : formSanitizado.tipoInstalacao,
+          formSanitizado.tipoInstalacao === 'Outro' ? formSanitizado.tipoInstalacaoOutro : formSanitizado.tipoInstalacao,
 
-        // ✅ rede opcional
-        tipoRede: formSanitizado.tipoRede || undefined,
+        // ✅ opcional
+        tipoRede: mapTipoRedeParaBackend(formSanitizado.tipoRede),
 
-        // ✅ relação com imóvel (normalizada p/ enum do Kommo)
-        relacaoImovel: mapRelacaoImovelParaKommo(formSanitizado.relacaoImovel),
+        // ✅ Kommo enums (quando não existir, pode vir undefined)
+        relacaoImovel: mapRelacaoImovelParaBackend(formSanitizado.relacaoImovel),
 
-        // ✅ CPF/CNPJ
+        // ✅ envia CPF/CNPJ (texto livre)
         cpfCnpj: formSanitizado.cpfCnpj,
 
         utm: utmParams
@@ -1078,8 +989,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
           : undefined,
       };
 
-      // 🔍 Debug (remove depois, se quiser)
-      console.log('[pre-analise] payload enviado =>', payload);
+      console.log('[pre-analise] payload', payload);
 
       const response = await fetch('/api/kommo/pre-analise', {
         method: 'POST',
@@ -1106,6 +1016,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       }
 
       pushLeadSubmitEvent();
+
       setSubmission({ status, message: statusMessages[status], loading: false });
       setForm(initialState);
       setDocumentos([]);
@@ -1126,21 +1037,13 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
   };
 
   return (
-    <section
-      id="pre-aprovacao"
-      className="w-full bg-gray-50 border border-orange-100 rounded-3xl p-6 md:p-10 shadow-sm"
-    >
+    <section id="pre-aprovacao" className="w-full bg-gray-50 border border-orange-100 rounded-3xl p-6 md:p-10 shadow-sm">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <p className="text-sm uppercase tracking-wide text-orange-500 font-semibold">
-            Pré-aprovação de leasing
-          </p>
-          <h2 className="text-2xl md:text-3xl font-heading font-bold text-gray-900 mt-1">
-            Faça uma análise rápida e gratuita
-          </h2>
+          <p className="text-sm uppercase tracking-wide text-orange-500 font-semibold">Pré-aprovação de leasing</p>
+          <h2 className="text-2xl md:text-3xl font-heading font-bold text-gray-900 mt-1">Faça uma análise rápida e gratuita</h2>
           <p className="text-gray-700 mt-2 max-w-3xl">
-            Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise
-            humana.
+            Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise humana.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-white border border-orange-200 rounded-2xl px-4 py-3 shadow-inner text-sm text-gray-700">
@@ -1153,6 +1056,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Honeypot */}
         <div className="sr-only" aria-hidden>
           <label htmlFor="extra-info">Não preencha este campo</label>
           <input
@@ -1167,11 +1071,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         </div>
 
         {errors.geral && (
-          <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-4 text-sm">
-            {errors.geral}
-          </div>
+          <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-4 text-sm">{errors.geral}</div>
         )}
 
+        {/* Modal de etiqueta */}
         {tagModalFile && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
@@ -1248,9 +1151,12 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
           </div>
         )}
 
+        {/* Identificação + Local */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Identificação */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Identificação</h3>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Nome / Razão Social *</label>
               <input
@@ -1265,17 +1171,14 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 required
                 aria-invalid={showError('nome') || undefined}
               />
-              {nomePasteSanitized && (
-                <p className="text-xs text-amber-700 mt-1">
-                  Alguns caracteres foram removidos para manter o formato válido.
-                </p>
-              )}
+              {nomePasteSanitized && <p className="text-xs text-amber-700 mt-1">Alguns caracteres foram removidos para manter o formato válido.</p>}
               {showError('nome') && (
                 <p className="text-xs text-red-600 mt-1" aria-live="polite">
                   {errors.nome}
                 </p>
               )}
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">CPF/CNPJ *</label>
@@ -1298,6 +1201,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 />
                 {showError('cpfCnpj') && <p className="text-xs text-red-600 mt-1">{errors.cpfCnpj}</p>}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Telefone (WhatsApp) *</label>
                 <input
@@ -1313,6 +1217,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 {showError('whatsapp') && <p className="text-xs text-red-600 mt-1">{errors.whatsapp}</p>}
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">E-mail *</label>
               <input
@@ -1328,8 +1233,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             </div>
           </div>
 
+          {/* Local */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Local da instalação</h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">CEP *</label>
@@ -1397,6 +1304,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   <option>Outro</option>
                 </select>
                 {showError('tipoCliente') && <p className="text-xs text-red-600 mt-1">{errors.tipoCliente}</p>}
+
                 {form.tipoCliente === 'Outro' && (
                   <input
                     type="text"
@@ -1408,9 +1316,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                     onBlur={() => handleBlurCampo('tipoClienteOutro')}
                   />
                 )}
-                {showError('tipoClienteOutro') && (
-                  <p className="text-xs text-red-600 mt-1">{errors.tipoClienteOutro}</p>
-                )}
+                {showError('tipoClienteOutro') && <p className="text-xs text-red-600 mt-1">{errors.tipoClienteOutro}</p>}
               </div>
 
               <div>
@@ -1434,6 +1340,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   <option>Administrador / Síndico</option>
                 </select>
                 {showError('relacaoImovel') && <p className="text-xs text-red-600 mt-1">{errors.relacaoImovel}</p>}
+
                 {form.relacaoImovel === 'Inquilino (locatário)' && (
                   <input
                     type="text"
@@ -1451,9 +1358,12 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
           </div>
         </div>
 
+        {/* Energia + Técnica */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Energia */}
           <div className="space-y-4 md:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900">Energia</h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Consumo médio mensal (kWh/mês) *</label>
@@ -1469,9 +1379,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   required
                 />
                 {showError('consumoMedio') && <p className="text-xs text-red-600 mt-1">{errors.consumoMedio}</p>}
-                {consumoNormalizado && (
-                  <p className="text-xs text-gray-500 mt-1">Consumo considerado: {consumoNormalizado} kWh/mês</p>
-                )}
+                {consumoNormalizado && <p className="text-xs text-gray-500 mt-1">Consumo considerado: {consumoNormalizado} kWh/mês</p>}
               </div>
 
               <div>
@@ -1507,15 +1415,11 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 multiple
                 onChange={(e) => {
                   const files = Array.from(e.target.files ?? []);
-                  if (files.length) {
-                    setTaggingQueue((prev) => [...prev, ...files]);
-                  }
+                  if (files.length) setTaggingQueue((prev) => [...prev, ...files]);
                   e.target.value = '';
                 }}
               />
-              <p className="text-xs text-gray-500 mt-1">
-                A análise poderá levar mais tempo caso a conta de energia atual não seja enviada.
-              </p>
+              <p className="text-xs text-gray-500 mt-1">A análise poderá levar mais tempo caso a conta de energia atual não seja enviada.</p>
 
               {documentos.length > 0 && (
                 <ul className="text-xs text-gray-700 mt-2 space-y-2">
@@ -1526,9 +1430,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                     >
                       <div className="flex flex-col">
                         <span className="font-semibold text-gray-800">{item.file.name}</span>
-                        <span className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">
-                          {item.tag}
-                        </span>
+                        <span className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">{item.tag}</span>
                         {item.note && <span className="text-[11px] text-gray-600">Obs.: {item.note}</span>}
                       </div>
                       <button
@@ -1546,9 +1448,11 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             </div>
           </div>
 
+          {/* Técnica */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Técnica</h3>
 
+            {/* ✅ NOVO: Tipo de sistema */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Tipo de sistema *</label>
               <select
@@ -1563,13 +1467,12 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   Selecione
                 </option>
                 <option>On-grid</option>
-                <option>Hibrido</option>
+                <option>Híbrido</option>
                 <option>Off-grid</option>
               </select>
-              {showError('tipoSistema') && (
-                <p className="text-xs text-red-600 mt-1">{errors.tipoSistema}</p>
-              )}
+              {showError('tipoSistema') && <p className="text-xs text-red-600 mt-1">{errors.tipoSistema}</p>}
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Tipo de instalação *</label>
               <select
@@ -1599,13 +1502,13 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   onBlur={() => handleBlurCampo('tipoInstalacaoOutro')}
                 />
               )}
-
               {showError('tipoInstalacaoOutro') && <p className="text-xs text-red-600 mt-1">{errors.tipoInstalacaoOutro}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Tipo de rede</label>
               <select
+                name="tipoRede"
                 className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
                 value={form.tipoRede}
                 onChange={(e) => atualizarCampo('tipoRede', e.target.value as RedeType)}
@@ -1620,7 +1523,6 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             {relacaoImovelDocRules.options.length > 0 && (
               <div className="bg-white border border-orange-100 rounded-xl p-3 text-sm text-gray-700 space-y-2">
                 <p className="font-semibold text-orange-700">Checklist automático</p>
-
                 <div className="flex flex-wrap gap-2 text-xs">
                   {relacaoImovelDocRules.required.length ? (
                     relacaoImovelDocRules.required.map((tag) => {
@@ -1629,9 +1531,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                         <span
                           key={tag}
                           className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
-                            ok
-                              ? 'border-green-200 bg-green-50 text-green-700'
-                              : 'border-amber-200 bg-amber-50 text-amber-800'
+                            ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-amber-200 bg-amber-50 text-amber-800'
                           }`}
                         >
                           {ok ? '✅' : '⏳'} {tag}
@@ -1653,15 +1553,11 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                         <span
                           key={tag}
                           className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
-                            ok
-                              ? 'border-green-200 bg-green-50 text-green-700'
-                              : 'border-blue-200 bg-blue-50 text-blue-800'
+                            ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-blue-200 bg-blue-50 text-blue-800'
                           }`}
                         >
                           {ok ? '✅' : '⭐'} {tag}
-                          <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-900">
-                            Recomendado
-                          </span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-900">Recomendado</span>
                         </span>
                       );
                     })}
