@@ -94,6 +94,8 @@ const ENUM_TIPO_SISTEMA: Record<string, number> = {
 };
 
 const ENUM_TIPO_INSTALACAO: Record<string, number> = {
+  "telhado fibrocimento": 2402811,
+  // compat: grafia antiga
   "telha fibrocimento": 2402811,
   "telhado metalico": 2402813,
   "telhado ceramico": 2402815,
