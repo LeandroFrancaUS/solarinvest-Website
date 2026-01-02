@@ -1,6 +1,15 @@
 'use client';
 
-import { ClipboardEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ClipboardEvent,
+  FormEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 declare global {
   interface Window {
