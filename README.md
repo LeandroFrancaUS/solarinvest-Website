@@ -54,8 +54,8 @@ Para testar localmente:
   - Campos de lead (quando configurados): `KOMMO_LEAD_FIELD_ID_MUNICIPIO`, `KOMMO_LEAD_FIELD_ID_TIPO_IMOVEL`,
     `KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO`, `KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA`, `KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO`,
     `KOMMO_LEAD_FIELD_ID_TIPO_REDE`, `KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL`, `KOMMO_LEAD_FIELD_ID_CPF_CNPJ`,
-    `KOMMO_LEAD_FIELD_ID_UTM_SOURCE`, `KOMMO_LEAD_FIELD_ID_UTM_MEDIUM`, `KOMMO_LEAD_FIELD_ID_UTM_CAMPAIGN`,
-    `KOMMO_LEAD_FIELD_ID_UTM_CONTENT`.
+    `KOMMO_LEAD_FIELD_ID_STATUS` (ou o legado `KOMMO_LEAD_FIELD_ID_STATUS_RESULTADO`), `KOMMO_LEAD_FIELD_ID_UTM_SOURCE`,
+    `KOMMO_LEAD_FIELD_ID_UTM_MEDIUM`, `KOMMO_LEAD_FIELD_ID_UTM_CAMPAIGN`, `KOMMO_LEAD_FIELD_ID_UTM_CONTENT`.
 - Use os templates `.env.example` ou `.env.local.example` como base, copiando para `.env.local` com os valores reais em desenvolvimento.
 - Para mapear os IDs no Kommo, use o script `scripts/kommo_dump_ids.ts`:
   ```bash

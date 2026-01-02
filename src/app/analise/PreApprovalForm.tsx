@@ -977,6 +977,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         tipoRede: formSanitizado.tipoRede ? formSanitizado.tipoRede : undefined,
         relacaoImovel: normalizarRelacaoImovelKommo(formSanitizado.relacaoImovel),
         cpfCnpj: formSanitizado.cpfCnpj,
+        statusResultado: status,
         utm: utmParams
           ? {
               utm_source: utmParams.utm_source ? utmParams.utm_source.trim() || undefined : undefined,

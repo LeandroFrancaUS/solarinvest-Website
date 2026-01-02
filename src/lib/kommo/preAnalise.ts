@@ -12,6 +12,7 @@ export type PreAnalisePayload = {
   tipoRede?: string;
   relacaoImovel?: string;
   cpfCnpj?: string;
+  statusResultado?: 'PRE_APROVADO' | 'PENDENTE' | 'NAO_ELEGIVEL';
   utm?: {
     utm_source?: string;
     utm_medium?: string;
@@ -48,6 +49,7 @@ const optionalLeadFieldEnvVars = {
   tipoRede: 'KOMMO_LEAD_FIELD_ID_TIPO_REDE',
   relacaoImovel: 'KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL',
   cpfCnpj: 'KOMMO_LEAD_FIELD_ID_CPF_CNPJ',
+  statusResultado: ['KOMMO_LEAD_FIELD_ID_STATUS', 'KOMMO_LEAD_FIELD_ID_STATUS_RESULTADO'],
   utm_source: 'KOMMO_LEAD_FIELD_ID_UTM_SOURCE',
   utm_medium: 'KOMMO_LEAD_FIELD_ID_UTM_MEDIUM',
   utm_campaign: 'KOMMO_LEAD_FIELD_ID_UTM_CAMPAIGN',
@@ -58,6 +60,12 @@ const ENUM_TIPO_REDE = {
   monofasico: 2402829,
   bifasico: 2402831,
   trifasico: 2402833,
+};
+
+const ENUM_STATUS_RESULTADO = {
+  pre_aprovado: 2402835,
+  em_analise: 2402837,
+  rejeitado: 2402839,
 };
 
 function sanitizeText(value: unknown, maxLength = 200) {
@@ -93,6 +101,19 @@ function normalizeTipoRede(value?: string) {
   return normalized;
 }
 
+function normalizeStatusResultado(value?: string) {
+  switch (value) {
+    case 'PRE_APROVADO':
+      return 'pre_aprovado';
+    case 'PENDENTE':
+      return 'em_analise';
+    case 'NAO_ELEGIVEL':
+      return 'rejeitado';
+    default:
+      return '';
+  }
+}
+
 function sanitizeNumber(value: unknown) {
   if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value) || value < 0) return undefined;
   return value;
@@ -117,6 +138,7 @@ function validatePayload(payload: PreAnalisePayload) {
   const relacaoImovel = sanitizeText(payload.relacaoImovel);
   const cpfCnpj = sanitizeText(payload.cpfCnpj);
   const consumoMedioMensal = sanitizeNumber(payload.consumoMedioMensal);
+  const statusResultado = payload.statusResultado;
 
   const missing = !nomeRazao || !email || !whatsapp;
   if (missing) {
@@ -147,6 +169,7 @@ function validatePayload(payload: PreAnalisePayload) {
       relacaoImovel,
       cpfCnpj,
       consumoMedioMensal,
+      statusResultado,
     },
   };
 }
@@ -242,8 +265,17 @@ async function findExistingContact(email: string, whatsapp: string, requestId: s
   }
 }
 
-function buildCustomField(fieldIdEnv: string, value?: string | number) {
-  const fieldId = getEnvNumber(fieldIdEnv);
+function resolveFieldId(fieldIdEnv: string | string[]) {
+  const envNames = Array.isArray(fieldIdEnv) ? fieldIdEnv : [fieldIdEnv];
+  for (const name of envNames) {
+    const fieldId = getEnvNumber(name);
+    if (fieldId) return fieldId;
+  }
+  return undefined;
+}
+
+function buildCustomField(fieldIdEnv: string | string[], value?: string | number) {
+  const fieldId = resolveFieldId(fieldIdEnv);
   if (!fieldId || value === undefined || value === '') return null;
   return {
     field_id: fieldId,
@@ -251,11 +283,16 @@ function buildCustomField(fieldIdEnv: string, value?: string | number) {
   };
 }
 
-function buildSelectField(fieldIdEnv: string, enumMap: Record<string, number>, value?: string) {
-  const fieldId = getEnvNumber(fieldIdEnv);
+function buildSelectField(
+  fieldIdEnv: string | string[],
+  enumMap: Record<string, number>,
+  value: string | undefined,
+  normalizer: (value?: string) => string = normalizeTipoRede
+) {
+  const fieldId = resolveFieldId(fieldIdEnv);
   if (!fieldId) return null;
 
-  const normalized = normalizeTipoRede(value);
+  const normalized = normalizer(value);
   if (!normalized) return null;
 
   const enumId = enumMap[normalized];
@@ -307,6 +344,7 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
     relacaoImovel,
     cpfCnpj,
     consumoMedioMensal,
+    statusResultado,
   } = validation.data;
 
   const pipelineId = getEnvNumber('KOMMO_PIPELINE_ID');
@@ -338,6 +376,12 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
       buildSelectField(optionalLeadFieldEnvVars.tipoRede, ENUM_TIPO_REDE, tipoRede),
       buildCustomField(optionalLeadFieldEnvVars.relacaoImovel, relacaoImovel),
       buildCustomField(optionalLeadFieldEnvVars.cpfCnpj, cpfCnpj),
+      buildSelectField(
+        optionalLeadFieldEnvVars.statusResultado,
+        ENUM_STATUS_RESULTADO,
+        statusResultado,
+        normalizeStatusResultado
+      ),
       buildCustomField(optionalLeadFieldEnvVars.utm_source, sanitizeText(payload.utm?.utm_source)),
       buildCustomField(optionalLeadFieldEnvVars.utm_medium, sanitizeText(payload.utm?.utm_medium)),
       buildCustomField(optionalLeadFieldEnvVars.utm_campaign, sanitizeText(payload.utm?.utm_campaign)),
