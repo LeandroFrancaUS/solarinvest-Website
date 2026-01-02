@@ -23,7 +23,7 @@ export type PreAnalisePayload = {
 
 type ProcessResult = {
   status: number;
-  body: { ok: true } | { ok: false; errorCode: string; message: string };
+  body: { ok: true } | { ok: false; errorCode: string; message: string; requestId?: string };
 };
 
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -436,14 +436,14 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
       whatsapp: maskedPhone,
     });
 
-    const isKommoError = (error as Error).message.startsWith('KOMMO_HTTP_');
-
     return {
-      status: isKommoError ? 502 : 500,
+      status: 500,
       body: {
         ok: false,
         errorCode: 'KOMMO_ERROR',
-        message: 'Não conseguimos enviar sua pré-análise agora. Tente novamente em alguns minutos.',
+        message:
+          'Não conseguimos enviar sua pré-análise agora. Tente novamente em alguns minutos ou envie manualmente usando o WhatsApp.',
+        requestId,
       },
     };
   }
