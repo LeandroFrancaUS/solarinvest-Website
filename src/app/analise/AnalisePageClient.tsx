@@ -46,8 +46,7 @@ const webPageStructuredData = {
   name: 'Análise de pré-aprovação para leasing solar',
   url: pageUrl,
   inLanguage: 'pt-BR',
-  description:
-    'Landing page com formulário de pré-análise de leasing solar e retorno por WhatsApp.',
+  description: 'Landing page com formulário de pré-análise de leasing solar e retorno por WhatsApp.',
   isPartOf: {
     '@type': 'WebSite',
     url: seoConstants.siteUrl,
@@ -75,8 +74,11 @@ const faqStructuredData = {
 
 export default function AnalisePageClient() {
   const searchParams = useSearchParams();
-  const shouldAutoOpenParam = searchParams?.get('abrir');
-  const shouldAutoOpen = shouldAutoOpenParam ? shouldAutoOpenParam === 'true' : true;
+
+  // abrir=true (default), abrir=false fecha, abrir=qualquer outra coisa => default true
+  const abrirParam = searchParams?.get('abrir');
+  const shouldAutoOpen = abrirParam === null ? true : abrirParam === 'true';
+
   const utmParams = useMemo(
     () => ({
       utm_source: searchParams?.get('utm_source') ?? null,
@@ -86,7 +88,8 @@ export default function AnalisePageClient() {
     }),
     [searchParams]
   );
-  const [mostrarFormulario, setMostrarFormulario] = useState(shouldAutoOpen);
+
+  const [mostrarFormulario, setMostrarFormulario] = useState<boolean>(shouldAutoOpen);
   const [resultado, setResultado] = useState<{ status: StatusResultado; message: string } | null>(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
@@ -95,18 +98,21 @@ export default function AnalisePageClient() {
       setHasAutoOpened(true);
       setMostrarFormulario(true);
     }
-
-    if (mostrarFormulario) {
-      const anchor = document.getElementById('pre-aprovacao');
-      anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [mostrarFormulario, shouldAutoOpen, hasAutoOpened]);
+  }, [shouldAutoOpen, hasAutoOpened]);
 
   useEffect(() => {
-    if (resultado) {
-      const anchor = document.getElementById('resultado-analise');
-      anchor?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    // ✅ só scrolla quando o formulário estiver visível
+    if (!mostrarFormulario) return;
+
+    // ✅ use apenas o wrapper do page como âncora (evita conflito se o form também tiver id igual)
+    const anchor = document.getElementById('pre-aprovacao');
+    anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [mostrarFormulario]);
+
+  useEffect(() => {
+    if (!resultado) return;
+    const anchor = document.getElementById('resultado-analise');
+    anchor?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [resultado]);
 
   const iniciarAnalise = () => {
@@ -183,6 +189,7 @@ export default function AnalisePageClient() {
       </section>
 
       {mostrarFormulario && (
+        // ✅ Deixe o ID AQUI (no wrapper) e REMOVA do PreApprovalForm, se ele ainda tiver
         <section className="max-w-7xl mx-auto" id="pre-aprovacao">
           <PreApprovalForm onSubmitted={handleSubmitted} utmParams={utmParams} />
         </section>
@@ -191,7 +198,9 @@ export default function AnalisePageClient() {
       {resultado && (
         <section id="resultado-analise" className="max-w-3xl mx-auto text-center space-y-4">
           <div
-            className={`rounded-2xl border p-6 shadow-lg ${statusVisuals[resultado.status].styles} animate-[pulse_1.2s_ease-in-out_1]`}
+            className={`rounded-2xl border p-6 shadow-lg ${
+              statusVisuals[resultado.status].styles
+            } animate-[pulse_1.2s_ease-in-out_1]`}
           >
             <div className="flex flex-col items-center gap-3">
               <div className={`text-3xl ${statusVisuals[resultado.status].accent}`} aria-hidden>
@@ -221,7 +230,6 @@ export default function AnalisePageClient() {
           </div>
         </section>
       )}
-
     </main>
   );
 }
