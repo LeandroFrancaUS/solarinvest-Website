@@ -376,6 +376,13 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
   try {
     const existingContactId = await findExistingContact(email, whatsapp, requestId);
 
+    const statusField = buildSelectField(
+      optionalLeadFieldEnvVars.statusResultado,
+      ENUM_STATUS_RESULTADO,
+      statusResultado,
+      normalizeStatusResultado
+    );
+
     const leadCustomFields = [
       buildCustomField(optionalLeadFieldEnvVars.municipio, municipio),
       buildCustomField(optionalLeadFieldEnvVars.tipoImovel, tipoImovel),
@@ -385,12 +392,7 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
       buildSelectField(optionalLeadFieldEnvVars.tipoRede, ENUM_TIPO_REDE, tipoRede),
       buildCustomField(optionalLeadFieldEnvVars.relacaoImovel, relacaoImovel),
       buildCustomField(optionalLeadFieldEnvVars.cpfCnpj, cpfCnpj),
-      buildSelectField(
-        optionalLeadFieldEnvVars.statusResultado,
-        ENUM_STATUS_RESULTADO,
-        statusResultado,
-        normalizeStatusResultado
-      ),
+      statusField,
       buildCustomField(optionalLeadFieldEnvVars.utm_source, sanitizeText(payload.utm?.utm_source)),
       buildCustomField(optionalLeadFieldEnvVars.utm_medium, sanitizeText(payload.utm?.utm_medium)),
       buildCustomField(optionalLeadFieldEnvVars.utm_campaign, sanitizeText(payload.utm?.utm_campaign)),
@@ -422,7 +424,27 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
       });
     }
 
-    await fetchKommo('/leads/complex', { method: 'POST', body: JSON.stringify([leadPayload]) }, requestId);
+    try {
+      await fetchKommo('/leads/complex', { method: 'POST', body: JSON.stringify([leadPayload]) }, requestId);
+    } catch (error) {
+      const isKommoError = (error as Error).message.startsWith('KOMMO_HTTP_');
+
+      if (isKommoError && leadCustomFields.length > 0) {
+        console.error('[kommo-pre-analise] Lead creation failed, retrying without custom fields', {
+          requestId,
+          error: (error as Error).message,
+        });
+
+        const fallbackLeadPayload = {
+          ...leadPayload,
+          custom_fields_values: [],
+        };
+
+        await fetchKommo('/leads/complex', { method: 'POST', body: JSON.stringify([fallbackLeadPayload]) }, requestId);
+      } else {
+        throw error;
+      }
+    }
 
     return { status: 200, body: { ok: true } };
   } catch (error) {
