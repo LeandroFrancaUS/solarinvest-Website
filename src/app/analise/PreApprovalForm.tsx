@@ -959,32 +959,30 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
       const prioridade = calcularPrioridade(consumo);
 
-      const cleanUtmValue = (value?: string | null) => (value ? value.trim() || undefined : undefined);
-
       const payload = {
         nomeRazao: formSanitizado.nome,
         email: formSanitizado.email,
         whatsapp: whatsappComPrefixo,
-        municipio: formSanitizado.municipio || undefined,
+        municipio: formSanitizado.municipio ? formSanitizado.municipio : undefined,
         tipoImovel:
           formSanitizado.tipoCliente === 'Outro'
-            ? formSanitizado.tipoClienteOutro || undefined
+            ? formSanitizado.tipoClienteOutro.trim() || undefined
             : formSanitizado.tipoCliente || undefined,
         consumoMedioMensal: consumo,
         tipoSistema: formSanitizado.tipoSistema,
         tipoInstalacao:
           formSanitizado.tipoInstalacao === 'Outro'
-            ? formSanitizado.tipoInstalacaoOutro
+            ? formSanitizado.tipoInstalacaoOutro.trim() || undefined
             : formSanitizado.tipoInstalacao,
         tipoRede: formSanitizado.tipoRede ? formSanitizado.tipoRede : undefined,
         relacaoImovel: normalizarRelacaoImovelKommo(formSanitizado.relacaoImovel),
         cpfCnpj: formSanitizado.cpfCnpj,
         utm: utmParams
           ? {
-              utm_source: cleanUtmValue(utmParams.utm_source),
-              utm_medium: cleanUtmValue(utmParams.utm_medium),
-              utm_campaign: cleanUtmValue(utmParams.utm_campaign),
-              utm_content: cleanUtmValue(utmParams.utm_content),
+              utm_source: utmParams.utm_source ? utmParams.utm_source.trim() || undefined : undefined,
+              utm_medium: utmParams.utm_medium ? utmParams.utm_medium.trim() || undefined : undefined,
+              utm_campaign: utmParams.utm_campaign ? utmParams.utm_campaign.trim() || undefined : undefined,
+              utm_content: utmParams.utm_content ? utmParams.utm_content.trim() || undefined : undefined,
             }
           : undefined,
       };
