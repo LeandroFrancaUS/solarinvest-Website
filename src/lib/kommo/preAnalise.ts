@@ -265,7 +265,7 @@ async function findExistingContact(email: string, whatsapp: string, requestId: s
   }
 }
 
-function resolveFieldId(fieldIdEnv: string | string[]) {
+function resolveFieldId(fieldIdEnv: string | readonly string[]) {
   const envNames = Array.isArray(fieldIdEnv) ? fieldIdEnv : [fieldIdEnv];
   for (const name of envNames) {
     const fieldId = getEnvNumber(name);
@@ -274,7 +274,7 @@ function resolveFieldId(fieldIdEnv: string | string[]) {
   return undefined;
 }
 
-function buildCustomField(fieldIdEnv: string | string[], value?: string | number) {
+function buildCustomField(fieldIdEnv: string | readonly string[], value?: string | number) {
   const fieldId = resolveFieldId(fieldIdEnv);
   if (!fieldId || value === undefined || value === '') return null;
   return {
@@ -284,7 +284,7 @@ function buildCustomField(fieldIdEnv: string | string[], value?: string | number
 }
 
 function buildSelectField(
-  fieldIdEnv: string | string[],
+  fieldIdEnv: string | readonly string[],
   enumMap: Record<string, number>,
   value: string | undefined,
   normalizer: (value?: string) => string = normalizeTipoRede
