@@ -950,8 +950,6 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       // prioridade calculada (mantido, mesmo que ainda não use)
       calcularPrioridade(consumo);
 
-      const cleanUtmValue = (value?: string | null) => (value ? value.trim() || undefined : undefined);
-
       // ✅ ÚNICO payload (sem duplicações)
       const payload = {
         nomeRazao: formSanitizado.nome,
