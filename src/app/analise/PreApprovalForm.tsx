@@ -151,8 +151,7 @@ const initialState: FormState = {
   consumoMedio: '',
   tarifa: '',
 
-  // ✅ default on-grid (você pode trocar pra '' se quiser obrigar escolher)
-  tipoSistema: 'On-grid',
+  tipoSistema: '',
 
   tipoInstalacao: '',
   tipoInstalacaoOutro: '',
