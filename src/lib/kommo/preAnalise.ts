@@ -8,6 +8,10 @@ export type PreAnalisePayload = {
   tipoImovel?: string;
   consumoMedioMensal?: number;
   tipoSistema?: string;
+  tipoInstalacao?: string;
+  tipoRede?: string;
+  relacaoImovel?: string;
+  cpfCnpj?: string;
   utm?: {
     utm_source?: string;
     utm_medium?: string;
@@ -32,6 +36,7 @@ const REQUIRED_ENV_VARS = [
   'KOMMO_STATUS_ID',
   'KOMMO_CONTACT_EMAIL_FIELD_ID',
   'KOMMO_CONTACT_PHONE_FIELD_ID',
+  'KOMMO_LEAD_FIELD_ID_TIPO_REDE',
 ];
 
 const optionalLeadFieldEnvVars = {
@@ -39,11 +44,21 @@ const optionalLeadFieldEnvVars = {
   tipoImovel: 'KOMMO_LEAD_FIELD_ID_TIPO_IMOVEL',
   consumoMedioMensal: 'KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO',
   tipoSistema: 'KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA',
+  tipoInstalacao: 'KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO',
+  tipoRede: 'KOMMO_LEAD_FIELD_ID_TIPO_REDE',
+  relacaoImovel: 'KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL',
+  cpfCnpj: 'KOMMO_LEAD_FIELD_ID_CPF_CNPJ',
   utm_source: 'KOMMO_LEAD_FIELD_ID_UTM_SOURCE',
   utm_medium: 'KOMMO_LEAD_FIELD_ID_UTM_MEDIUM',
   utm_campaign: 'KOMMO_LEAD_FIELD_ID_UTM_CAMPAIGN',
   utm_content: 'KOMMO_LEAD_FIELD_ID_UTM_CONTENT',
 } as const;
+
+const ENUM_TIPO_REDE = {
+  monofasico: 2402829,
+  bifasico: 2402831,
+  trifasico: 2402833,
+};
 
 function sanitizeText(value: unknown, maxLength = 200) {
   if (!value || typeof value !== 'string') return '';
@@ -59,6 +74,23 @@ function sanitizeWhatsapp(value: unknown) {
   const digits = value.replace(/\D/g, '');
   if (!digits) return '';
   return `+${digits}`;
+}
+
+function normalizeKey(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function normalizeTipoRede(value?: string) {
+  const normalized = normalizeKey(value ?? '');
+  if (!normalized) return '';
+  if (normalized.startsWith('mono')) return 'monofasico';
+  if (normalized.startsWith('bi')) return 'bifasico';
+  if (normalized.startsWith('tri')) return 'trifasico';
+  return normalized;
 }
 
 function sanitizeNumber(value: unknown) {
@@ -80,6 +112,10 @@ function validatePayload(payload: PreAnalisePayload) {
   const municipio = sanitizeText(payload.municipio);
   const tipoImovel = sanitizeText(payload.tipoImovel);
   const tipoSistema = sanitizeText(payload.tipoSistema);
+  const tipoInstalacao = sanitizeText(payload.tipoInstalacao);
+  const tipoRede = sanitizeText(payload.tipoRede);
+  const relacaoImovel = sanitizeText(payload.relacaoImovel);
+  const cpfCnpj = sanitizeText(payload.cpfCnpj);
   const consumoMedioMensal = sanitizeNumber(payload.consumoMedioMensal);
 
   const missing = !nomeRazao || !email || !whatsapp;
@@ -99,7 +135,19 @@ function validatePayload(payload: PreAnalisePayload) {
 
   return {
     valid: true as const,
-    data: { nomeRazao, email, whatsapp, municipio, tipoImovel, tipoSistema, consumoMedioMensal },
+    data: {
+      nomeRazao,
+      email,
+      whatsapp,
+      municipio,
+      tipoImovel,
+      tipoSistema,
+      tipoInstalacao,
+      tipoRede,
+      relacaoImovel,
+      cpfCnpj,
+      consumoMedioMensal,
+    },
   };
 }
 
@@ -203,6 +251,24 @@ function buildCustomField(fieldIdEnv: string, value?: string | number) {
   };
 }
 
+function buildSelectField(fieldIdEnv: string, enumMap: Record<string, number>, value?: string) {
+  const fieldId = getEnvNumber(fieldIdEnv);
+  if (!fieldId) return null;
+
+  const normalized = normalizeTipoRede(value);
+  if (!normalized) return null;
+
+  const enumId = enumMap[normalized];
+  if (!enumId) return null;
+
+  return {
+    field_id: fieldId,
+    values: [{ enum_id: enumId }],
+  };
+}
+
+type CustomFieldValue = { field_id: number; values: Array<{ value?: string | number; enum_id?: number }> };
+
 export async function processKommoPreAnalise(payload: PreAnalisePayload, clientIp = 'unknown'): Promise<ProcessResult> {
   const missingEnv = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
   if (missingEnv.length > 0) {
@@ -229,7 +295,19 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
 
   const validation = validatePayload(payload);
   if (!validation.valid) return validation.response;
-  const { nomeRazao, email, whatsapp, municipio, tipoImovel, tipoSistema, consumoMedioMensal } = validation.data;
+  const {
+    nomeRazao,
+    email,
+    whatsapp,
+    municipio,
+    tipoImovel,
+    tipoSistema,
+    tipoInstalacao,
+    tipoRede,
+    relacaoImovel,
+    cpfCnpj,
+    consumoMedioMensal,
+  } = validation.data;
 
   const pipelineId = getEnvNumber('KOMMO_PIPELINE_ID');
   const statusId = getEnvNumber('KOMMO_STATUS_ID');
@@ -256,11 +334,15 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
       buildCustomField(optionalLeadFieldEnvVars.tipoImovel, tipoImovel),
       buildCustomField(optionalLeadFieldEnvVars.consumoMedioMensal, consumoMedioMensal ?? undefined),
       buildCustomField(optionalLeadFieldEnvVars.tipoSistema, tipoSistema),
+      buildCustomField(optionalLeadFieldEnvVars.tipoInstalacao, tipoInstalacao),
+      buildSelectField(optionalLeadFieldEnvVars.tipoRede, ENUM_TIPO_REDE, tipoRede),
+      buildCustomField(optionalLeadFieldEnvVars.relacaoImovel, relacaoImovel),
+      buildCustomField(optionalLeadFieldEnvVars.cpfCnpj, cpfCnpj),
       buildCustomField(optionalLeadFieldEnvVars.utm_source, sanitizeText(payload.utm?.utm_source)),
       buildCustomField(optionalLeadFieldEnvVars.utm_medium, sanitizeText(payload.utm?.utm_medium)),
       buildCustomField(optionalLeadFieldEnvVars.utm_campaign, sanitizeText(payload.utm?.utm_campaign)),
       buildCustomField(optionalLeadFieldEnvVars.utm_content, sanitizeText(payload.utm?.utm_content)),
-    ].filter(Boolean) as Array<{ field_id: number; values: Array<{ value: string | number }> }>;
+    ].filter(Boolean) as CustomFieldValue[];
 
     const leadPayload: any = {
       name: 'Pré-análise — Site',
