@@ -1,6 +1,14 @@
 'use client';
 
-import { ClipboardEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ClipboardEvent,
+  FormEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 declare global {
   interface Window {
@@ -121,7 +129,10 @@ type SubmissionState = {
   loading: boolean;
 };
 
-type MunicipioState = { status: 'idle' | 'loading' | 'not_found' | 'error' | 'loaded'; label: string };
+type MunicipioState = {
+  status: 'idle' | 'loading' | 'not_found' | 'error' | 'loaded';
+  label: string;
+};
 
 const initialState: FormState = {
   nome: '',
@@ -151,7 +162,10 @@ export const statusMessages: Record<StatusResultado, string> = {
     'Por enquanto, pode não ser o ideal. Pelo consumo informado, o leasing tende a não gerar o melhor custo-benefício. Mas podemos avaliar outras opções (compra/financiamento) ou uma solução sob medida.',
 };
 
-export const statusVisuals: Record<StatusResultado, { title: string; icon: string; styles: string; accent: string }> = {
+export const statusVisuals: Record<
+  StatusResultado,
+  { title: string; icon: string; styles: string; accent: string }
+> = {
   PRE_APROVADO: {
     title: 'PRÉ-APROVADO',
     icon: '✅',
@@ -331,7 +345,11 @@ function formatTarifaInput(raw: string) {
   const decimais = digits.slice(1);
   const hasSeparator = raw.includes(',') || raw.includes('.') || decimais.length > 0;
 
-  return hasSeparator && decimais.length ? `${inteiro},${decimais}` : hasSeparator ? `${inteiro},` : inteiro;
+  return hasSeparator && decimais.length
+    ? `${inteiro},${decimais}`
+    : hasSeparator
+      ? `${inteiro},`
+      : inteiro;
 }
 
 function parseTarifa(valor: string) {
@@ -356,7 +374,9 @@ function buildDocFlags(relacaoImovel: PropertyRelation, anexos: AttachmentWithMe
     hasBill: hasTag('CONTA_ENERGIA_ATUAL'),
     hasOwnerAuth: hasTag('AUTORIZACAO_PROPRIETARIO_ASSINADA'),
     hasRelationContract:
-      hasTag('CONTRATO_LOCACAO') || hasTag('CONTRATO_COMODATO') || hasTag('CONTRATO_ARRENDAMENTO'),
+      hasTag('CONTRATO_LOCACAO') ||
+      hasTag('CONTRATO_COMODATO') ||
+      hasTag('CONTRATO_ARRENDAMENTO'),
     hasCondoApproval: hasTag('ATA_ASSEMBLEIA_APROVACAO'),
     missingRequired: getDocRules(relacaoImovel).required.filter((tag) => !hasTag(tag)),
   };
@@ -434,7 +454,12 @@ function getDocRules(relacaoImovel: PropertyRelation): DocRules {
       };
     case 'Proprietário':
       return {
-        options: ['CONTA_ENERGIA_ATUAL', 'DOC_ID_SOLICITANTE', 'CPF_CNPJ_SOLICITANTE', 'FOTOS_LOCAL_INSTALACAO'],
+        options: [
+          'CONTA_ENERGIA_ATUAL',
+          'DOC_ID_SOLICITANTE',
+          'CPF_CNPJ_SOLICITANTE',
+          'FOTOS_LOCAL_INSTALACAO',
+        ],
         required: [],
         recommended: BILL_RECOMMENDED,
       };
@@ -496,9 +521,7 @@ function calcularStatus(
   }
 
   if (docFlags.missingRequired.length > 0 && relacaoImovel !== 'Proprietário') {
-    motivosInternos.push(
-      `Documentos obrigatórios faltando: ${docFlags.missingRequired.join(', ')}`
-    );
+    motivosInternos.push(`Documentos obrigatórios faltando: ${docFlags.missingRequired.join(', ')}`);
     statusInterno = 'PENDENTE_DOCS_IMOVEL';
   }
 
@@ -579,10 +602,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
   const relacaoImovelDocRules = useMemo(() => getDocRules(form.relacaoImovel), [form.relacaoImovel]);
   const recommendedDocTags = useMemo(
-    () =>
-      relacaoImovelDocRules.recommended.filter(
-        (tag) => !relacaoImovelDocRules.required.includes(tag)
-      ),
+    () => relacaoImovelDocRules.recommended.filter((tag) => !relacaoImovelDocRules.required.includes(tag)),
     [relacaoImovelDocRules]
   );
   const docFlags = useMemo(() => buildDocFlags(form.relacaoImovel, documentos), [documentos, form.relacaoImovel]);
@@ -754,7 +774,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     const novoErros = coletarErros(estadoAtualizado);
     const hasErrors = Object.keys(novoErros).length > 0;
 
-    const payload = shouldShowGeneral && hasErrors ? { ...novoErros, geral: 'Não foi enviado. Complete os campos destacados para prosseguir.' } : { ...novoErros };
+    const payload =
+      shouldShowGeneral && hasErrors
+        ? { ...novoErros, geral: 'Não foi enviado. Complete os campos destacados para prosseguir.' }
+        : { ...novoErros };
 
     setErrors(payload);
     const mostrarPendencias = shouldShowGeneral;
@@ -849,6 +872,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     'tarifa',
     'tipoInstalacao',
     'tipoInstalacaoOutro',
+    // tipoRede é opcional
   ];
 
   const focarPrimeiroErro = (novoErros: ValidationErrors) => {
@@ -926,7 +950,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       const whatsappNormalizado = normalizarWhatsappBrasil(formSanitizado.whatsapp);
       const whatsappComPrefixo = whatsappNormalizado ? `+${whatsappNormalizado}` : '';
 
-      const { status, motivosInternos, statusInterno } = calcularStatus(
+      const { status } = calcularStatus(
         consumo,
         tarifa,
         docFlags.hasBill,
@@ -939,36 +963,79 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         docFlags
       );
 
-      const prioridade = calcularPrioridade(consumo);
+      calcularPrioridade(consumo); // prioridade calculada (mantido, mesmo que ainda não use)
 
       const cleanUtmValue = (value?: string | null) => (value ? value.trim() || undefined : undefined);
+
+      // ✅ Normaliza valores para o backend Kommo
+      const mapRelacaoImovelParaKommo = (value: PropertyRelation): string | undefined => {
+        switch (value) {
+          case 'Proprietário':
+            return 'Proprietario';
+          case 'Inquilino (locatário)':
+            return 'Inquilino';
+          case 'Administrador / Síndico':
+            return 'Sindico';
+          // As demais relações não existem como enum específico no Kommo hoje.
+          // Mapeamos para "Locatario" (mais próximo) ou deixamos vazio.
+          case 'Comodatário (uso gratuito)':
+          case 'Arrendatário':
+          case 'Familiar do proprietário':
+            return 'Locatario';
+          default:
+            return undefined;
+        }
+      };
+
+      const payload = {
+        nomeRazao: formSanitizado.nome,
+        email: formSanitizado.email,
+        whatsapp: whatsappComPrefixo,
+        municipio: formSanitizado.municipio,
+
+        // mantém se existir custom field no Kommo
+        tipoImovel:
+          formSanitizado.tipoCliente === 'Outro'
+            ? formSanitizado.tipoClienteOutro
+            : formSanitizado.tipoCliente,
+
+        consumoMedioMensal: consumo,
+
+        // ✅ tipoSistema (não existe select no form hoje)
+        tipoSistema: 'On-grid',
+
+        // ✅ instalação correta
+        tipoInstalacao:
+          formSanitizado.tipoInstalacao === 'Outro'
+            ? formSanitizado.tipoInstalacaoOutro
+            : formSanitizado.tipoInstalacao,
+
+        // ✅ rede opcional
+        tipoRede: formSanitizado.tipoRede || undefined,
+
+        // ✅ relação com imóvel (normalizada p/ enum do Kommo)
+        relacaoImovel: mapRelacaoImovelParaKommo(formSanitizado.relacaoImovel),
+
+        // ✅ CPF/CNPJ
+        cpfCnpj: formSanitizado.cpfCnpj,
+
+        utm: utmParams
+          ? {
+              utm_source: cleanUtmValue(utmParams.utm_source),
+              utm_medium: cleanUtmValue(utmParams.utm_medium),
+              utm_campaign: cleanUtmValue(utmParams.utm_campaign),
+              utm_content: cleanUtmValue(utmParams.utm_content),
+            }
+          : undefined,
+      };
+
+      // 🔍 Debug (remove depois, se quiser)
+      console.log('[pre-analise] payload enviado =>', payload);
 
       const response = await fetch('/api/kommo/pre-analise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nomeRazao: formSanitizado.nome,
-          email: formSanitizado.email,
-          whatsapp: whatsappComPrefixo,
-          municipio: formSanitizado.municipio,
-          tipoImovel:
-            formSanitizado.tipoCliente === 'Outro'
-              ? formSanitizado.tipoClienteOutro
-              : formSanitizado.tipoCliente,
-          consumoMedioMensal: consumo,
-          tipoSistema:
-            formSanitizado.tipoInstalacao === 'Outro'
-              ? formSanitizado.tipoInstalacaoOutro
-              : formSanitizado.tipoInstalacao,
-          utm: utmParams
-            ? {
-                utm_source: cleanUtmValue(utmParams.utm_source),
-                utm_medium: cleanUtmValue(utmParams.utm_medium),
-                utm_campaign: cleanUtmValue(utmParams.utm_campaign),
-                utm_content: cleanUtmValue(utmParams.utm_content),
-              }
-            : undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       let result: { ok?: boolean; message?: string } = {};
@@ -1010,7 +1077,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
   };
 
   return (
-    <section id="pre-aprovacao" className="w-full bg-gray-50 border border-orange-100 rounded-3xl p-6 md:p-10 shadow-sm">
+    <section
+      id="pre-aprovacao"
+      className="w-full bg-gray-50 border border-orange-100 rounded-3xl p-6 md:p-10 shadow-sm"
+    >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <p className="text-sm uppercase tracking-wide text-orange-500 font-semibold">
@@ -1020,7 +1090,8 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             Faça uma análise rápida e gratuita
           </h2>
           <p className="text-gray-700 mt-2 max-w-3xl">
-            Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise humana.
+            Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise
+            humana.
           </p>
         </div>
         <div className="flex items-center gap-3 bg-white border border-orange-200 rounded-2xl px-4 py-3 shadow-inner text-sm text-gray-700">
@@ -1146,7 +1217,9 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 aria-invalid={showError('nome') || undefined}
               />
               {nomePasteSanitized && (
-                <p className="text-xs text-amber-700 mt-1">Alguns caracteres foram removidos para manter o formato válido.</p>
+                <p className="text-xs text-amber-700 mt-1">
+                  Alguns caracteres foram removidos para manter o formato válido.
+                </p>
               )}
               {showError('nome') && (
                 <p className="text-xs text-red-600 mt-1" aria-live="polite">
@@ -1208,20 +1281,21 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Local da instalação</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">CEP *</label>
-                  <input
-                    type="text"
-                    name="cep"
-                    className={classeCampo('cep')}
-                    placeholder="00000-000"
-                    value={form.cep}
-                    onChange={(e) => atualizarCampo('cep', formatCEP(e.target.value))}
-                    onBlur={() => handleBlurCampo('cep')}
-                    required
-                  />
-                  {showError('cep') && <p className="text-xs text-red-600 mt-1">{errors.cep}</p>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">CEP *</label>
+                <input
+                  type="text"
+                  name="cep"
+                  className={classeCampo('cep')}
+                  placeholder="00000-000"
+                  value={form.cep}
+                  onChange={(e) => atualizarCampo('cep', formatCEP(e.target.value))}
+                  onBlur={() => handleBlurCampo('cep')}
+                  required
+                />
+                {showError('cep') && <p className="text-xs text-red-600 mt-1">{errors.cep}</p>}
+
                 <div className="mt-2">
                   <label className="block text-xs font-medium text-gray-500">Município</label>
                   <input
@@ -1239,29 +1313,31 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   />
                 </div>
               </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Endereço completo</label>
-                  <input
-                    type="text"
-                    name="endereco"
-                    className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
-                    placeholder="Rua, nº, bairro, cidade/UF"
-                    value={form.endereco}
-                    onChange={(e) => atualizarCampo('endereco', e.target.value)}
-                  />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Endereço completo</label>
+                <input
+                  type="text"
+                  name="endereco"
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  placeholder="Rua, nº, bairro, cidade/UF"
+                  value={form.endereco}
+                  onChange={(e) => atualizarCampo('endereco', e.target.value)}
+                />
               </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                  <label className="block text-sm font-medium text-gray-700">Tipo de cliente *</label>
-                  <select
-                    name="tipoCliente"
-                    className={classeCampo('tipoCliente')}
-                    value={form.tipoCliente}
-                    onChange={(e) => atualizarCampo('tipoCliente', e.target.value as ClientType)}
-                    onBlur={() => handleBlurCampo('tipoCliente')}
-                    required
-                  >
+                <label className="block text-sm font-medium text-gray-700">Tipo de cliente *</label>
+                <select
+                  name="tipoCliente"
+                  className={classeCampo('tipoCliente')}
+                  value={form.tipoCliente}
+                  onChange={(e) => atualizarCampo('tipoCliente', e.target.value as ClientType)}
+                  onBlur={() => handleBlurCampo('tipoCliente')}
+                  required
+                >
                   <option value="" disabled>
                     Selecione
                   </option>
@@ -1283,8 +1359,11 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                     onBlur={() => handleBlurCampo('tipoClienteOutro')}
                   />
                 )}
-                {showError('tipoClienteOutro') && <p className="text-xs text-red-600 mt-1">{errors.tipoClienteOutro}</p>}
+                {showError('tipoClienteOutro') && (
+                  <p className="text-xs text-red-600 mt-1">{errors.tipoClienteOutro}</p>
+                )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Relação com o imóvel *</label>
                 <select
@@ -1345,6 +1424,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   <p className="text-xs text-gray-500 mt-1">Consumo considerado: {consumoNormalizado} kWh/mês</p>
                 )}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Tarifa da concessionária (R$/kWh) *</label>
                 <input
@@ -1368,6 +1448,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 )}
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Conta de energia / Documentos</label>
               <input
@@ -1386,13 +1467,19 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
               <p className="text-xs text-gray-500 mt-1">
                 A análise poderá levar mais tempo caso a conta de energia atual não seja enviada.
               </p>
+
               {documentos.length > 0 && (
                 <ul className="text-xs text-gray-700 mt-2 space-y-2">
                   {documentos.map((item) => (
-                    <li key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                    <li
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2"
+                    >
                       <div className="flex flex-col">
                         <span className="font-semibold text-gray-800">{item.file.name}</span>
-                        <span className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">{item.tag}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">
+                          {item.tag}
+                        </span>
                         {item.note && <span className="text-[11px] text-gray-600">Obs.: {item.note}</span>}
                       </div>
                       <button
@@ -1412,6 +1499,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Técnica</h3>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Tipo de instalação *</label>
               <select
@@ -1429,6 +1517,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 <option>Solo</option>
                 <option>Outro</option>
               </select>
+
               {form.tipoInstalacao === 'Outro' && (
                 <input
                   type="text"
@@ -1440,9 +1529,8 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                   onBlur={() => handleBlurCampo('tipoInstalacaoOutro')}
                 />
               )}
-              {showError('tipoInstalacaoOutro') && (
-                <p className="text-xs text-red-600 mt-1">{errors.tipoInstalacaoOutro}</p>
-              )}
+
+              {showError('tipoInstalacaoOutro') && <p className="text-xs text-red-600 mt-1">{errors.tipoInstalacaoOutro}</p>}
             </div>
 
             <div>
@@ -1462,6 +1550,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             {relacaoImovelDocRules.options.length > 0 && (
               <div className="bg-white border border-orange-100 rounded-xl p-3 text-sm text-gray-700 space-y-2">
                 <p className="font-semibold text-orange-700">Checklist automático</p>
+
                 <div className="flex flex-wrap gap-2 text-xs">
                   {relacaoImovelDocRules.required.length ? (
                     relacaoImovelDocRules.required.map((tag) => {
@@ -1485,6 +1574,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                     </span>
                   )}
                 </div>
+
                 {recommendedDocTags.length > 0 && (
                   <div className="flex flex-wrap gap-2 text-xs">
                     {recommendedDocTags.map((tag) => {
