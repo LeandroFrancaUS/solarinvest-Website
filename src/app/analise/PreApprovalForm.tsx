@@ -977,8 +977,8 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         // ✅ envia CPF/CNPJ (texto livre)
         cpfCnpj: formSanitizado.cpfCnpj,
 
-        // ✅ NOVO — STATUS DA PRÉ-ANÁLISE
-        statusResultado: status,
+        // ✅ NOVO — STATUS DA PRÉ-ANÁLISE (enviado para o Kommo)
+        statusAnalise: status,
 
         utm: utmParams
           ? {
