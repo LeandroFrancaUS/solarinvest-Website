@@ -11,16 +11,13 @@ export type PreAnalisePayload = {
   municipio?: string;
   consumoMedioMensal?: number;
 
-  // Sistema elétrico
-  tipoSistema?: string;
+  // Selects
+  tipoSistema?: string;       // On-grid | Hibrido | Off-grid
+  tipoInstalacao?: string;    // Telha fibrocimento | etc
+  relacaoImovel?: string;     // Proprietario | Inquilino | etc
+  tipoRede?: string;          // Monofásico | Bifásico | Trifásico (opcional)
 
-  // Tipo de instalação
-  tipoInstalacao?: string;
-
-  // Relação com o imóvel
-  relacaoImovel?: string;
-
-  // CPF ou CNPJ (texto livre)
+  // Texto
   cpfCnpj?: string;
 
   utm?: {
@@ -44,6 +41,21 @@ const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX = 10;
 const rateLimitLog = new Map<string, number[]>();
 
+function isRateLimited(ip: string) {
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW_MS;
+  const history = rateLimitLog.get(ip)?.filter((t) => t > windowStart) ?? [];
+
+  if (history.length >= RATE_LIMIT_MAX) {
+    rateLimitLog.set(ip, history);
+    return true;
+  }
+
+  history.push(now);
+  rateLimitLog.set(ip, history);
+  return false;
+}
+
 /* =========================================================
    ENV OBRIGATÓRIAS
 ========================================================= */
@@ -53,6 +65,7 @@ const REQUIRED_ENV_VARS = [
   "KOMMO_LONG_LIVED_TOKEN",
   "KOMMO_PIPELINE_ID",
   "KOMMO_STATUS_ID",
+
   "KOMMO_CONTACT_EMAIL_FIELD_ID",
   "KOMMO_CONTACT_PHONE_FIELD_ID",
 
@@ -61,12 +74,13 @@ const REQUIRED_ENV_VARS = [
   "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
   "KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO",
   "KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL",
+  "KOMMO_LEAD_FIELD_ID_TIPO_REDE",
   "KOMMO_LEAD_FIELD_ID_CPF_CNPJ",
   "KOMMO_LEAD_FIELD_ID_ORIGEM",
 ];
 
 /* =========================================================
-   ENUMS DO KOMMO (NORMALIZADOS)
+   ENUMS DO KOMMO (IDs REAIS)
 ========================================================= */
 
 const ENUM_TIPO_SISTEMA: Record<string, number> = {
@@ -91,15 +105,18 @@ const ENUM_RELACAO_IMOVEL: Record<string, number> = {
   "sindico": 2402537,
 };
 
+const ENUM_TIPO_REDE: Record<string, number> = {
+  "monofasico": 2402829,
+  "bifasico": 2402831,
+  "trifasico": 2402833,
+};
+
 const ENUM_ORIGEM: Record<string, number> = {
-  "pre analise": 2402517,
-  "whastapp": 2402519,
-  "facebook": 2402521,
-  "instagram": 2402523,
+  "pre-analise": 2402517,
 };
 
 /* =========================================================
-   HELPERS DE SANITIZAÇÃO / NORMALIZAÇÃO
+   HELPERS
 ========================================================= */
 
 function sanitizeText(value: unknown, max = 200) {
@@ -133,12 +150,6 @@ function getEnvNumber(name: string) {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-/**
- * Normaliza strings para bater com enums:
- * - remove acentos
- * - lowercase
- * - normaliza espaços e hífen
- */
 function normalizeKey(value?: unknown) {
   if (!value || typeof value !== "string") return "";
 
@@ -242,6 +253,17 @@ export async function processKommoPreAnalise(
     };
   }
 
+  if (isRateLimited(clientIp)) {
+    return {
+      status: 429,
+      body: {
+        ok: false,
+        errorCode: "RATE_LIMITED",
+        message: "Aguarde alguns minutos e tente novamente.",
+      },
+    };
+  }
+
   const nomeRazao = sanitizeText(payload.nomeRazao);
   const email = sanitizeEmail(payload.email);
   const whatsapp = sanitizeWhatsapp(payload.whatsapp);
@@ -274,8 +296,11 @@ export async function processKommoPreAnalise(
         buildSelectField("KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO", ENUM_TIPO_INSTALACAO, payload.tipoInstalacao),
         buildSelectField("KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL", ENUM_RELACAO_IMOVEL, payload.relacaoImovel),
 
+        // ✅ Tipo de rede (opcional)
+        buildSelectField("KOMMO_LEAD_FIELD_ID_TIPO_REDE", ENUM_TIPO_REDE, payload.tipoRede),
+
         buildTextField("KOMMO_LEAD_FIELD_ID_CPF_CNPJ", sanitizeText(payload.cpfCnpj, 60)),
-        buildSelectField("KOMMO_LEAD_FIELD_ID_ORIGEM", ENUM_ORIGEM, "Pre Analise"),
+        buildSelectField("KOMMO_LEAD_FIELD_ID_ORIGEM", ENUM_ORIGEM, "pre-analise"),
       ].filter(Boolean),
 
       _embedded: {
