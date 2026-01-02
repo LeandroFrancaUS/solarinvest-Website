@@ -12,10 +12,10 @@ export type PreAnalisePayload = {
   consumoMedioMensal?: number;
 
   // Selects
-  tipoSistema?: string;       // On-grid | Hibrido | Off-grid
-  tipoInstalacao?: string;    // Telha fibrocimento | etc
-  relacaoImovel?: string;     // Proprietario | Inquilino | etc
-  tipoRede?: string;          // Monofásico | Bifásico | Trifásico (opcional)
+  tipoSistema?: string;       // On-grid | Híbrido | Off-grid
+  tipoInstalacao?: string;    // Telhado fibrocimento | etc
+  relacaoImovel?: string;     // Proprietário | Inquilino | etc
+  tipoRede?: string;          // Monofásica | Bifásica | Trifásica (opcional)
 
   // Texto
   cpfCnpj?: string;
@@ -74,7 +74,6 @@ const REQUIRED_ENV_VARS = [
   "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
   "KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO",
   "KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL",
-  "KOMMO_LEAD_FIELD_ID_TIPO_REDE",
   "KOMMO_LEAD_FIELD_ID_CPF_CNPJ",
   "KOMMO_LEAD_FIELD_ID_ORIGEM",
 ];
@@ -162,6 +161,21 @@ function normalizeKey(value?: unknown) {
     .trim();
 }
 
+/* ===== Normalização específica para Tipo de Rede ===== */
+
+function normalizeTipoRede(value?: unknown) {
+  const key = normalizeKey(value);
+  if (!key) return "";
+
+  if (key.startsWith("mono")) return "monofasico";
+  if (key.startsWith("bi")) return "bifasico";
+  if (key.startsWith("tri")) return "trifasico";
+
+  if (key.endsWith("a")) return `${key.slice(0, -1)}o`;
+
+  return key;
+}
+
 /* =========================================================
    KOMMO FETCH
 ========================================================= */
@@ -220,15 +234,19 @@ function buildSelectField(
   const normalized = normalizeKey(rawValue);
   const enumId = enumMap[normalized];
 
-  if (!enumId) {
-    console.warn("[kommo-pre-analise] Enum não encontrado", {
-      envName,
-      rawValue,
-      normalized,
-      available: Object.keys(enumMap),
-    });
-    return null;
-  }
+  if (!enumId) return null;
+
+  return { field_id: fieldId, values: [{ enum_id: enumId }] };
+}
+
+function buildSelectFieldTipoRede(envName: string, rawValue?: string) {
+  const fieldId = getEnvNumber(envName);
+  if (!fieldId || !rawValue) return null;
+
+  const normalized = normalizeTipoRede(rawValue);
+  const enumId = ENUM_TIPO_REDE[normalized];
+
+  if (!enumId) return null;
 
   return { field_id: fieldId, values: [{ enum_id: enumId }] };
 }
@@ -296,8 +314,8 @@ export async function processKommoPreAnalise(
         buildSelectField("KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO", ENUM_TIPO_INSTALACAO, payload.tipoInstalacao),
         buildSelectField("KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL", ENUM_RELACAO_IMOVEL, payload.relacaoImovel),
 
-        // ✅ Tipo de rede (opcional)
-        buildSelectField("KOMMO_LEAD_FIELD_ID_TIPO_REDE", ENUM_TIPO_REDE, payload.tipoRede),
+        // Tipo de rede (opcional)
+        buildSelectFieldTipoRede("KOMMO_LEAD_FIELD_ID_TIPO_REDE", payload.tipoRede),
 
         buildTextField("KOMMO_LEAD_FIELD_ID_CPF_CNPJ", sanitizeText(payload.cpfCnpj, 60)),
         buildSelectField("KOMMO_LEAD_FIELD_ID_ORIGEM", ENUM_ORIGEM, "pre-analise"),
