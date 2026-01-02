@@ -24,7 +24,14 @@ type PropertyRelation =
   | 'Administrador / Síndico'
   | '';
 
-type InstallationType = 'Telhado fibrocimento' | 'Telhado metálico' | 'Telhado cerâmico' | 'Laje' | 'Solo' | 'Outro';
+type InstallationType =
+  | 'Telhado fibrocimento'
+  | 'Telhado metálico'
+  | 'Telhado cerâmico'
+  | 'Laje'
+  | 'Solo'
+  | 'Outro'
+  | '';
 
 type RedeType = 'Monofásica' | 'Bifásica' | 'Trifásica' | '';
 
@@ -147,7 +154,7 @@ const initialState: FormState = {
   // ✅ default on-grid (você pode trocar pra '' se quiser obrigar escolher)
   tipoSistema: 'On-grid',
 
-  tipoInstalacao: 'Telhado fibrocimento',
+  tipoInstalacao: '',
   tipoInstalacaoOutro: '',
 
   tipoRede: '',
@@ -691,6 +698,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     // ✅ novo: tipoSistema obrigatório
     if (!state.tipoSistema) novoErros.tipoSistema = 'Selecione o tipo de sistema.';
 
+    if (!state.tipoInstalacao) novoErros.tipoInstalacao = 'Selecione o tipo de instalação.';
     if (state.tipoInstalacao === 'Outro' && !state.tipoInstalacaoOutro.trim()) {
       novoErros.tipoInstalacaoOutro = 'Descreva o tipo de instalação.';
     }
@@ -1484,6 +1492,9 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 onBlur={() => handleBlurCampo('tipoInstalacao')}
                 required
               >
+                <option value="" disabled>
+                  Selecione
+                </option>
                 <option>Telhado fibrocimento</option>
                 <option>Telhado metálico</option>
                 <option>Telhado cerâmico</option>
@@ -1491,6 +1502,8 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 <option>Solo</option>
                 <option>Outro</option>
               </select>
+
+              {showError('tipoInstalacao') && <p className="text-xs text-red-600 mt-1">{errors.tipoInstalacao}</p>}
 
               {form.tipoInstalacao === 'Outro' && (
                 <input
