@@ -950,8 +950,6 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       // prioridade calculada (mantido, mesmo que ainda não use)
       calcularPrioridade(consumo);
 
-      const cleanUtmValue = (value?: string | null) => (value ? value.trim() || undefined : undefined);
-
       // ✅ ÚNICO payload (sem duplicações)
       const payload = {
         nomeRazao: formSanitizado.nome,
@@ -979,12 +977,15 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         // ✅ envia CPF/CNPJ (texto livre)
         cpfCnpj: formSanitizado.cpfCnpj,
 
+        // ✅ NOVO — STATUS DA PRÉ-ANÁLISE
+        statusResultado: status,
+
         utm: utmParams
           ? {
-              utm_source: cleanUtmValue(utmParams.utm_source),
-              utm_medium: cleanUtmValue(utmParams.utm_medium),
-              utm_campaign: cleanUtmValue(utmParams.utm_campaign),
-              utm_content: cleanUtmValue(utmParams.utm_content),
+              utm_source: utmParams.utm_source || undefined,
+              utm_medium: utmParams.utm_medium || undefined,
+              utm_campaign: utmParams.utm_campaign || undefined,
+              utm_content: utmParams.utm_content || undefined,
             }
           : undefined,
       };

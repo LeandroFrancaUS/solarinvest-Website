@@ -11,14 +11,17 @@ export type PreAnalisePayload = {
   municipio?: string;
   consumoMedioMensal?: number;
 
-  // Selects
-  tipoSistema?: string;       // On-grid | Híbrido | Off-grid
-  tipoInstalacao?: string;    // Telhado fibrocimento | etc
-  relacaoImovel?: string;     // Proprietário | Inquilino | etc
-  tipoRede?: string;          // Monofásica | Bifásica | Trifásica (opcional)
+  // Selects (Kommo enums)
+  tipoSistema?: string; // On-grid | Híbrido | Off-grid
+  tipoInstalacao?: string; // Telhado fibrocimento | etc
+  relacaoImovel?: string; // Proprietário | Inquilino | etc
+  tipoRede?: string; // Monofásica | Bifásica | Trifásica (opcional)
 
   // Texto
   cpfCnpj?: string;
+
+  // Status calculado no front
+  statusAnalise?: "PRE_APROVADO" | "PENDENTE" | "NAO_ELEGIVEL";
 
   utm?: {
     utm_source?: string;
@@ -74,8 +77,10 @@ const REQUIRED_ENV_VARS = [
   "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
   "KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO",
   "KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL",
+  "KOMMO_LEAD_FIELD_ID_TIPO_REDE", // ✅ estava faltando no REQUIRED
   "KOMMO_LEAD_FIELD_ID_CPF_CNPJ",
   "KOMMO_LEAD_FIELD_ID_ORIGEM",
+  "KOMMO_LEAD_FIELD_ID_STATUS", // ✅ novo field Kommo (3001071)
 ];
 
 /* =========================================================
@@ -114,9 +119,30 @@ const ENUM_ORIGEM: Record<string, number> = {
   "pre-analise": 2402517,
 };
 
+const ENUM_STATUS_ANALISE: Record<string, number> = {
+  "pre_aprovado": 2402835,
+  "em_analise": 2402837,
+  "rejeitado": 2402839,
+};
+
 /* =========================================================
    HELPERS
 ========================================================= */
+
+function normalizeStatusAnalise(value?: PreAnalisePayload["statusAnalise"]) {
+  if (!value) return undefined;
+
+  switch (value) {
+    case "PRE_APROVADO":
+      return "pre_aprovado";
+    case "PENDENTE":
+      return "em_analise";
+    case "NAO_ELEGIVEL":
+      return "rejeitado";
+    default:
+      return undefined;
+  }
+}
 
 function sanitizeText(value: unknown, max = 200) {
   if (!value || typeof value !== "string") return "";
@@ -131,7 +157,9 @@ function sanitizeWhatsapp(value: unknown) {
   if (!value || typeof value !== "string") return "";
   const digits = value.replace(/\D/g, "");
   if (!digits) return "";
+  // BR sem DDI
   if (digits.length === 10 || digits.length === 11) return `+55${digits}`;
+  // já com DDI (ex: 5562... ou outro país)
   return `+${digits}`;
 }
 
@@ -167,10 +195,12 @@ function normalizeTipoRede(value?: unknown) {
   const key = normalizeKey(value);
   if (!key) return "";
 
+  // aceita "Monofásica", "Monofasico", "Mono", etc
   if (key.startsWith("mono")) return "monofasico";
   if (key.startsWith("bi")) return "bifasico";
   if (key.startsWith("tri")) return "trifasico";
 
+  // troca final "a" -> "o" (monofasica -> monofasico)
   if (key.endsWith("a")) return `${key.slice(0, -1)}o`;
 
   return key;
@@ -180,11 +210,7 @@ function normalizeTipoRede(value?: unknown) {
    KOMMO FETCH
 ========================================================= */
 
-async function fetchKommo<T>(
-  path: string,
-  options: RequestInit,
-  requestId: string
-) {
+async function fetchKommo<T>(path: string, options: RequestInit, requestId: string) {
   const subdomain = process.env.KOMMO_SUBDOMAIN!;
   const token = process.env.KOMMO_LONG_LIVED_TOKEN!;
   const url = `https://${subdomain}.kommo.com/api/v4${path}`;
@@ -223,18 +249,18 @@ function buildTextField(envName: string, value?: string | number) {
   return { field_id: fieldId, values: [{ value }] };
 }
 
-function buildSelectField(
-  envName: string,
-  enumMap: Record<string, number>,
-  rawValue?: string
-) {
+function buildSelectField(envName: string, enumMap: Record<string, number>, rawValue?: string) {
   const fieldId = getEnvNumber(envName);
   if (!fieldId || !rawValue) return null;
 
   const normalized = normalizeKey(rawValue);
   const enumId = enumMap[normalized];
 
-  if (!enumId) return null;
+  if (!enumId) {
+    // log leve para não derrubar envio quando o front mandar algo fora do enum
+    console.warn("[kommo-pre-analise] Enum não encontrado", { envName, rawValue, normalized });
+    return null;
+  }
 
   return { field_id: fieldId, values: [{ enum_id: enumId }] };
 }
@@ -255,12 +281,10 @@ function buildSelectFieldTipoRede(envName: string, rawValue?: string) {
    PROCESSADOR PRINCIPAL
 ========================================================= */
 
-export async function processKommoPreAnalise(
-  payload: PreAnalisePayload,
-  clientIp = "unknown"
-): Promise<ProcessResult> {
+export async function processKommoPreAnalise(payload: PreAnalisePayload, clientIp = "unknown"): Promise<ProcessResult> {
   const missingEnv = REQUIRED_ENV_VARS.filter((k) => !process.env[k]);
   if (missingEnv.length > 0) {
+    console.error("[kommo-pre-analise] Missing env vars", { missingEnv });
     return {
       status: 500,
       body: {
@@ -300,10 +324,15 @@ export async function processKommoPreAnalise(
   const requestId = crypto.randomUUID();
 
   try {
+    const pipelineId = getEnvNumber("KOMMO_PIPELINE_ID");
+    const statusId = getEnvNumber("KOMMO_STATUS_ID");
+
+    const normalizedStatusKey = normalizeStatusAnalise(payload.statusAnalise);
+
     const leadPayload = {
       name: "Pré-análise — Site",
-      pipeline_id: getEnvNumber("KOMMO_PIPELINE_ID"),
-      status_id: getEnvNumber("KOMMO_STATUS_ID"),
+      pipeline_id: pipelineId,
+      status_id: statusId,
       tags_to_add: ["origem:site", "pre-analise"],
 
       custom_fields_values: [
@@ -314,11 +343,18 @@ export async function processKommoPreAnalise(
         buildSelectField("KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO", ENUM_TIPO_INSTALACAO, payload.tipoInstalacao),
         buildSelectField("KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL", ENUM_RELACAO_IMOVEL, payload.relacaoImovel),
 
-        // Tipo de rede (opcional)
+        // ✅ Tipo de rede (opcional)
         buildSelectFieldTipoRede("KOMMO_LEAD_FIELD_ID_TIPO_REDE", payload.tipoRede),
 
         buildTextField("KOMMO_LEAD_FIELD_ID_CPF_CNPJ", sanitizeText(payload.cpfCnpj, 60)),
         buildSelectField("KOMMO_LEAD_FIELD_ID_ORIGEM", ENUM_ORIGEM, "pre-analise"),
+
+        // ✅ NOVO: Status da análise (Kommo field "Status" id 3001071)
+        buildSelectField(
+          "KOMMO_LEAD_FIELD_ID_STATUS",
+          ENUM_STATUS_ANALISE,
+          normalizedStatusKey
+        ),
       ].filter(Boolean),
 
       _embedded: {
@@ -334,11 +370,7 @@ export async function processKommoPreAnalise(
       },
     };
 
-    await fetchKommo(
-      "/leads/complex",
-      { method: "POST", body: JSON.stringify([leadPayload]) },
-      requestId
-    );
+    await fetchKommo("/leads/complex", { method: "POST", body: JSON.stringify([leadPayload]) }, requestId);
 
     return { status: 200, body: { ok: true } };
   } catch (error) {
@@ -352,8 +384,7 @@ export async function processKommoPreAnalise(
       body: {
         ok: false,
         errorCode: "KOMMO_ERROR",
-        message:
-          "Não foi possível enviar sua pré-análise. Tente novamente em alguns minutos.",
+        message: "Não foi possível enviar sua pré-análise. Tente novamente em alguns minutos.",
       },
     };
   }
