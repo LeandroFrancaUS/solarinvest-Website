@@ -230,6 +230,19 @@ function formatCEP(value: string) {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
+function InfoHint({ text, ariaLabel }: { text: string; ariaLabel?: string }) {
+  return (
+    <span
+      className="ml-2 inline-flex h-5 w-5 items-center justify-center align-middle rounded-full bg-orange-100 text-[11px] font-semibold text-orange-700"
+      role="img"
+      aria-label={ariaLabel ?? text}
+      title={text}
+    >
+      i
+    </span>
+  );
+}
+
 const legalNameRegex = /^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9 .,&\-/]*$/u;
 
 function sanitizeLegalName(raw: string, options?: { trimEdges?: boolean }) {
@@ -1166,7 +1179,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             <h3 className="text-lg font-semibold text-gray-900">Identificação</h3>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Nome / Razão Social *</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Nome / Razão Social *
+                <InfoHint text="Como consta em documentos oficiais; informe o nome completo ou razão social." />
+              </label>
               <input
                 type="text"
                 name="nome"
@@ -1189,7 +1205,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">CPF/CNPJ *</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  CPF/CNPJ *
+                  <InfoHint text="Use CPF ou CNPJ válido; esses dados validam a consulta." />
+                </label>
                 <input
                   type="text"
                   name="cpfCnpj"
@@ -1211,7 +1230,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Telefone (WhatsApp) *</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Telefone (WhatsApp) *
+                  <InfoHint text="Número com DDD usado para retorno priorizado." />
+                </label>
                 <input
                   type="tel"
                   name="whatsapp"
@@ -1227,7 +1249,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">E-mail *</label>
+              <label className="block text-sm font-medium text-gray-700">
+                E-mail *
+                <InfoHint text="Para enviarmos o comprovante e qualquer pedido adicional." />
+              </label>
               <input
                 type="email"
                 name="email"
@@ -1247,7 +1272,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">CEP *</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  CEP *
+                  <InfoHint text="CEP do endereço onde o sistema será instalado." />
+                </label>
                 <input
                   type="text"
                   name="cep"
@@ -1261,7 +1289,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
                 {showError('cep') && <p className="text-xs text-red-600 mt-1">{errors.cep}</p>}
 
                 <div className="mt-2">
-                  <label className="block text-xs font-medium text-gray-500">Município</label>
+                  <label className="block text-xs font-medium text-gray-500">
+                    Município
+                    <InfoHint text="Confirmamos a cidade a partir do CEP para calcular viabilidade." />
+                  </label>
                   <input
                     type="text"
                     readOnly
@@ -1279,7 +1310,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Endereço completo</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Endereço completo
+                  <InfoHint text="Rua, número e bairro ajudam a agilizar a vistoria prévia." />
+                </label>
                 <input
                   type="text"
                   name="endereco"
@@ -1293,7 +1327,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tipo de cliente *</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Tipo de cliente *
+                  <InfoHint text="Escolha se o consumo é residencial, comercial ou condomínio." />
+                </label>
                 <select
                   name="tipoCliente"
                   className={classeCampo('tipoCliente')}
@@ -1328,7 +1365,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Relação com o imóvel *</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Relação com o imóvel *
+                  <InfoHint text="Indique quem autoriza a instalação e responde pelo local." />
+                </label>
                 <select
                   name="relacaoImovel"
                   className={classeCampo('relacaoImovel')}
@@ -1374,7 +1414,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Consumo médio mensal (kWh/mês) *</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Consumo médio mensal (kWh/mês) *
+                  <InfoHint text="Média dos últimos 12 meses, como aparece na conta." />
+                </label>
                 <input
                   type="number"
                   min={0}
@@ -1391,7 +1434,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tarifa da concessionária (R$/kWh) *</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Tarifa da concessionária (R$/kWh) *
+                  <InfoHint text="Valor por kWh cobrado na conta, já com impostos." />
+                </label>
                 <input
                   type="text"
                   name="tarifa"
@@ -1415,7 +1461,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Conta de energia / Documentos</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Conta de energia / Documentos
+                <InfoHint text="Envie a conta atual e autorizações para acelerar a análise." />
+              </label>
               <input
                 type="file"
                 accept="application/pdf,image/*"
@@ -1462,7 +1511,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
             {/* ✅ NOVO: Tipo de sistema */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tipo de sistema *</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Tipo de sistema *
+                <InfoHint text="On-grid usa a rede, híbrido tem bateria e off-grid funciona isolado." />
+              </label>
               <select
                 name="tipoSistema"
                 className={classeCampo('tipoSistema')}
@@ -1482,7 +1534,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tipo de instalação *</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Tipo de instalação *
+                <InfoHint text="Onde os módulos serão fixados: telhado, laje, solo ou similar." />
+              </label>
               <select
                 name="tipoInstalacao"
                 className={classeCampo('tipoInstalacao')}
@@ -1519,7 +1574,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Tipo de rede</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Tipo de rede
+                <InfoHint text="Quantidade de fases da ligação elétrica informada na conta." />
+              </label>
               <select
                 name="tipoRede"
                 className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
