@@ -208,15 +208,25 @@ async function fetchKommo<T>(path: string, options: RequestInit, requestId: stri
   const token = process.env.KOMMO_LONG_LIVED_TOKEN;
   const url = `https://${subdomain}.kommo.com/api/v4${path}`;
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'X-Language': 'pt',
-      ...(options.headers || {}),
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'X-Language': 'pt',
+        ...(options.headers || {}),
+      },
+    });
+  } catch (error) {
+    console.error('[kommo-pre-analise] Network error calling Kommo', {
+      requestId,
+      path,
+      error: (error as Error).message,
+    });
+    throw new Error('KOMMO_HTTP_502');
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
