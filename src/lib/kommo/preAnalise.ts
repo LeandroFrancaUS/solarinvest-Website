@@ -9,9 +9,10 @@ export type PreAnalisePayload = {
   email?: string;
   whatsapp?: string;
   municipio?: string;
-  tipoImovel?: string;
   consumoMedioMensal?: number;
   tipoSistema?: string;
+  relacaoImovel?: string;
+  cpfCnpj?: string;
   utm?: {
     utm_source?: string;
     utm_medium?: string;
@@ -44,6 +45,7 @@ const REQUIRED_ENV_VARS = [
   "KOMMO_STATUS_ID",
   "KOMMO_CONTACT_EMAIL_FIELD_ID",
   "KOMMO_CONTACT_PHONE_FIELD_ID",
+  "KOMMO_CONTACT_FIELD_ID_CPF_CNPJ",
   "KOMMO_LEAD_FIELD_ID_MUNICIPIO",
   "KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO",
   "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
@@ -164,7 +166,7 @@ async function fetchKommo<T>(
 }
 
 /* =========================================================
-   CUSTOM FIELDS
+   BUILDERS DE CAMPOS
 ========================================================= */
 
 function buildTextOrNumberField(
@@ -186,6 +188,7 @@ function buildSelectField(
 ) {
   const fieldId = getEnvNumber(envName);
   if (!fieldId || !value) return null;
+
   const enumId = enumMap[value];
   if (!enumId) return null;
 
@@ -274,7 +277,7 @@ export async function processKommoPreAnalise(
         buildSelectField(
           "KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL",
           ENUM_RELACAO_IMOVEL,
-          payload.tipoImovel
+          payload.relacaoImovel
         ),
       ].filter(Boolean),
       _embedded: {
@@ -289,6 +292,10 @@ export async function processKommoPreAnalise(
               buildTextOrNumberField(
                 "KOMMO_CONTACT_PHONE_FIELD_ID",
                 whatsapp
+              ),
+              buildTextOrNumberField(
+                "KOMMO_CONTACT_FIELD_ID_CPF_CNPJ",
+                sanitizeText(payload.cpfCnpj, 30)
               ),
             ].filter(Boolean),
           },
