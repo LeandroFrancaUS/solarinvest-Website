@@ -36,6 +36,17 @@ type InstallationType =
 
 type RedeType = 'Monofásica' | 'Bifásica' | 'Trifásica' | '';
 
+type SistemaType = 'On-grid' | 'Hibrido' | 'Off-grid' | '';
+
+function normalizarRelacaoImovelKommo(value: string) {
+  if (!value) return '';
+  if (value.includes('Proprietário')) return 'Proprietario';
+  if (value.includes('Inquilino')) return 'Inquilino';
+  if (value.includes('locatário') || value.includes('Locatário')) return 'Locatario';
+  if (value.includes('Síndico') || value.includes('Administrador')) return 'Sindico';
+  return value;
+}
+
 type DocTag =
   | 'CONTA_ENERGIA_ATUAL'
   | 'DOC_ID_SOLICITANTE'
@@ -93,6 +104,7 @@ type FormState = {
   relacaoOutro: string;
   consumoMedio: string;
   tarifa: string;
+  tipoSistema: SistemaType;
   tipoInstalacao: InstallationType;
   tipoInstalacaoOutro: string;
   tipoRede: RedeType;
@@ -137,6 +149,7 @@ const initialState: FormState = {
   relacaoOutro: '',
   consumoMedio: '',
   tarifa: '',
+  tipoSistema: '',
   tipoInstalacao: 'Telhado fibrocimento',
   tipoInstalacaoOutro: '',
   tipoRede: '',
@@ -690,6 +703,10 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       novoErros.relacaoOutro = 'Informe detalhes sobre a relação com o imóvel.';
     }
 
+    if (!state.tipoSistema) {
+      novoErros.tipoSistema = 'Selecione o tipo de sistema (On-grid, Hibrido ou Off-grid).';
+    }
+
     if (state.tipoInstalacao === 'Outro' && !state.tipoInstalacaoOutro.trim()) {
       novoErros.tipoInstalacaoOutro = 'Descreva o tipo de instalação.';
     }
@@ -847,6 +864,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
     'relacaoOutro',
     'consumoMedio',
     'tarifa',
+    'tipoSistema',
     'tipoInstalacao',
     'tipoInstalacaoOutro',
   ];
@@ -943,30 +961,40 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
       const cleanUtmValue = (value?: string | null) => (value ? value.trim() || undefined : undefined);
 
+      const payload = {
+        nomeRazao: formSanitizado.nome,
+        email: formSanitizado.email,
+        whatsapp: whatsappComPrefixo,
+        municipio: formSanitizado.municipio || undefined,
+        tipoImovel:
+          formSanitizado.tipoCliente === 'Outro'
+            ? formSanitizado.tipoClienteOutro || undefined
+            : formSanitizado.tipoCliente || undefined,
+        consumoMedioMensal: consumo,
+        tipoSistema: formSanitizado.tipoSistema,
+        tipoInstalacao:
+          formSanitizado.tipoInstalacao === 'Outro'
+            ? formSanitizado.tipoInstalacaoOutro
+            : formSanitizado.tipoInstalacao,
+        tipoRede: formSanitizado.tipoRede ? formSanitizado.tipoRede : undefined,
+        relacaoImovel: normalizarRelacaoImovelKommo(formSanitizado.relacaoImovel),
+        cpfCnpj: formSanitizado.cpfCnpj,
+        utm: utmParams
+          ? {
+              utm_source: cleanUtmValue(utmParams.utm_source),
+              utm_medium: cleanUtmValue(utmParams.utm_medium),
+              utm_campaign: cleanUtmValue(utmParams.utm_campaign),
+              utm_content: cleanUtmValue(utmParams.utm_content),
+            }
+          : undefined,
+      };
+
+      console.log('[pre-analise] payload', payload);
+
       const response = await fetch('/api/kommo/pre-analise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nomeRazao: formSanitizado.nome,
-          email: formSanitizado.email,
-          whatsapp: whatsappComPrefixo,
-          municipio: formSanitizado.municipio,
-          tipoImovel:
-            formSanitizado.tipoCliente === 'Outro' ? formSanitizado.tipoClienteOutro : formSanitizado.tipoCliente,
-          consumoMedioMensal: consumo,
-          tipoSistema:
-            formSanitizado.tipoInstalacao === 'Outro'
-              ? formSanitizado.tipoInstalacaoOutro
-              : formSanitizado.tipoInstalacao,
-          utm: utmParams
-            ? {
-                utm_source: cleanUtmValue(utmParams.utm_source),
-                utm_medium: cleanUtmValue(utmParams.utm_medium),
-                utm_campaign: cleanUtmValue(utmParams.utm_campaign),
-                utm_content: cleanUtmValue(utmParams.utm_content),
-              }
-            : undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -1398,6 +1426,27 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Técnica</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tipo de sistema *</label>
+              <select
+                name="tipoSistema"
+                className={classeCampo('tipoSistema')}
+                value={form.tipoSistema}
+                onChange={(e) => atualizarCampo('tipoSistema', e.target.value as SistemaType)}
+                onBlur={() => handleBlurCampo('tipoSistema')}
+                required
+              >
+                <option value="" disabled>
+                  Selecione
+                </option>
+                <option>On-grid</option>
+                <option>Hibrido</option>
+                <option>Off-grid</option>
+              </select>
+              {showError('tipoSistema') && (
+                <p className="text-xs text-red-600 mt-1">{errors.tipoSistema}</p>
+              )}
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Tipo de instalação *</label>
               <select
