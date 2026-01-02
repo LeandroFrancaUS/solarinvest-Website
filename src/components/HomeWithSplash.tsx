@@ -9,8 +9,13 @@ import Hero from './Hero';
 
 export default function HomeWithSplash() {
   const [showSplash, setShowSplash] = useState(true);
+  const [splashSrc, setSplashSrc] = useState('/splash_festivos/Feliz_2026.png');
   const splashCooldownMs = 5 * 60 * 1000;
   const splashStorageKey = 'solarinvest:splash:lastShown';
+
+  const handleSplashError = () => {
+    setSplashSrc((current) => (current === '/icon.png' ? current : '/icon.png'));
+  };
 
   useEffect(() => {
     const now = Date.now();
@@ -25,7 +30,7 @@ export default function HomeWithSplash() {
     const timer = setTimeout(() => setShowSplash(false), 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [splashCooldownMs, splashStorageKey]);
 
   if (showSplash) {
     return (
@@ -33,12 +38,13 @@ export default function HomeWithSplash() {
         <div className="flex flex-col items-center gap-4 px-6 text-center">
           <div className="rounded-3xl border border-orange-200/70 bg-white/80 p-6 shadow-[0_25px_55px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm">
             <Image
-              src="/LogoNatal.png"
-              alt="Logotipo natalino da SolarInvest"
+              src={splashSrc}
+              alt="Logotipo comemorativo da SolarInvest"
               width={320}
               height={320}
               priority
               className="h-auto w-full max-w-[240px] sm:max-w-[280px]"
+              onError={handleSplashError}
             />
           </div>
           <p className="text-sm font-medium uppercase tracking-[0.35em] text-orange-500 sm:text-base">

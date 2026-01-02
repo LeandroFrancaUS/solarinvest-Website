@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import Script from 'next/script';
 import { useSearchParams } from 'next/navigation';
@@ -11,19 +11,13 @@ const pageUrl = `${seoConstants.siteUrl}/analise`;
 
 const faqItems = [
   {
-    question: 'Essa página já está pronta para campanhas no Google e Meta Ads?',
-    answer:
-      'Sim. A landing page possui metadados, carregamento rápido e copy direta para campanhas de pesquisa e performance em Facebook/Instagram Ads.',
-  },
-  {
     question: 'Como receberei o retorno da pré-análise?',
     answer:
       'Após enviar o formulário, você recebe a resposta priorizada pelo WhatsApp informado, incluindo orientações sobre documentos complementares.',
   },
   {
     question: 'Posso encaminhar o link da análise em anúncios ou mensagens?',
-    answer:
-      'Sim. Use o link solarinvest.info/analise com parâmetros UTM para acompanhar suas campanhas e manter a página rastreável pelo Google Search.',
+    answer: 'Sim. Use o link solarinvest.info/analise com parâmetros UTM para acompanhar suas campanhas.',
   },
 ];
 
@@ -53,7 +47,7 @@ const webPageStructuredData = {
   url: pageUrl,
   inLanguage: 'pt-BR',
   description:
-    'Landing page otimizada para campanhas de Google Search e Meta Ads com formulário de pré-análise de leasing solar e retorno por WhatsApp.',
+    'Landing page com formulário de pré-análise de leasing solar e retorno por WhatsApp.',
   isPartOf: {
     '@type': 'WebSite',
     url: seoConstants.siteUrl,
@@ -79,28 +73,19 @@ const faqStructuredData = {
   })),
 };
 
-const campaignHighlights = [
-  {
-    title: 'Indexação e rastreabilidade',
-    description:
-      'URL única, com metadados completos e carregamento rápido para favorecer o ranqueamento orgânico e a qualidade dos anúncios.',
-  },
-  {
-    title: 'Pronta para Google & Meta Ads',
-    description:
-      'Copy direta para performance, link curto fácil de usar em anúncios e aderência a políticas de destino seguro.',
-  },
-  {
-    title: 'Engajamento multicanal',
-    description:
-      'Formulário com retorno via WhatsApp, convite para seguir no Instagram e CTA permanente para novas análises.',
-  },
-];
-
 export default function AnalisePageClient() {
   const searchParams = useSearchParams();
   const shouldAutoOpenParam = searchParams?.get('abrir');
   const shouldAutoOpen = shouldAutoOpenParam ? shouldAutoOpenParam === 'true' : true;
+  const utmParams = useMemo(
+    () => ({
+      utm_source: searchParams?.get('utm_source') ?? null,
+      utm_medium: searchParams?.get('utm_medium') ?? null,
+      utm_campaign: searchParams?.get('utm_campaign') ?? null,
+      utm_content: searchParams?.get('utm_content') ?? null,
+    }),
+    [searchParams]
+  );
   const [mostrarFormulario, setMostrarFormulario] = useState(shouldAutoOpen);
   const [resultado, setResultado] = useState<{ status: StatusResultado; message: string } | null>(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
@@ -163,8 +148,7 @@ export default function AnalisePageClient() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-lg text-gray-700 max-w-3xl mx-auto"
         >
-          Confirme seus dados para avaliarmos rapidamente a elegibilidade do leasing SolarInvest. A página é otimizada para
-          Google Search, campanhas Meta Ads e retorno direto pelo WhatsApp.
+          Confirme seus dados para avaliarmos rapidamente a elegibilidade do leasing SolarInvest.
         </motion.p>
 
         <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 items-center">
@@ -198,18 +182,9 @@ export default function AnalisePageClient() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto grid gap-6 md:grid-cols-3">
-        {campaignHighlights.map((item) => (
-          <div key={item.title} className="rounded-2xl border border-orange-100 bg-orange-50/50 p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-orange-700">{item.title}</h2>
-            <p className="mt-2 text-gray-700 leading-relaxed">{item.description}</p>
-          </div>
-        ))}
-      </section>
-
       {mostrarFormulario && (
         <section className="max-w-7xl mx-auto" id="pre-aprovacao">
-          <PreApprovalForm onSubmitted={handleSubmitted} />
+          <PreApprovalForm onSubmitted={handleSubmitted} utmParams={utmParams} />
         </section>
       )}
 

@@ -10,6 +10,11 @@ import clsx from 'clsx';
 export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoSrc, setLogoSrc] = useState('/logos_festivos/2026_Logo.png');
+
+  const handleLogoError = () => {
+    setLogoSrc((current) => (current === '/icon.png' ? current : '/icon.png'));
+  };
 
   // 🔁 Fecha o menu mobile automaticamente ao mudar de rota
   useEffect(() => {
@@ -29,7 +34,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-white/70 to-orange-50/30 backdrop-blur-xl shadow-md border-b border-orange-100">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
 
         {/* 🔆 Logo + nome fixo e profissional */}
         <Link
@@ -38,11 +43,12 @@ export default function Header() {
           className="flex items-center gap-3 transition-colors duration-200"
         >
           <Image
-            src="/LogoNatal.png"
-            alt="Logo natalino da SolarInvest"
-            width={40}
-            height={40}
-            className="w-10 h-10 object-contain"
+            src={logoSrc}
+            alt="Logo comemorativo da SolarInvest"
+            width={64}
+            height={64}
+            className="w-16 h-16 object-contain"
+            onError={handleLogoError}
           />
           <div className="flex flex-col leading-tight">
             <span className="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
