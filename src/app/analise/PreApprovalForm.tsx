@@ -976,4 +976,642 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         // ✅ Kommo enums (quando não existir, pode vir undefined)
         relacaoImovel: mapRelacaoImovelParaBackend(formSanitizado.relacaoImovel),
 
-        // ✅ envia CPF/CNPJ (texto livre
+        // ✅ envia CPF/CNPJ (texto livre)
+        cpfCnpj: formSanitizado.cpfCnpj,
+
+        utm: utmParams
+          ? {
+              utm_source: cleanUtmValue(utmParams.utm_source),
+              utm_medium: cleanUtmValue(utmParams.utm_medium),
+              utm_campaign: cleanUtmValue(utmParams.utm_campaign),
+              utm_content: cleanUtmValue(utmParams.utm_content),
+            }
+          : undefined,
+      };
+
+      console.log('[pre-analise] payload', payload);
+
+      const response = await fetch('/api/kommo/pre-analise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      let result: { ok?: boolean; message?: string } = {};
+      try {
+        result = await response.json();
+      } catch (error) {
+        console.error('Falha ao interpretar resposta do servidor (pré-análise)', error);
+      }
+
+      if (!response.ok || !result.ok) {
+        const isUnavailable = response.status === 503;
+        const mensagemErro =
+          typeof result.message === 'string'
+            ? result.message
+            : isUnavailable
+              ? 'Serviço temporariamente indisponível. Tente novamente em instantes.'
+              : 'Erro ao enviar a solicitação. Tente novamente em instantes.';
+        throw new Error(mensagemErro);
+      }
+
+      pushLeadSubmitEvent();
+
+      setSubmission({ status, message: statusMessages[status], loading: false });
+      setForm(initialState);
+      setDocumentos([]);
+      setTaggingQueue([]);
+      setTagModalFile(null);
+      setCpfCnpjMasked(false);
+      setErrors({});
+      setHasSubmitted(false);
+      setTouched({});
+      setPendencias([]);
+      setNomePasteSanitized(false);
+      onSubmitted?.({ status, message: statusMessages[status] });
+    } catch (error: unknown) {
+      const mensagem = error instanceof Error ? error.message : 'Erro ao enviar a solicitação.';
+      setErrors({ geral: mensagem });
+      setSubmission({ loading: false });
+    }
+  };
+
+  return (
+    <section id="pre-aprovacao" className="w-full bg-gray-50 border border-orange-100 rounded-3xl p-6 md:p-10 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+          <p className="text-sm uppercase tracking-wide text-orange-500 font-semibold">Pré-aprovação de leasing</p>
+          <h2 className="text-2xl md:text-3xl font-heading font-bold text-gray-900 mt-1">Faça uma análise rápida e gratuita</h2>
+          <p className="text-gray-700 mt-2 max-w-3xl">
+            Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise humana.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 bg-white border border-orange-200 rounded-2xl px-4 py-3 shadow-inner text-sm text-gray-700">
+          <span className="text-orange-600 text-xl">⚡</span>
+          <div>
+            <p className="font-semibold">100% online</p>
+            <p className="text-xs">Retorno rápido pelo WhatsApp</p>
+          </div>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Honeypot */}
+        <div className="sr-only" aria-hidden>
+          <label htmlFor="extra-info">Não preencha este campo</label>
+          <input
+            id="extra-info"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypotValue}
+            onChange={(e) => setHoneypotValue(e.target.value)}
+            className="hidden"
+          />
+        </div>
+
+        {errors.geral && (
+          <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-4 text-sm">{errors.geral}</div>
+        )}
+
+        {/* Modal de etiqueta */}
+        {tagModalFile && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Arquivo</p>
+                  <p className="font-semibold text-gray-900 break-all">{tagModalFile.name}</p>
+                </div>
+                <button
+                  type="button"
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => {
+                    setTagModalFile(null);
+                    setTagModalNote('');
+                    setTagModalTag('');
+                  }}
+                  aria-label="Fechar modal"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Selecione a etiqueta</label>
+                <select
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  value={tagModalTag}
+                  onChange={(e) => setTagModalTag(e.target.value as DocTag)}
+                >
+                  <option value="" disabled>
+                    Escolha uma etiqueta
+                  </option>
+                  {(relacaoImovelDocRules.options.length ? relacaoImovelDocRules.options : ALL_DOC_TAGS).map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Observação (opcional)</label>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  value={tagModalNote}
+                  onChange={(e) => setTagModalNote(e.target.value)}
+                  placeholder="Ex.: autorização assinada pelo proprietário"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                  onClick={() => {
+                    setTagModalFile(null);
+                    setTagModalNote('');
+                    setTagModalTag('');
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={!tagModalTag}
+                  className="inline-flex items-center justify-center rounded-xl bg-orange-600 text-white font-semibold px-4 py-2 shadow-md hover:bg-orange-700 transition disabled:opacity-60"
+                  onClick={confirmarEtiqueta}
+                >
+                  Salvar etiqueta
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Identificação + Local */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Identificação */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Identificação</h3>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nome / Razão Social *</label>
+              <input
+                type="text"
+                name="nome"
+                className={classeCampo('nome')}
+                value={form.nome}
+                onChange={(e) => atualizarNome(e.target.value)}
+                onBlur={handleNomeBlur}
+                onPaste={handleNomePaste}
+                onKeyDown={handleLegalNameKeyDown}
+                required
+                aria-invalid={showError('nome') || undefined}
+              />
+              {nomePasteSanitized && <p className="text-xs text-amber-700 mt-1">Alguns caracteres foram removidos para manter o formato válido.</p>}
+              {showError('nome') && (
+                <p className="text-xs text-red-600 mt-1" aria-live="polite">
+                  {errors.nome}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">CPF/CNPJ *</label>
+                <input
+                  type="text"
+                  name="cpfCnpj"
+                  className={classeCampo('cpfCnpj')}
+                  value={cpfCnpjDisplay}
+                  onChange={(e) => {
+                    setCpfCnpjMasked(false);
+                    atualizarCampo('cpfCnpj', formatCpfCnpj(e.target.value));
+                  }}
+                  onFocus={() => setCpfCnpjMasked(false)}
+                  onBlur={() => {
+                    const digitsLength = onlyDigits(form.cpfCnpj).length;
+                    setCpfCnpjMasked(digitsLength === 11 || digitsLength === 14);
+                    handleBlurCampo('cpfCnpj');
+                  }}
+                  required
+                />
+                {showError('cpfCnpj') && <p className="text-xs text-red-600 mt-1">{errors.cpfCnpj}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Telefone (WhatsApp) *</label>
+                <input
+                  type="tel"
+                  name="whatsapp"
+                  className={classeCampo('whatsapp')}
+                  placeholder="(DDD) 9 9999-9999"
+                  value={form.whatsapp}
+                  onChange={(e) => atualizarCampo('whatsapp', formatWhatsapp(e.target.value))}
+                  onBlur={() => handleBlurCampo('whatsapp')}
+                  required
+                />
+                {showError('whatsapp') && <p className="text-xs text-red-600 mt-1">{errors.whatsapp}</p>}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">E-mail *</label>
+              <input
+                type="email"
+                name="email"
+                className={classeCampo('email')}
+                value={form.email}
+                onChange={(e) => atualizarCampo('email', e.target.value)}
+                onBlur={() => handleBlurCampo('email')}
+                required
+              />
+              {showError('email') && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
+            </div>
+          </div>
+
+          {/* Local */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Local da instalação</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">CEP *</label>
+                <input
+                  type="text"
+                  name="cep"
+                  className={classeCampo('cep')}
+                  placeholder="00000-000"
+                  value={form.cep}
+                  onChange={(e) => atualizarCampo('cep', formatCEP(e.target.value))}
+                  onBlur={() => handleBlurCampo('cep')}
+                  required
+                />
+                {showError('cep') && <p className="text-xs text-red-600 mt-1">{errors.cep}</p>}
+
+                <div className="mt-2">
+                  <label className="block text-xs font-medium text-gray-500">Município</label>
+                  <input
+                    type="text"
+                    readOnly
+                    className="mt-1 w-full rounded-xl border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-700"
+                    value={form.municipio || municipioState.label}
+                    placeholder={
+                      municipioState.status === 'loading'
+                        ? 'Consultando...'
+                        : municipioState.status === 'not_found'
+                          ? 'CEP não encontrado'
+                          : 'Informe o CEP para preencher'
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Endereço completo</label>
+                <input
+                  type="text"
+                  name="endereco"
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                  placeholder="Rua, nº, bairro, cidade/UF"
+                  value={form.endereco}
+                  onChange={(e) => atualizarCampo('endereco', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tipo de cliente *</label>
+                <select
+                  name="tipoCliente"
+                  className={classeCampo('tipoCliente')}
+                  value={form.tipoCliente}
+                  onChange={(e) => atualizarCampo('tipoCliente', e.target.value as ClientType)}
+                  onBlur={() => handleBlurCampo('tipoCliente')}
+                  required
+                >
+                  <option value="" disabled>
+                    Selecione
+                  </option>
+                  <option>Residencial</option>
+                  <option>Comercial</option>
+                  <option>Condomínio (vertical)</option>
+                  <option>Condomínio (horizontal)</option>
+                  <option>Outro</option>
+                </select>
+                {showError('tipoCliente') && <p className="text-xs text-red-600 mt-1">{errors.tipoCliente}</p>}
+
+                {form.tipoCliente === 'Outro' && (
+                  <input
+                    type="text"
+                    name="tipoClienteOutro"
+                    className={classeCampo('tipoClienteOutro')}
+                    placeholder="Qual?"
+                    value={form.tipoClienteOutro}
+                    onChange={(e) => atualizarCampo('tipoClienteOutro', e.target.value)}
+                    onBlur={() => handleBlurCampo('tipoClienteOutro')}
+                  />
+                )}
+                {showError('tipoClienteOutro') && <p className="text-xs text-red-600 mt-1">{errors.tipoClienteOutro}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Relação com o imóvel *</label>
+                <select
+                  name="relacaoImovel"
+                  className={classeCampo('relacaoImovel')}
+                  value={form.relacaoImovel}
+                  onChange={(e) => atualizarCampo('relacaoImovel', e.target.value as PropertyRelation)}
+                  onBlur={() => handleBlurCampo('relacaoImovel')}
+                  required
+                >
+                  <option value="" disabled>
+                    Selecione
+                  </option>
+                  <option>Proprietário</option>
+                  <option>Inquilino (locatário)</option>
+                  <option>Comodatário (uso gratuito)</option>
+                  <option>Arrendatário</option>
+                  <option>Familiar do proprietário</option>
+                  <option>Administrador / Síndico</option>
+                </select>
+                {showError('relacaoImovel') && <p className="text-xs text-red-600 mt-1">{errors.relacaoImovel}</p>}
+
+                {form.relacaoImovel === 'Inquilino (locatário)' && (
+                  <input
+                    type="text"
+                    name="relacaoOutro"
+                    className={classeCampo('relacaoOutro')}
+                    placeholder="Detalhes"
+                    value={form.relacaoOutro}
+                    onChange={(e) => atualizarCampo('relacaoOutro', e.target.value)}
+                    onBlur={() => handleBlurCampo('relacaoOutro')}
+                  />
+                )}
+                {showError('relacaoOutro') && <p className="text-xs text-red-600 mt-1">{errors.relacaoOutro}</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Energia + Técnica */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Energia */}
+          <div className="space-y-4 md:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900">Energia</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Consumo médio mensal (kWh/mês) *</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  name="consumoMedio"
+                  className={classeCampo('consumoMedio')}
+                  value={form.consumoMedio}
+                  onChange={(e) => atualizarCampo('consumoMedio', e.target.value)}
+                  onBlur={() => handleBlurCampo('consumoMedio')}
+                  required
+                />
+                {showError('consumoMedio') && <p className="text-xs text-red-600 mt-1">{errors.consumoMedio}</p>}
+                {consumoNormalizado && <p className="text-xs text-gray-500 mt-1">Consumo considerado: {consumoNormalizado} kWh/mês</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tarifa da concessionária (R$/kWh) *</label>
+                <input
+                  type="text"
+                  name="tarifa"
+                  className={classeCampo('tarifa')}
+                  placeholder="0,95"
+                  value={form.tarifa}
+                  onChange={(e) => atualizarCampo('tarifa', formatTarifaInput(e.target.value))}
+                  onBlur={() => {
+                    atualizarCampo('tarifa', formatTarifaInput(form.tarifa));
+                    handleBlurCampo('tarifa');
+                  }}
+                  required
+                />
+                {showError('tarifa') && <p className="text-xs text-red-600 mt-1">{errors.tarifa}</p>}
+                {valorContaEstimado !== undefined && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    Conta atual estimada: <span className="font-semibold">R$ {valorContaEstimado.toFixed(2)}</span> / mês
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Conta de energia / Documentos</label>
+              <input
+                type="file"
+                accept="application/pdf,image/*"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none bg-white"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  if (files.length) setTaggingQueue((prev) => [...prev, ...files]);
+                  e.target.value = '';
+                }}
+              />
+              <p className="text-xs text-gray-500 mt-1">A análise poderá levar mais tempo caso a conta de energia atual não seja enviada.</p>
+
+              {documentos.length > 0 && (
+                <ul className="text-xs text-gray-700 mt-2 space-y-2">
+                  {documentos.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-gray-800">{item.file.name}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-orange-700 font-semibold">{item.tag}</span>
+                        {item.note && <span className="text-[11px] text-gray-600">Obs.: {item.note}</span>}
+                      </div>
+                      <button
+                        type="button"
+                        className="text-xs text-red-600 hover:text-red-700"
+                        onClick={() => removerDocumento(item.id)}
+                        aria-label={`Remover ${item.file.name}`}
+                      >
+                        Remover
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          {/* Técnica */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Técnica</h3>
+
+            {/* ✅ NOVO: Tipo de sistema */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tipo de sistema *</label>
+              <select
+                name="tipoSistema"
+                className={classeCampo('tipoSistema')}
+                value={form.tipoSistema}
+                onChange={(e) => atualizarCampo('tipoSistema', e.target.value as SystemType)}
+                onBlur={() => handleBlurCampo('tipoSistema')}
+                required
+              >
+                <option value="" disabled>
+                  Selecione
+                </option>
+                <option>On-grid</option>
+                <option>Híbrido</option>
+                <option>Off-grid</option>
+              </select>
+              {showError('tipoSistema') && <p className="text-xs text-red-600 mt-1">{errors.tipoSistema}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tipo de instalação *</label>
+              <select
+                name="tipoInstalacao"
+                className={classeCampo('tipoInstalacao')}
+                value={form.tipoInstalacao}
+                onChange={(e) => atualizarCampo('tipoInstalacao', e.target.value as InstallationType)}
+                onBlur={() => handleBlurCampo('tipoInstalacao')}
+                required
+              >
+                <option>Telhado fibrocimento</option>
+                <option>Telhado metálico</option>
+                <option>Telhado cerâmico</option>
+                <option>Laje</option>
+                <option>Solo</option>
+                <option>Outro</option>
+              </select>
+
+              {form.tipoInstalacao === 'Outro' && (
+                <input
+                  type="text"
+                  name="tipoInstalacaoOutro"
+                  className={classeCampo('tipoInstalacaoOutro')}
+                  placeholder="Qual?"
+                  value={form.tipoInstalacaoOutro}
+                  onChange={(e) => atualizarCampo('tipoInstalacaoOutro', e.target.value)}
+                  onBlur={() => handleBlurCampo('tipoInstalacaoOutro')}
+                />
+              )}
+              {showError('tipoInstalacaoOutro') && <p className="text-xs text-red-600 mt-1">{errors.tipoInstalacaoOutro}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tipo de rede</label>
+              <select
+                name="tipoRede"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 focus:border-orange-500 focus:outline-none"
+                value={form.tipoRede}
+                onChange={(e) => atualizarCampo('tipoRede', e.target.value as RedeType)}
+              >
+                <option value="">Selecione</option>
+                <option>Monofásica</option>
+                <option>Bifásica</option>
+                <option>Trifásica</option>
+              </select>
+            </div>
+
+            {relacaoImovelDocRules.options.length > 0 && (
+              <div className="bg-white border border-orange-100 rounded-xl p-3 text-sm text-gray-700 space-y-2">
+                <p className="font-semibold text-orange-700">Checklist automático</p>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {relacaoImovelDocRules.required.length ? (
+                    relacaoImovelDocRules.required.map((tag) => {
+                      const ok = documentos.some((doc) => doc.tag === tag);
+                      return (
+                        <span
+                          key={tag}
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
+                            ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-amber-200 bg-amber-50 text-amber-800'
+                          }`}
+                        >
+                          {ok ? '✅' : '⏳'} {tag}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 border border-slate-200 bg-slate-50 text-slate-700">
+                      Nenhum documento obrigatório para esta relação
+                    </span>
+                  )}
+                </div>
+
+                {recommendedDocTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    {recommendedDocTags.map((tag) => {
+                      const ok = documentos.some((doc) => doc.tag === tag);
+                      return (
+                        <span
+                          key={tag}
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-1 border ${
+                            ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-blue-200 bg-blue-50 text-blue-800'
+                          }`}
+                        >
+                          {ok ? '✅' : '⭐'} {tag}
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-900">Recomendado</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {pendencias.length > 0 && (
+          <div className="bg-white border border-orange-100 rounded-2xl p-4 shadow-sm">
+            <p className="text-sm font-semibold text-orange-700">O que falta ou precisa de atenção</p>
+            <ul className="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+              {pendencias.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2 pb-6 md:pr-20">
+          <p className="text-sm text-gray-600">Ao enviar, você autoriza contato via WhatsApp e e-mail.</p>
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center rounded-xl bg-orange-600 text-white font-semibold px-6 py-3 shadow-md hover:bg-orange-700 transition disabled:opacity-60 md:self-end md:mr-4"
+            disabled={submission.loading}
+          >
+            {submission.loading ? 'Enviando...' : 'Enviar pré-análise'}
+          </button>
+        </div>
+      </form>
+
+      {submission.status && submission.message && (
+        <div
+          className={`mt-6 rounded-2xl border p-6 shadow-lg transition transform duration-300 text-center ${
+            statusVisuals[submission.status].styles
+          } animate-[pulse_1.8s_ease-in-out_2]`}
+        >
+          <div className="flex flex-col items-center gap-3">
+            <div className={`text-3xl ${statusVisuals[submission.status].accent}`} aria-hidden>
+              {statusVisuals[submission.status].icon}
+            </div>
+            <p
+              className={`text-xl md:text-2xl font-extrabold uppercase tracking-[0.14em] px-3 py-1 rounded-full bg-white/60 ${
+                statusVisuals[submission.status].accent
+              }`}
+            >
+              {statusVisuals[submission.status].title}
+            </p>
+            <p className="whitespace-pre-line leading-relaxed">{submission.message}</p>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
