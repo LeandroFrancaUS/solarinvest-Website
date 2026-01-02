@@ -231,14 +231,28 @@ function formatCEP(value: string) {
 }
 
 function InfoHint({ text, ariaLabel }: { text: string; ariaLabel?: string }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <span
-      className="ml-2 inline-flex h-5 w-5 items-center justify-center align-middle rounded-full bg-orange-100 text-[11px] font-semibold text-orange-700"
-      role="img"
-      aria-label={ariaLabel ?? text}
-      title={text}
-    >
-      i
+    <span className="relative ml-2 inline-flex align-middle" onMouseLeave={() => setOpen(false)}>
+      <button
+        type="button"
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-[11px] font-semibold text-orange-700 transition hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-300"
+        aria-label={ariaLabel ?? text}
+        aria-expanded={open}
+        onMouseEnter={() => setOpen(true)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={() => setOpen((prev) => !prev)}
+        title={text}
+      >
+        ?
+      </button>
+      {open && (
+        <div className="absolute left-1/2 z-10 mt-2 w-64 -translate-x-1/2 rounded-md bg-slate-900 px-3 py-2 text-xs font-medium text-white shadow-lg ring-1 ring-black/10">
+          {text}
+        </div>
+      )}
     </span>
   );
 }
