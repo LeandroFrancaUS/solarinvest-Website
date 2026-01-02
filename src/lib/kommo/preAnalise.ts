@@ -11,16 +11,16 @@ export type PreAnalisePayload = {
   municipio?: string;
   consumoMedioMensal?: number;
 
-  // ✅ Correto: sistema (On-grid / híbrido / Off-grid)
+  // sistema (On-grid / híbrido / Off-grid)
   tipoSistema?: string;
 
-  // ✅ Novo: instalação (telhado/solo/etc)
+  // instalação (telha/metal/solo/etc)
   tipoInstalacao?: string;
 
-  // ✅ Novo: relação com imóvel (Proprietario/Inquilino/Locatario/Sindico)
+  // relação com imóvel (Proprietario/Inquilino/Locatario/Sindico)
   relacaoImovel?: string;
 
-  // ✅ Novo: CPF/CNPJ (texto)
+  // CPF/CNPJ (texto)
   cpfCnpj?: string;
 
   utm?: {
@@ -66,40 +66,47 @@ const REQUIRED_ENV_VARS = [
 ];
 
 /* =========================================================
-   ENUMS (IDs REAIS DO KOMMO)
+   ENUM IDs REAIS (DO KOMMO)
 ========================================================= */
 
-const ENUM_TIPO_SISTEMA: Record<string, number> = {
-  "On-grid": 2402525,
+// IDs do seu print do Kommo:
+const ENUM_ID_TIPO_SISTEMA = {
+  "on-grid": 2402525,
   "hibrido": 2402527,
-  "Off-grid": 2402529,
-};
+  "off-grid": 2402529,
+} as const;
 
-const ENUM_ORIGEM: Record<string, number> = {
-  "Pre Analise": 2402517,
-  "Whastapp": 2402519,
+const ENUM_ID_ORIGEM = {
+  "pre-analise": 2402517,
+  "whastapp": 2402519, // (typo do Kommo, mantive)
   "facebook": 2402521,
   "instagram": 2402523,
-};
+} as const;
 
-const ENUM_RELACAO_IMOVEL: Record<string, number> = {
-  "Proprietario": 2402531,
-  "Inquilino": 2402533,
-  "Locatario": 2402535,
-  "Sindico": 2402537,
-};
+const ENUM_ID_RELACAO_IMOVEL = {
+  "proprietario": 2402531,
+  "inquilino": 2402533,
+  "locatario": 2402535,
+  "sindico": 2402537,
+} as const;
 
-const ENUM_TIPO_INSTALACAO: Record<string, number> = {
-  "Telha fibrocimento": 2402811,
-  "Telhado metálico": 2402813,
-  "Telhado cerâmico": 2402815,
-  "Laje": 2402817,
-  "Solo": 2402819,
-  "Outro": 2402821,
-};
+const ENUM_ID_TIPO_INSTALACAO = {
+  "telha fibrocimento": 2402811,
+  "telhado metalico": 2402813,
+  "telhado ceramico": 2402815,
+  "laje": 2402817,
+  "solo": 2402819,
+  "outro": 2402821,
+} as const;
+
+/**
+ * ✅ Se true: quando o usuário enviar um valor de select inválido,
+ * o endpoint retorna 400 ao invés de apenas logar e seguir.
+ */
+const FAIL_ON_INVALID_SELECT = false;
 
 /* =========================================================
-   HELPERS
+   HELPERS (normalização e sanitização)
 ========================================================= */
 
 function sanitizeText(value: unknown, max = 200) {
@@ -148,11 +155,81 @@ function isRateLimited(ip: string) {
   return false;
 }
 
+/**
+ * Normaliza textos para “chaves” de enum:
+ * - remove acentos
+ * - lowercase
+ * - colapsa espaços
+ * - normaliza hífen
+ */
+function normalizeKey(input: unknown) {
+  const raw = sanitizeText(input, 120);
+  if (!raw) return "";
+
+  const noAccents = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, ""); // remove diacríticos
+
+  return noAccents
+    .toLowerCase()
+    .replace(/[–—]/g, "-") // hífens “diferentes”
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Alguns valores do front podem vir com variações.
+ * Aqui a gente “aperta” para bater com o que o Kommo espera.
+ */
+function normalizeTipoSistema(value?: unknown) {
+  const k = normalizeKey(value);
+
+  // aceita variações comuns
+  if (k === "on grid") return "on-grid";
+  if (k === "ongrid") return "on-grid";
+  if (k === "hibrido" || k === "hibrido") return "hibrido";
+  if (k === "off grid") return "off-grid";
+  if (k === "offgrid") return "off-grid";
+
+  // se já veio “on-grid/off-grid”
+  return k;
+}
+
+function normalizeTipoInstalacao(value?: unknown) {
+  let k = normalizeKey(value);
+
+  // variações “telhado” vs “telha”
+  if (k === "telhado fibrocimento") k = "telha fibrocimento";
+
+  // normaliza metálico / cerâmico para sem acento e chave padrão
+  if (k === "telhado metalico") k = "telhado metalico";
+  if (k === "telhado ceramico") k = "telhado ceramico";
+
+  // “outros” do front
+  if (k === "outros") k = "outro";
+
+  return k;
+}
+
+function normalizeRelacaoImovel(value?: unknown) {
+  const k = normalizeKey(value);
+
+  // variações
+  if (k === "proprietario" || k === "proprietário") return "proprietario";
+  if (k === "sindico" || k === "síndico") return "sindico";
+
+  return k;
+}
+
 /* =========================================================
    KOMMO FETCH
 ========================================================= */
 
-async function fetchKommo<T>(path: string, options: RequestInit, requestId: string) {
+async function fetchKommo<T>(
+  path: string,
+  options: RequestInit,
+  requestId: string
+) {
   const subdomain = process.env.KOMMO_SUBDOMAIN!;
   const token = process.env.KOMMO_LONG_LIVED_TOKEN!;
   const url = `https://${subdomain}.kommo.com/api/v4${path}`;
@@ -178,7 +255,11 @@ async function fetchKommo<T>(path: string, options: RequestInit, requestId: stri
     throw new Error(`KOMMO_HTTP_${response.status}`);
   }
 
-  return (await response.json()) as T;
+  // Em alguns endpoints pode vir 204. Aqui não é esperado.
+  const txt = await response.text();
+  if (!txt) return {} as T;
+
+  return JSON.parse(txt) as T;
 }
 
 /* =========================================================
@@ -191,20 +272,29 @@ function buildTextOrNumberField(envName: string, value?: string | number) {
   return { field_id: fieldId, values: [{ value }] };
 }
 
-function buildSelectField(envName: string, enumMap: Record<string, number>, value?: string) {
+function buildSelectEnumField(
+  envName: string,
+  enumId: number | undefined,
+  meta: { field: string; raw?: unknown; normalized?: string; requestId: string }
+) {
   const fieldId = getEnvNumber(envName);
-  if (!fieldId || !value) return null;
+  if (!fieldId) return null;
 
-  // normaliza pra bater com as chaves do enum
-  const normalized = sanitizeText(value, 80);
-  const enumId = enumMap[normalized];
+  // se não veio nada, não envia campo
+  if (meta.raw === undefined || meta.raw === null || meta.raw === "") return null;
 
   if (!enumId) {
     console.warn("[kommo-pre-analise] Select value not mapped", {
+      requestId: meta.requestId,
+      field: meta.field,
+      raw: meta.raw,
+      normalized: meta.normalized,
       envName,
-      value,
-      normalized,
     });
+
+    if (FAIL_ON_INVALID_SELECT) {
+      throw new Error(`INVALID_SELECT_${meta.field}`);
+    }
     return null;
   }
 
@@ -220,18 +310,25 @@ export async function processKommoPreAnalise(
   clientIp = "unknown"
 ): Promise<ProcessResult> {
   const missingEnv = REQUIRED_ENV_VARS.filter((k) => !process.env[k]);
-
   if (missingEnv.length > 0) {
     return {
       status: 500,
-      body: { ok: false, errorCode: "SERVER_NOT_CONFIGURED", message: "Servidor sem configuração da integração." },
+      body: {
+        ok: false,
+        errorCode: "SERVER_NOT_CONFIGURED",
+        message: "Servidor sem configuração da integração.",
+      },
     };
   }
 
   if (isRateLimited(clientIp)) {
     return {
       status: 429,
-      body: { ok: false, errorCode: "RATE_LIMITED", message: "Aguarde alguns minutos e tente novamente." },
+      body: {
+        ok: false,
+        errorCode: "RATE_LIMITED",
+        message: "Aguarde alguns minutos e tente novamente.",
+      },
     };
   }
 
@@ -242,11 +339,34 @@ export async function processKommoPreAnalise(
   if (!nomeRazao || !email || !whatsapp) {
     return {
       status: 400,
-      body: { ok: false, errorCode: "VALIDATION_ERROR", message: "Nome, e-mail e WhatsApp são obrigatórios." },
+      body: {
+        ok: false,
+        errorCode: "VALIDATION_ERROR",
+        message: "Nome, e-mail e WhatsApp são obrigatórios.",
+      },
     };
   }
 
   const requestId = crypto.randomUUID();
+
+  // ✅ normaliza selects vindos do front
+  const tipoSistemaKey = normalizeTipoSistema(payload.tipoSistema);
+  const tipoInstalacaoKey = normalizeTipoInstalacao(payload.tipoInstalacao);
+  const relacaoImovelKey = normalizeRelacaoImovel(payload.relacaoImovel);
+
+  const enumTipoSistema = (ENUM_ID_TIPO_SISTEMA as any)[tipoSistemaKey] as
+    | number
+    | undefined;
+
+  const enumTipoInstalacao = (ENUM_ID_TIPO_INSTALACAO as any)[tipoInstalacaoKey] as
+    | number
+    | undefined;
+
+  const enumRelacaoImovel = (ENUM_ID_RELACAO_IMOVEL as any)[relacaoImovelKey] as
+    | number
+    | undefined;
+
+  const enumOrigem = (ENUM_ID_ORIGEM as any)["pre-analise"] as number;
 
   try {
     const leadPayload = {
@@ -256,23 +376,64 @@ export async function processKommoPreAnalise(
       tags_to_add: ["origem:site", "pre-analise"],
 
       custom_fields_values: [
-        buildTextOrNumberField("KOMMO_LEAD_FIELD_ID_MUNICIPIO", sanitizeText(payload.municipio)),
-        buildTextOrNumberField("KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO", sanitizeNumber(payload.consumoMedioMensal)),
+        buildTextOrNumberField(
+          "KOMMO_LEAD_FIELD_ID_MUNICIPIO",
+          sanitizeText(payload.municipio)
+        ),
+        buildTextOrNumberField(
+          "KOMMO_LEAD_FIELD_ID_CONSUMO_MEDIO",
+          sanitizeNumber(payload.consumoMedioMensal)
+        ),
 
-        // ✅ tipo de sistema (On-grid / hibrido / Off-grid)
-        buildSelectField("KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA", ENUM_TIPO_SISTEMA, payload.tipoSistema),
+        // ✅ Tipo de sistema
+        buildSelectEnumField(
+          "KOMMO_LEAD_FIELD_ID_TIPO_SISTEMA",
+          enumTipoSistema,
+          {
+            field: "tipoSistema",
+            raw: payload.tipoSistema,
+            normalized: tipoSistemaKey,
+            requestId,
+          }
+        ),
 
-        // ✅ tipo de instalação (Telha fibrocimento / ... / Outro)
-        buildSelectField("KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO", ENUM_TIPO_INSTALACAO, payload.tipoInstalacao),
+        // ✅ Tipo de instalação
+        buildSelectEnumField(
+          "KOMMO_LEAD_FIELD_ID_TIPO_INSTALACAO",
+          enumTipoInstalacao,
+          {
+            field: "tipoInstalacao",
+            raw: payload.tipoInstalacao,
+            normalized: tipoInstalacaoKey,
+            requestId,
+          }
+        ),
 
-        // ✅ relação com imóvel
-        buildSelectField("KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL", ENUM_RELACAO_IMOVEL, payload.relacaoImovel),
+        // ✅ Relação com imóvel
+        buildSelectEnumField(
+          "KOMMO_LEAD_FIELD_ID_RELACAO_IMOVEL",
+          enumRelacaoImovel,
+          {
+            field: "relacaoImovel",
+            raw: payload.relacaoImovel,
+            normalized: relacaoImovelKey,
+            requestId,
+          }
+        ),
 
         // ✅ CPF/CNPJ (texto)
-        buildTextOrNumberField("KOMMO_LEAD_FIELD_ID_CPF_CNPJ", sanitizeText(payload.cpfCnpj, 60)),
+        buildTextOrNumberField(
+          "KOMMO_LEAD_FIELD_ID_CPF_CNPJ",
+          sanitizeText(payload.cpfCnpj, 60)
+        ),
 
-        // ✅ origem fixa: "Pre Analise"
-        buildSelectField("KOMMO_LEAD_FIELD_ID_ORIGEM", ENUM_ORIGEM, "Pre Analise"),
+        // ✅ Origem fixa
+        buildSelectEnumField("KOMMO_LEAD_FIELD_ID_ORIGEM", enumOrigem, {
+          field: "origem",
+          raw: "Pre Analise",
+          normalized: "pre-analise",
+          requestId,
+        }),
       ].filter(Boolean),
 
       _embedded: {
@@ -296,14 +457,33 @@ export async function processKommoPreAnalise(
 
     return { status: 200, body: { ok: true } };
   } catch (error) {
-    console.error("[kommo-pre-analise] Failed", { requestId, error: (error as Error).message });
+    const msg = (error as Error).message;
+
+    // se você ligar FAIL_ON_INVALID_SELECT, devolve 400 claro:
+    if (msg.startsWith("INVALID_SELECT_")) {
+      const field = msg.replace("INVALID_SELECT_", "");
+      return {
+        status: 400,
+        body: {
+          ok: false,
+          errorCode: "INVALID_SELECT",
+          message: `Valor inválido no campo: ${field}.`,
+        },
+      };
+    }
+
+    console.error("[kommo-pre-analise] Failed", {
+      requestId,
+      error: msg,
+    });
 
     return {
       status: 503,
       body: {
         ok: false,
         errorCode: "KOMMO_ERROR",
-        message: "Não foi possível enviar sua pré-análise. Tente novamente em alguns minutos.",
+        message:
+          "Não foi possível enviar sua pré-análise. Tente novamente em alguns minutos.",
       },
     };
   }
