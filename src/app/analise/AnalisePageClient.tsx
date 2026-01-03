@@ -92,6 +92,18 @@ export default function AnalisePageClient() {
   const [mostrarFormulario, setMostrarFormulario] = useState<boolean>(shouldAutoOpen);
   const [resultado, setResultado] = useState<{ status: StatusResultado; message: string } | null>(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  const [isExternalReferrer, setIsExternalReferrer] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const referrer = document.referrer;
+    const normalizedSiteUrl = seoConstants.siteUrl.replace(/\/$/, '');
+    if (!referrer) {
+      setIsExternalReferrer(true);
+      return;
+    }
+
+    setIsExternalReferrer(!referrer.startsWith(normalizedSiteUrl));
+  }, []);
 
   useEffect(() => {
     if (shouldAutoOpen && !hasAutoOpened) {
@@ -102,12 +114,16 @@ export default function AnalisePageClient() {
 
   useEffect(() => {
     // ✅ só scrolla quando o formulário estiver visível
-    if (!mostrarFormulario) return;
+    if (!mostrarFormulario || isExternalReferrer === null) return;
 
-    // ✅ use apenas o wrapper do page como âncora (evita conflito se o form também tiver id igual)
-    const anchor = document.getElementById('pre-aprovacao');
-    anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [mostrarFormulario]);
+    // ✅ se veio de fora, abra direto no módulo do formulário; se navegado internamente, respeite topo
+    if (isExternalReferrer) {
+      const anchor = document.getElementById('pre-aprovacao');
+      anchor?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [isExternalReferrer, mostrarFormulario]);
 
   useEffect(() => {
     if (!resultado) return;
@@ -127,7 +143,7 @@ export default function AnalisePageClient() {
   };
 
   return (
-    <main className="min-h-screen bg-white py-16 px-4 md:px-8 space-y-12">
+    <main className="min-h-screen bg-gradient-to-b from-orange-50/60 via-white to-white py-16 px-4 md:px-10 space-y-14">
       <Script id="analise-breadcrumb-jsonld" type="application/ld+json" strategy="afterInteractive">
         {JSON.stringify(breadcrumbStructuredData)}
       </Script>
@@ -138,12 +154,12 @@ export default function AnalisePageClient() {
         {JSON.stringify(faqStructuredData)}
       </Script>
 
-      <section className="max-w-5xl mx-auto text-center space-y-6">
+      <section className="max-w-6xl mx-auto text-center space-y-6">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-heading font-bold text-orange-600"
+          className="text-4xl md:text-5xl font-heading font-bold text-orange-700"
         >
           Análise de aprovação para Leasing
         </motion.h1>
@@ -152,7 +168,7 @@ export default function AnalisePageClient() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg text-gray-700 max-w-3xl mx-auto"
+          className="text-lg text-gray-700 max-w-4xl mx-auto"
         >
           Confirme seus dados para avaliarmos rapidamente a elegibilidade do leasing SolarInvest.
         </motion.p>
@@ -185,6 +201,39 @@ export default function AnalisePageClient() {
           >
             Seguir no Instagram
           </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5 text-left mt-6">
+          {[
+            {
+              title: 'Retorno guiado por especialistas',
+              desc: 'Priorizamos seu contato no WhatsApp e indicamos exatamente os próximos documentos.',
+              icon: '🎯',
+            },
+            {
+              title: 'Triagem inteligente',
+              desc: 'Usamos IA para validar informações e acelerar a aprovação sem burocracia.',
+              icon: '⚡',
+            },
+            {
+              title: 'Segurança de dados',
+              desc: 'Dados criptografados e usados apenas para a pré-análise do seu projeto solar.',
+              icon: '🛡️',
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="flex items-start gap-3 rounded-2xl border border-orange-100 bg-white/60 backdrop-blur-sm p-4 shadow-sm"
+            >
+              <span className="text-2xl" aria-hidden>
+                {item.icon}
+              </span>
+              <div>
+                <p className="font-semibold text-gray-900">{item.title}</p>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
