@@ -1116,8 +1116,8 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       id="pre-aprovacao"
       className="w-full bg-white shadow-[0_20px_80px_-35px_rgba(249,115,22,0.45)] border border-orange-100/80 rounded-3xl p-6 md:p-12 lg:p-14"
     >
-      <div className="flex flex-col gap-6 mb-6">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+      <div className="space-y-8 mb-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-6 items-start">
           <div className="space-y-2 max-w-3xl">
             <p className="text-sm uppercase tracking-wide text-orange-500 font-semibold">Pré-aprovação de leasing</p>
             <h2 className="text-2xl md:text-3xl font-heading font-bold text-gray-900">
@@ -1127,7 +1127,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
               Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise humana.
             </p>
           </div>
-          <div className="flex flex-wrap items-stretch gap-3 lg:max-w-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { label: 'Tempo de preenchimento', value: '~3 minutos' },
               { label: 'Retorno', value: 'Em até 1h via WhatsApp' },
@@ -1135,7 +1135,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
             ].map((item) => (
               <div
                 key={item.label}
-                className="flex flex-col rounded-2xl border border-orange-100 bg-orange-50/60 px-4 py-3 shadow-inner text-sm text-gray-800 min-w-[180px]"
+                className="flex flex-col rounded-2xl border border-orange-100 bg-orange-50/60 px-4 py-3 shadow-inner text-sm text-gray-800"
               >
                 <span className="text-[11px] uppercase tracking-wide text-orange-600 font-semibold">{item.label}</span>
                 <span className="font-semibold">{item.value}</span>
@@ -1144,7 +1144,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-5 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-5 text-sm items-stretch">
           {[
             { title: '1. Dados de contato', desc: 'Para falarmos com você rapidamente.' },
             { title: '2. Energia & local', desc: 'Entendemos consumo, CEP e tipo de rede.' },
@@ -1153,7 +1153,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
           ].map((step, index) => (
             <div
               key={step.title}
-              className="rounded-2xl border border-gray-100 bg-gray-50/70 px-4 py-3 shadow-sm flex gap-3"
+              className="rounded-2xl border border-gray-100 bg-gray-50/70 px-4 py-3 shadow-sm flex gap-3 h-full"
             >
               <span className="h-10 w-10 flex items-center justify-center rounded-full bg-white text-orange-600 font-bold border border-orange-100">
                 {index + 1}
@@ -1167,8 +1167,8 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,2.2fr)_minmax(360px,1fr)] gap-10 lg:gap-12 items-start">
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-10 items-start">
+        <div className="space-y-6 xl:col-span-8">
           <form onSubmit={handleSubmit} className="space-y-7">
             {/* Honeypot */}
             <div className="sr-only" aria-hidden>
@@ -1778,7 +1778,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
       )}
         </div>
 
-        <aside className="space-y-4 h-full xl:sticky xl:top-28">
+        <aside className="space-y-4 h-full xl:sticky xl:top-28 xl:col-span-4">
           <div className="rounded-2xl border border-orange-100 bg-orange-50/80 p-5 shadow-inner space-y-3">
             <p className="text-sm font-semibold text-orange-700">Ganhe velocidade</p>
             <ul className="space-y-2 text-sm text-gray-800">
