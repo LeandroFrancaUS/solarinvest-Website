@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import ContatoForm from '@/components/ContatoForm';
+import ContractDocuments from '@/components/ContractDocuments';
 
 export default function ContatoPageClient() {
   return (
@@ -35,6 +36,8 @@ export default function ContatoPageClient() {
         >
           <ContatoForm />
         </motion.div>
+
+        <ContractDocuments />
       </section>
     </main>
   );
