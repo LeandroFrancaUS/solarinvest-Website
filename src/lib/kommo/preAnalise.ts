@@ -332,7 +332,7 @@ export async function processKommoPreAnalise(payload: PreAnalisePayload, clientI
     const normalizedStatusKey = normalizeStatusAnalise(payload.statusAnalise);
 
     const leadPayload = {
-      name: "Pré-análise — Site",
+      name: nomeRazao,
       pipeline_id: pipelineId,
       status_id: statusId,
       tags_to_add: ["origem:site", "pre-analise"],
