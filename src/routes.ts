@@ -17,4 +17,8 @@ export const siteRoutes = [
   '/energia-solar-brasilia',
   '/empresas',
   '/residencial',
+  '/limpeza-de-placas-solares',
+  '/energia-solar-parana',
+  '/energia-solar-cascavel',
+  '/energia-solar-rural',
 ];
