@@ -151,8 +151,116 @@ export const sitemapEntries: SitemapEntry[] = [
     images: [
       {
         loc: sharedLogoImage,
-        title: 'Busca SolarInvest Solutions',
+        title: 'Busca SolarInvest',
         caption: 'Ferramenta para localizar soluções de energia solar, leasing e serviços com rapidez.',
+      },
+    ],
+  },
+  {
+    path: '/leasing-energia-solar',
+    changefreq: 'monthly',
+    priority: 1,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Leasing de energia solar SolarInvest',
+        caption: 'Modelo de leasing operacional de energia solar sem investimento inicial e com transferência da usina.',
+      },
+    ],
+  },
+  {
+    path: '/economia-na-conta-de-luz',
+    changefreq: 'monthly',
+    priority: 1,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Economia na conta de luz com energia solar',
+        caption: 'Soluções SolarInvest para reduzir a conta de energia de residências e empresas.',
+      },
+    ],
+  },
+  {
+    path: '/preco-energia-solar',
+    changefreq: 'monthly',
+    priority: 1,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Preço de energia solar',
+        caption: 'Quanto custa instalar energia solar em residências e empresas com a SolarInvest.',
+      },
+    ],
+  },
+  {
+    path: '/energia-solar-goias',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar em Goiás',
+        caption: 'Empresa de energia solar em Goiás com instalação, leasing, manutenção e suporte.',
+      },
+    ],
+  },
+  {
+    path: '/energia-solar-anapolis',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar em Anápolis',
+        caption: 'Soluções de energia solar em Anápolis com a SolarInvest.',
+      },
+    ],
+  },
+  {
+    path: '/energia-solar-goiania',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar em Goiânia',
+        caption: 'Preço e soluções de energia solar em Goiânia pela SolarInvest.',
+      },
+    ],
+  },
+  {
+    path: '/energia-solar-brasilia',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar em Brasília e DF',
+        caption: 'Soluções de energia solar para Brasília e Distrito Federal com a SolarInvest.',
+      },
+    ],
+  },
+  {
+    path: '/empresas',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar para empresas',
+        caption: 'Redução do custo operacional de energia para empresas com leasing solar SolarInvest.',
+      },
+    ],
+  },
+  {
+    path: '/residencial',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar residencial',
+        caption: 'Leasing de energia solar para residências com mensalidade menor que a conta de luz.',
       },
     ],
   },

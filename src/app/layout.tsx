@@ -51,7 +51,7 @@ const beforeSendHandler =
     : undefined;
 
 const defaultMetaDescription =
-  'Energia solar inteligente com leasing solar, usinas fotovoltaicas em Goiás e soluções híbridas SolarInvest para residências e empresas com economia sustentável.';
+  'Conheça a SolarInvest: soluções em energia solar para residências e empresas, com opções sem investimento inicial, leasing operacional, suporte, manutenção e economia real na conta de luz.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

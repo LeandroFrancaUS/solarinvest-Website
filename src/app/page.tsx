@@ -5,20 +5,22 @@ import { buildMetadata } from '@/lib/seo';
 
 // 🔍 SEO Metadata
 export const metadata = buildMetadata({
-  title: 'Energia Solar Inteligente | SolarInvest Solutions',
+  title: 'SolarInvest | Energia Solar sem Investimento Inicial, Leasing e Economia na Conta de Luz',
   description:
-    'Economize com energia solar híbrida, off-grid e sustentável. Soluções acessíveis para residências, negócios e comunidades remotas.',
+    'Conheça a SolarInvest: soluções em energia solar para residências e empresas, com opções sem investimento inicial, leasing operacional, suporte, manutenção e economia real na conta de luz.',
   path: '/',
   keywords: [
-    'energia solar',
-    'solarinvest',
-    'solar invest',
-    'painel solar',
-    'off-grid',
-    'energia renovável',
-    'fotovoltaica',
-    'híbrida',
-    'comunidade solar',
+    'energia solar sem investimento',
+    'leasing energia solar',
+    'empresa energia solar brasil',
+    'economia com energia solar',
+    'como reduzir conta de luz',
+    'energia solar como serviço',
+    'energia solar assinatura brasil',
+    'energia solar goias',
+    'energia solar anapolis',
+    'energia solar goiania',
+    'energia solar brasilia',
   ],
 });
 
