@@ -8,4 +8,13 @@ export const siteRoutes = [
   '/videos/solarinvest-apresentacao',
   '/faq',
   '/search',
+  '/leasing-energia-solar',
+  '/economia-na-conta-de-luz',
+  '/preco-energia-solar',
+  '/energia-solar-goias',
+  '/energia-solar-anapolis',
+  '/energia-solar-goiania',
+  '/energia-solar-brasilia',
+  '/empresas',
+  '/residencial',
 ];

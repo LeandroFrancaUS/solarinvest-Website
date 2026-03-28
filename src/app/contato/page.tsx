@@ -1,12 +1,20 @@
 import ContatoPageClient from './ContatoPageClient';
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Contato | SolarInvest Solutions',
+export const metadata = buildMetadata({
+  title: 'Contato | SolarInvest — Solicite uma Análise Gratuita',
   description:
-    'Pronto para economizar com energia solar? Fale com a SolarInvest e solicite proposta de leasing solar, usinas fotovoltaicas e sistemas híbridos com baterias.',
-  alternates: { canonical: '/contato' },
-};
+    'Entre em contato com a SolarInvest e solicite uma análise gratuita. Atendemos residências e empresas em Goiás, Anápolis, Goiânia, Brasília e todo o Brasil.',
+  path: '/contato',
+  keywords: [
+    'contato energia solar',
+    'análise gratuita energia solar',
+    'empresa energia solar goias',
+    'energia solar anapolis',
+    'energia solar goiania',
+    'energia solar brasilia',
+  ],
+});
 
 export default function ContatoPage() {
   return <ContatoPageClient />;
