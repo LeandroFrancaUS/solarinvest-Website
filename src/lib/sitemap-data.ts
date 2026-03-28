@@ -264,4 +264,52 @@ export const sitemapEntries: SitemapEntry[] = [
       },
     ],
   },
+  {
+    path: '/limpeza-de-placas-solares',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Limpeza de placas solares',
+        caption: 'Como limpar painéis fotovoltaicos corretamente: produtos, frequência e segurança.',
+      },
+    ],
+  },
+  {
+    path: '/energia-solar-parana',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar no Paraná',
+        caption: 'Soluções de energia solar no Paraná para residências, empresas e área rural.',
+      },
+    ],
+  },
+  {
+    path: '/energia-solar-cascavel',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar em Cascavel',
+        caption: 'Soluções fotovoltaicas em Cascavel, PR, com leasing, suporte e manutenção.',
+      },
+    ],
+  },
+  {
+    path: '/energia-solar-rural',
+    changefreq: 'monthly',
+    priority: 0.9,
+    images: [
+      {
+        loc: sharedHeroImage,
+        title: 'Energia solar rural',
+        caption: 'Sistemas fotovoltaicos para propriedades rurais, irrigação e agroindustrial.',
+      },
+    ],
+  },
 ];
