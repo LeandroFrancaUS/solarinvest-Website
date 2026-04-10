@@ -1,9 +1,13 @@
 'use client';
 
 import { FaWhatsapp } from 'react-icons/fa';
+import { usePathname } from 'next/navigation';
 
 export default function WhatsappButton() {
+  const pathname = usePathname();
   const numero = '5562995150975'; // Altere para seu número real com DDI + DDD
+
+  if (pathname?.startsWith('/analise')) return null;
 
   return (
     <a
