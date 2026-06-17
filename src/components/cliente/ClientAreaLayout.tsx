@@ -22,14 +22,16 @@ export function Breadcrumbs({ items, compact = false }: { items: { label: string
   );
 }
 
+export const clientAreaContainerClass = 'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10';
+
 export function PageShell({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
     <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-24">
-      <section className="px-6 pb-12 pt-5 md:px-16 lg:px-28">
-        <div className="mx-auto max-w-6xl">
+      <section className="pb-12 pt-5">
+        <div className={clientAreaContainerClass}>
           <Breadcrumbs items={[{ label: 'Área do Cliente', href: '/area-do-cliente' }, { label: title }]} />
           <div className="overflow-hidden rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-50 p-6 text-slate-900 shadow-xl shadow-orange-100/60 md:p-8">
-            <div className="max-w-4xl">
+            <div className="max-w-5xl">
               <span className="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold uppercase tracking-[0.2em] text-orange-700">
                 Central do Cliente SolarInvest
               </span>

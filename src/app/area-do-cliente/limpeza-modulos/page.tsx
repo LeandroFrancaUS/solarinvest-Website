@@ -62,8 +62,8 @@ export default function Page() {
       title="Manual de Limpeza dos Módulos"
       description="Orientações detalhadas para limpar módulos fotovoltaicos com segurança, preservando geração, garantia e integridade da usina. A limpeza parece simples, mas envolve eletricidade, altura e risco de dano ao equipamento quando feita de forma incorreta."
     >
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_340px]">
-        <article className="space-y-8 text-slate-700">
+      <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <article className="min-w-0 space-y-8 text-slate-700">
           <section className="rounded-3xl border border-orange-100 bg-orange-50 p-6 shadow-sm">
             <div className="flex gap-4">
               <ShieldAlert className="mt-1 h-7 w-7 flex-none text-orange-600" aria-hidden="true" />
@@ -76,14 +76,15 @@ export default function Page() {
             </div>
           </section>
 
-          <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-900">Quando limpar</h2>
-            <p className="mt-3 leading-relaxed">
-              Limpe quando houver acúmulo visível de poeira, fezes de pássaros, folhas, poluição, maresia, fuligem ou fumaça, especialmente se a geração cair em relação ao histórico. A recomendação operacional é fazer inspeção visual mensal e comparar a geração no aplicativo de monitoramento antes de decidir pela limpeza.
-            </p>
-          </section>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <section className="rounded-3xl bg-white p-8 shadow-sm">
+              <h2 className="text-2xl font-black text-slate-900">Quando limpar</h2>
+              <p className="mt-3 leading-relaxed">
+                Limpe quando houver acúmulo visível de poeira, fezes de pássaros, folhas, poluição, maresia, fuligem ou fumaça, especialmente se a geração cair em relação ao histórico. A recomendação operacional é fazer inspeção visual mensal e comparar a geração no aplicativo de monitoramento antes de decidir pela limpeza.
+              </p>
+            </section>
 
-          <section id="frequencia" className="rounded-3xl bg-white p-8 shadow-sm">
+            <section id="frequencia" className="rounded-3xl bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900">Frequência recomendada</h2>
             <p className="mt-3 leading-relaxed">
               A frequência depende do nível de sujeira, inclinação dos módulos, período de chuvas e exposição local. Não existe um intervalo único para todos os sistemas: use a tabela como referência e ajuste com base na inspeção visual e no desempenho real da usina.
@@ -96,16 +97,18 @@ export default function Page() {
                 </div>
               ))}
             </div>
-          </section>
+            </section>
+          </div>
 
-          <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-900">Horário correto</h2>
-            <p className="mt-3 leading-relaxed">
-              Realize a limpeza no início da manhã ou no final da tarde, quando os módulos estão mais frios e a irradiância é menor. Nunca limpe sob sol forte ou com módulos muito quentes: a água fria sobre vidro aquecido pode provocar choque térmico, além de aumentar risco de queimadura, desidratação e queda durante o trabalho.
-            </p>
-          </section>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <section className="rounded-3xl bg-white p-8 shadow-sm">
+              <h2 className="text-2xl font-black text-slate-900">Horário correto</h2>
+              <p className="mt-3 leading-relaxed">
+                Realize a limpeza no início da manhã ou no final da tarde, quando os módulos estão mais frios e a irradiância é menor. Nunca limpe sob sol forte ou com módulos muito quentes: a água fria sobre vidro aquecido pode provocar choque térmico, além de aumentar risco de queimadura, desidratação e queda durante o trabalho.
+              </p>
+            </section>
 
-          <section id="materiais" className="rounded-3xl bg-white p-8 shadow-sm">
+            <section id="materiais" className="rounded-3xl bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900">Materiais permitidos</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               <li>✓ água limpa em temperatura ambiente</li>
@@ -115,9 +118,9 @@ export default function Page() {
               <li>✓ escova macia de cerdas não metálicas</li>
               <li>✓ rodo apropriado com borracha macia</li>
             </ul>
-          </section>
+            </section>
 
-          <section id="proibido" className="rounded-3xl bg-white p-8 shadow-sm">
+            <section id="proibido" className="rounded-3xl bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900">Proibido utilizar</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               <li>✗ lavadora de alta pressão</li>
@@ -127,11 +130,12 @@ export default function Page() {
               <li>✗ escovas metálicas ou palha de aço</li>
               <li>✗ objetos cortantes ou raspadores rígidos</li>
             </ul>
-          </section>
+            </section>
+          </div>
 
           <section className="rounded-3xl bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900">Passo a passo detalhado</h2>
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
               {steps.map((step, index) => (
                 <div key={step.title} className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
                   <span className="text-xs font-black uppercase tracking-[0.2em] text-orange-600">Passo {index + 1}</span>
