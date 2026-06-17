@@ -9,7 +9,7 @@ import Hero from './Hero';
 
 export default function HomeWithSplash() {
   const [showSplash, setShowSplash] = useState(true);
-  const [splashSrc, setSplashSrc] = useState('/splash_festivos/Feliz_2026.png');
+  const [splashSrc, setSplashSrc] = useState('/icon.png');
   const splashCooldownMs = 5 * 60 * 1000;
   const splashStorageKey = 'solarinvest:splash:lastShown';
 
@@ -39,7 +39,7 @@ export default function HomeWithSplash() {
           <div className="rounded-3xl border border-orange-200/70 bg-white/80 p-6 shadow-[0_25px_55px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm">
             <Image
               src={splashSrc}
-              alt="Logotipo comemorativo da SolarInvest"
+              alt="Logo original da SolarInvest"
               width={320}
               height={320}
               priority

@@ -10,7 +10,7 @@ import clsx from 'clsx';
 export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [logoSrc, setLogoSrc] = useState('/logos_festivos/2026_Logo.png');
+  const [logoSrc, setLogoSrc] = useState('/icon.png');
 
   const handleLogoError = () => {
     setLogoSrc((current) => (current === '/icon.png' ? current : '/icon.png'));
@@ -44,7 +44,7 @@ export default function Header() {
         >
           <Image
             src={logoSrc}
-            alt="Logo comemorativo da SolarInvest"
+            alt="Logo original da SolarInvest"
             width={64}
             height={64}
             className="w-16 h-16 object-contain"
