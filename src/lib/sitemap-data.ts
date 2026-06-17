@@ -156,6 +156,24 @@ export const sitemapEntries: SitemapEntry[] = [
       },
     ],
   },
+
+  {
+    path: '/area-do-cliente',
+    changefreq: 'weekly',
+    priority: 1,
+    images: [{ loc: sharedLogoImage, title: 'Central do Cliente SolarInvest', caption: 'Guias de suporte, manutenção, limpeza, garantias e operação de sistemas fotovoltaicos.' }],
+  },
+  {
+    path: '/area-do-cliente/limpeza-modulos',
+    changefreq: 'monthly',
+    priority: 0.95,
+    images: [{ loc: sharedHeroImage, title: 'Manual de limpeza dos módulos fotovoltaicos', caption: 'Boas práticas de limpeza de módulos solares com segurança.' }],
+  },
+  { path: '/area-do-cliente/inversores', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Manutenção de inversores solares' }] },
+  { path: '/area-do-cliente/garantias', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Garantias de equipamentos solares' }] },
+  { path: '/area-do-cliente/planos', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Planos de manutenção SolarInvest' }] },
+  { path: '/area-do-cliente/monitoramento', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Monitoramento de usina solar' }] },
+  { path: '/area-do-cliente/suporte', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Suporte técnico SolarInvest' }] },
   {
     path: '/leasing-energia-solar',
     changefreq: 'monthly',

@@ -26,6 +26,7 @@ export default function Header() {
     { name: 'Como Funciona', href: '/comofunciona' },
     { name: 'Soluções', href: '/solucoes' },
     { name: 'Vídeos', href: '/videos' },
+    { name: 'Área do Cliente', href: '/area-do-cliente' },
     { name: 'Sobre', href: '/sobre' },
     { name: 'Contato', href: '/contato' },
   ];
