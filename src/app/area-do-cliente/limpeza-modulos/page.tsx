@@ -62,7 +62,7 @@ export default function Page() {
       title="Manual de Limpeza dos Módulos"
       description="Orientações detalhadas para limpar módulos fotovoltaicos com segurança, preservando geração, garantia e integridade da usina. A limpeza parece simples, mas envolve eletricidade, altura e risco de dano ao equipamento quando feita de forma incorreta."
     >
-      <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="mt-10 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,900px)_320px] 2xl:grid-cols-[minmax(0,960px)_340px]">
         <article className="min-w-0 space-y-8 text-slate-700">
           <section className="rounded-3xl border border-orange-100 bg-orange-50 p-6 shadow-sm">
             <div className="flex gap-4">
@@ -77,14 +77,14 @@ export default function Page() {
           </section>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <section className="rounded-3xl bg-white p-8 shadow-sm">
+            <section className="col-span-1 rounded-3xl bg-white p-8 shadow-sm lg:col-span-2">
               <h2 className="text-2xl font-black text-slate-900">Quando limpar</h2>
               <p className="mt-3 leading-relaxed">
                 Limpe quando houver acúmulo visível de poeira, fezes de pássaros, folhas, poluição, maresia, fuligem ou fumaça, especialmente se a geração cair em relação ao histórico. A recomendação operacional é fazer inspeção visual mensal e comparar a geração no aplicativo de monitoramento antes de decidir pela limpeza.
               </p>
             </section>
 
-            <section id="frequencia" className="rounded-3xl bg-white p-8 shadow-sm">
+            <section id="frequencia" className="col-span-1 rounded-3xl bg-white p-8 shadow-sm lg:col-span-2">
             <h2 className="text-2xl font-black text-slate-900">Frequência recomendada</h2>
             <p className="mt-3 leading-relaxed">
               A frequência depende do nível de sujeira, inclinação dos módulos, período de chuvas e exposição local. Não existe um intervalo único para todos os sistemas: use a tabela como referência e ajuste com base na inspeção visual e no desempenho real da usina.
@@ -135,7 +135,7 @@ export default function Page() {
 
           <section className="rounded-3xl bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900">Passo a passo detalhado</h2>
-            <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <div className="mt-6 grid grid-cols-1 gap-5 2xl:grid-cols-2">
               {steps.map((step, index) => (
                 <div key={step.title} className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
                   <span className="text-xs font-black uppercase tracking-[0.2em] text-orange-600">Passo {index + 1}</span>
@@ -170,7 +170,7 @@ export default function Page() {
           </section>
         </article>
 
-        <aside className="h-fit space-y-5">
+        <aside className="space-y-5 xl:sticky xl:top-28 xl:self-start">
           <div className="rounded-3xl bg-orange-50 p-6 shadow-sm">
             <h2 className="font-black text-slate-900">Resumo rápido</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-700">
