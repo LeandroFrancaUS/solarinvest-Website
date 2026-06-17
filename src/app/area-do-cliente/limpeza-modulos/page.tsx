@@ -68,7 +68,7 @@ export default function Page() {
             <div className="flex gap-4">
               <ShieldAlert className="mt-1 h-7 w-7 flex-none text-orange-600" aria-hidden="true" />
               <div>
-                <h2 className="text-2xl font-black text-slate-950">Antes de começar: atenção à seriedade do procedimento</h2>
+                <h2 className="text-2xl font-black text-slate-900">Antes de começar: atenção à seriedade do procedimento</h2>
                 <p className="mt-3 leading-relaxed">
                   Módulos fotovoltaicos podem permanecer energizados sempre que recebem luz. Desligar disjuntores e chaves seccionadoras reduz riscos operacionais, mas não transforma o arranjo fotovoltaico em um equipamento totalmente sem tensão. Se você não souber identificar disjuntor CA, disjuntor CC, chave seccionadora ou inversor, não execute a limpeza por conta própria.
                 </p>
@@ -77,21 +77,21 @@ export default function Page() {
           </section>
 
           <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Quando limpar</h2>
+            <h2 className="text-2xl font-black text-slate-900">Quando limpar</h2>
             <p className="mt-3 leading-relaxed">
               Limpe quando houver acúmulo visível de poeira, fezes de pássaros, folhas, poluição, maresia, fuligem ou fumaça, especialmente se a geração cair em relação ao histórico. A recomendação operacional é fazer inspeção visual mensal e comparar a geração no aplicativo de monitoramento antes de decidir pela limpeza.
             </p>
           </section>
 
           <section id="frequencia" className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Frequência recomendada</h2>
+            <h2 className="text-2xl font-black text-slate-900">Frequência recomendada</h2>
             <p className="mt-3 leading-relaxed">
               A frequência depende do nível de sujeira, inclinação dos módulos, período de chuvas e exposição local. Não existe um intervalo único para todos os sistemas: use a tabela como referência e ajuste com base na inspeção visual e no desempenho real da usina.
             </p>
             <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200">
               {rows.map(([condition, frequency]) => (
                 <div key={condition} className="grid grid-cols-2 border-b border-slate-100 last:border-0">
-                  <strong className="bg-orange-50 p-4 text-slate-950">{condition}</strong>
+                  <strong className="bg-orange-50 p-4 text-slate-900">{condition}</strong>
                   <span className="p-4">{frequency}</span>
                 </div>
               ))}
@@ -99,14 +99,14 @@ export default function Page() {
           </section>
 
           <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Horário correto</h2>
+            <h2 className="text-2xl font-black text-slate-900">Horário correto</h2>
             <p className="mt-3 leading-relaxed">
               Realize a limpeza no início da manhã ou no final da tarde, quando os módulos estão mais frios e a irradiância é menor. Nunca limpe sob sol forte ou com módulos muito quentes: a água fria sobre vidro aquecido pode provocar choque térmico, além de aumentar risco de queimadura, desidratação e queda durante o trabalho.
             </p>
           </section>
 
           <section id="materiais" className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Materiais permitidos</h2>
+            <h2 className="text-2xl font-black text-slate-900">Materiais permitidos</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               <li>✓ água limpa em temperatura ambiente</li>
               <li>✓ detergente neutro bem diluído</li>
@@ -118,7 +118,7 @@ export default function Page() {
           </section>
 
           <section id="proibido" className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Proibido utilizar</h2>
+            <h2 className="text-2xl font-black text-slate-900">Proibido utilizar</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               <li>✗ lavadora de alta pressão</li>
               <li>✗ produtos abrasivos</li>
@@ -130,12 +130,12 @@ export default function Page() {
           </section>
 
           <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Passo a passo detalhado</h2>
+            <h2 className="text-2xl font-black text-slate-900">Passo a passo detalhado</h2>
             <div className="mt-6 space-y-4">
               {steps.map((step, index) => (
                 <div key={step.title} className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
                   <span className="text-xs font-black uppercase tracking-[0.2em] text-orange-600">Passo {index + 1}</span>
-                  <h3 className="mt-2 text-lg font-black text-slate-950">{step.title}</h3>
+                  <h3 className="mt-2 text-lg font-black text-slate-900">{step.title}</h3>
                   <p className="mt-2 leading-relaxed">{step.text}</p>
                 </div>
               ))}
@@ -143,14 +143,14 @@ export default function Page() {
           </section>
 
           <section id="seguranca" className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Segurança</h2>
+            <h2 className="text-2xl font-black text-slate-900">Segurança</h2>
             <p className="mt-3 leading-relaxed">
               Há risco de queda, choque elétrico, queimaduras e dano permanente aos equipamentos. Trabalho em telhados exige planejamento, isolamento da área, EPIs adequados e capacitação compatível com NR-35 quando houver trabalho em altura. Se não houver treinamento, ponto de ancoragem, acesso seguro ou conhecimento elétrico mínimo, contrate empresa especializada.
             </p>
           </section>
 
           <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">Sinais de alerta</h2>
+            <h2 className="text-2xl font-black text-slate-900">Sinais de alerta</h2>
             <p className="mt-3 leading-relaxed">
               Se qualquer item abaixo for identificado, não continue a limpeza. Interrompa o procedimento, mantenha distância de partes elétricas e solicite inspeção técnica.
             </p>
@@ -168,7 +168,7 @@ export default function Page() {
 
         <aside className="h-fit space-y-5">
           <div className="rounded-3xl bg-orange-50 p-6 shadow-sm">
-            <h2 className="font-black text-slate-950">Resumo rápido</h2>
+            <h2 className="font-black text-slate-900">Resumo rápido</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-700">
               Desligue disjuntores e chaves seccionadoras, mantenha distância de componentes elétricos, use apenas materiais suaves e nunca trabalhe em altura sem segurança adequada.
             </p>
