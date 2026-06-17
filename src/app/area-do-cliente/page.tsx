@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 import ClientAreaSearch from '@/components/cliente/ClientAreaSearch';
 import ClientFAQ from '@/components/cliente/ClientFAQ';
 import { categories, downloads, faqs } from '@/components/cliente/ClientAreaData';
-import { Breadcrumbs, JsonLd } from '@/components/cliente/ClientAreaLayout';
+import { JsonLd, clientAreaContainerClass } from '@/components/cliente/ClientAreaLayout';
 
 export const metadata = buildMetadata({
   title: 'Central do Cliente SolarInvest | Manutenção, Limpeza e Garantias',
@@ -32,13 +32,12 @@ export default function AreaDoClientePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-24">
+    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-12">
       <JsonLd id="client-faq-jsonld" data={faqJsonLd} />
 
-      <section className="px-6 pb-8 pt-5 md:px-16 lg:px-28">
-        <div className="mx-auto max-w-7xl">
-          <Breadcrumbs items={[{ label: 'Área do Cliente' }]} compact />
-          <div className="grid gap-8 rounded-[2rem] border border-orange-100 bg-white/90 p-6 shadow-xl shadow-orange-100/60 md:p-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+      <section className="pb-8">
+        <div className={clientAreaContainerClass}>
+          <div className="grid gap-8 rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-xl shadow-orange-100/60 md:p-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div className="py-2">
               <span className="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold uppercase tracking-[0.2em] text-orange-700">
                 Área do Cliente
@@ -70,8 +69,8 @@ export default function AreaDoClientePage() {
         </div>
       </section>
 
-      <section className="px-6 py-8 md:px-16 lg:px-28">
-        <div className="mx-auto max-w-7xl">
+      <section className="py-8">
+        <div className={clientAreaContainerClass}>
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="text-sm font-black uppercase tracking-[0.2em] text-orange-600">Navegação rápida</span>
@@ -81,7 +80,7 @@ export default function AreaDoClientePage() {
               Cards compactos para encontrar qualquer orientação em poucos cliques, sem excesso de rolagem.
             </p>
           </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {categories.map((cat) => {
               const Icon = cat.icon;
               return (
@@ -99,29 +98,31 @@ export default function AreaDoClientePage() {
         </div>
       </section>
 
-      <section id="downloads" className="px-6 py-8 md:px-16 lg:px-28">
-        <div className="mx-auto max-w-7xl rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-white p-6 shadow-lg shadow-orange-100/50 md:p-8">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+      <section id="downloads" className="py-8">
+        <div className={clientAreaContainerClass}>
+          <div className="rounded-3xl border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-white p-6 shadow-lg shadow-orange-100/50 md:p-8">
+            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="text-sm font-black uppercase tracking-[0.2em] text-orange-600">Biblioteca</span>
               <h2 className="mt-2 text-3xl font-black text-slate-900">Documentação e downloads</h2>
             </div>
             <p className="max-w-xl text-sm text-slate-600">Estrutura preparada para anexar PDFs e versões futuras dos materiais técnicos.</p>
           </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {downloads.map((item) => (
-              <div key={item} className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-                <Download className="h-6 w-6 text-orange-500" aria-hidden="true" />
-                <h3 className="mt-3 font-bold text-slate-900">{item}</h3>
-                <p className="mt-2 text-sm text-slate-600">PDF em preparação</p>
-              </div>
-            ))}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {downloads.map((item) => (
+                <div key={item} className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+                  <Download className="h-6 w-6 text-orange-500" aria-hidden="true" />
+                  <h3 className="mt-3 font-bold text-slate-900">{item}</h3>
+                  <p className="mt-2 text-sm text-slate-600">PDF em preparação</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="faq" className="px-6 pb-14 pt-8 md:px-16 lg:px-28">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[320px_1fr]">
+      <section id="faq" className="pb-14 pt-8">
+        <div className={`${clientAreaContainerClass} grid gap-8 lg:grid-cols-[320px_1fr]`}>
           <div className="rounded-3xl border border-orange-100 bg-orange-50 p-6 lg:h-fit">
             <FileText className="h-8 w-8 text-orange-500" aria-hidden="true" />
             <h2 className="mt-4 text-3xl font-black text-slate-900">FAQ inteligente</h2>

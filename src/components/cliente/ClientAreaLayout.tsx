@@ -22,21 +22,22 @@ export function Breadcrumbs({ items, compact = false }: { items: { label: string
   );
 }
 
+export const clientAreaContainerClass = 'mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8';
+
 export function PageShell({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-24">
-      <section className="px-6 pb-12 pt-5 md:px-16 lg:px-28">
-        <div className="mx-auto max-w-6xl">
-          <Breadcrumbs items={[{ label: 'Área do Cliente', href: '/area-do-cliente' }, { label: title }]} />
-          <div className="overflow-hidden rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-50 p-6 text-slate-900 shadow-xl shadow-orange-100/60 md:p-8">
-            <div className="max-w-4xl">
+    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-12">
+      <section className="pb-12">
+        <div className={clientAreaContainerClass}>
+          <div className="overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-50 p-6 text-slate-900 shadow-xl shadow-orange-100/60 md:p-8">
+            <div className="w-full">
               <span className="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold uppercase tracking-[0.2em] text-orange-700">
                 Central do Cliente SolarInvest
               </span>
               <h1 className="mt-4 text-4xl font-black tracking-tight text-slate-900 md:text-5xl">
                 {title}
               </h1>
-              <p className="mt-3 max-w-3xl text-lg leading-relaxed text-slate-700">
+              <p className="mt-3 max-w-[860px] text-lg leading-relaxed text-slate-700">
                 {description}
               </p>
             </div>
