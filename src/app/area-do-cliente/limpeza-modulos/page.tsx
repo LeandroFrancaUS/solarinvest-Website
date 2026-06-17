@@ -100,15 +100,15 @@ export default function Page() {
             </section>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <section className="rounded-3xl bg-white p-8 shadow-sm">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <section className="h-full rounded-3xl bg-white p-8 shadow-sm">
               <h2 className="text-2xl font-black text-slate-900">Horário correto</h2>
               <p className="mt-3 leading-relaxed">
                 Realize a limpeza no início da manhã ou no final da tarde, quando os módulos estão mais frios e a irradiância é menor. Nunca limpe sob sol forte ou com módulos muito quentes: a água fria sobre vidro aquecido pode provocar choque térmico, além de aumentar risco de queimadura, desidratação e queda durante o trabalho.
               </p>
             </section>
 
-            <section id="materiais" className="rounded-3xl bg-white p-8 shadow-sm">
+            <section id="materiais" className="h-full rounded-3xl bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900">Materiais permitidos</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               <li>✓ água limpa em temperatura ambiente</li>
@@ -120,7 +120,7 @@ export default function Page() {
             </ul>
             </section>
 
-            <section id="proibido" className="rounded-3xl bg-white p-8 shadow-sm">
+            <section id="proibido" className="h-full rounded-3xl bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900">Proibido utilizar</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               <li>✗ lavadora de alta pressão</li>
@@ -130,6 +130,22 @@ export default function Page() {
               <li>✗ escovas metálicas ou palha de aço</li>
               <li>✗ objetos cortantes ou raspadores rígidos</li>
             </ul>
+            </section>
+
+            <section className="h-full rounded-3xl bg-white p-8 shadow-sm">
+              <h2 className="text-2xl font-black text-slate-900">Sinais de alerta</h2>
+              <p className="mt-3 leading-relaxed">
+                Se qualquer item abaixo for identificado, não continue a limpeza. Interrompa o procedimento, mantenha distância de partes elétricas e solicite inspeção técnica.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <span>□ vidro quebrado</span>
+                <span>□ manchas permanentes</span>
+                <span>□ delaminação</span>
+                <span>□ pontos quentes aparentes</span>
+                <span>□ cabos expostos</span>
+                <span>□ conectores danificados</span>
+              </div>
+              <div className="mt-6"><SupportCta /></div>
             </section>
           </div>
 
@@ -151,22 +167,6 @@ export default function Page() {
             <p className="mt-3 leading-relaxed">
               Há risco de queda, choque elétrico, queimaduras e dano permanente aos equipamentos. Trabalho em telhados exige planejamento, isolamento da área, EPIs adequados e capacitação compatível com NR-35 quando houver trabalho em altura. Se não houver treinamento, ponto de ancoragem, acesso seguro ou conhecimento elétrico mínimo, contrate empresa especializada.
             </p>
-          </section>
-
-          <section className="rounded-3xl bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-900">Sinais de alerta</h2>
-            <p className="mt-3 leading-relaxed">
-              Se qualquer item abaixo for identificado, não continue a limpeza. Interrompa o procedimento, mantenha distância de partes elétricas e solicite inspeção técnica.
-            </p>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <span>□ vidro quebrado</span>
-              <span>□ manchas permanentes</span>
-              <span>□ delaminação</span>
-              <span>□ pontos quentes aparentes</span>
-              <span>□ cabos expostos</span>
-              <span>□ conectores danificados</span>
-            </div>
-            <div className="mt-6"><SupportCta /></div>
           </section>
         </article>
 
