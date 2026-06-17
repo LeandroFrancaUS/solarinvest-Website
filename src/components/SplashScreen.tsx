@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function SplashScreen({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
-  const [splashSrc, setSplashSrc] = useState('/splash_festivos/Feliz_2026.png');
+  const [splashSrc, setSplashSrc] = useState('/icon.png');
   const splashCooldownMs = 5 * 60 * 1000;
   const splashStorageKey = 'solarinvest:splash:lastShown';
 
@@ -35,7 +35,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
           <div className="flex items-center justify-center p-6">
             <Image
               src={splashSrc}
-              alt="SolarInvest"
+              alt="Logo original da SolarInvest"
               width={360}
               height={360}
               priority
