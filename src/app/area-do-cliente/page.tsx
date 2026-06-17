@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 import ClientAreaSearch from '@/components/cliente/ClientAreaSearch';
 import ClientFAQ from '@/components/cliente/ClientFAQ';
 import { categories, downloads, faqs } from '@/components/cliente/ClientAreaData';
-import { Breadcrumbs, JsonLd, clientAreaContainerClass } from '@/components/cliente/ClientAreaLayout';
+import { JsonLd, clientAreaContainerClass } from '@/components/cliente/ClientAreaLayout';
 
 export const metadata = buildMetadata({
   title: 'Central do Cliente SolarInvest | Manutenção, Limpeza e Garantias',
@@ -32,12 +32,11 @@ export default function AreaDoClientePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-24">
+    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-12">
       <JsonLd id="client-faq-jsonld" data={faqJsonLd} />
 
-      <section className="pb-8 pt-5">
+      <section className="pb-8">
         <div className={clientAreaContainerClass}>
-          <Breadcrumbs items={[{ label: 'Área do Cliente' }]} compact />
           <div className="grid gap-8 rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-xl shadow-orange-100/60 md:p-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div className="py-2">
               <span className="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold uppercase tracking-[0.2em] text-orange-700">

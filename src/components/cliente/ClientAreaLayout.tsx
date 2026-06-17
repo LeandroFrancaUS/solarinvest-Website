@@ -26,10 +26,9 @@ export const clientAreaContainerClass = 'mx-auto w-full max-w-[1320px] px-4 sm:p
 
 export function PageShell({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-24">
-      <section className="pb-12 pt-5">
+    <main className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white pt-12">
+      <section className="pb-12">
         <div className={clientAreaContainerClass}>
-          <Breadcrumbs items={[{ label: 'Área do Cliente', href: '/area-do-cliente' }, { label: title }]} />
           <div className="overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-50 p-6 text-slate-900 shadow-xl shadow-orange-100/60 md:p-8">
             <div className="w-full">
               <span className="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold uppercase tracking-[0.2em] text-orange-700">
