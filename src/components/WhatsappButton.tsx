@@ -1,8 +1,15 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { FaWhatsapp } from 'react-icons/fa';
 
 export default function WhatsappButton() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith('/sdr/manual-operacional')) {
+    return null;
+  }
+
   const numero = '5562995150975'; // Altere para seu número real com DDI + DDD
 
   return (

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 
 const navigationLinks = [
@@ -65,6 +66,12 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
 }
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith('/sdr/manual-operacional')) {
+    return null;
+  }
+
   return (
     <footer className="bg-[#0B1622] px-4 py-12 text-slate-300 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
