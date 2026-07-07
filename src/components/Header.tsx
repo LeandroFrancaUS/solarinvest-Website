@@ -9,6 +9,7 @@ import clsx from 'clsx';
 
 export default function Header() {
   const pathname = usePathname();
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoSrc, setLogoSrc] = useState('/icon.png');
 
@@ -32,6 +33,10 @@ export default function Header() {
   ];
 
   const ariaLabel = menuOpen ? 'Fechar menu' : 'Abrir menu';
+
+  if (pathname.startsWith('/sdr/manual-operacional')) {
+    return null;
+  }
 
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-white/70 to-orange-50/30 backdrop-blur-xl shadow-md border-b border-orange-100">

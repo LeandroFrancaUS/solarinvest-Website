@@ -7,6 +7,7 @@ const normalizedSiteUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl
 
 const robotsContent = `User-agent: *
 Allow: /
+Disallow: /sdr/manual-operacional
 
 Sitemap: ${normalizedSiteUrl}/sitemap.xml
 `;
