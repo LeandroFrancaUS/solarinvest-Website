@@ -14,19 +14,24 @@ export type SDRManualCategory = {
 };
 
 export const sdrChecklist = [
-  'Nome do cliente',
+  'Nome completo do contratante',
+  'CPF/CNPJ do contratante',
   'Telefone',
   'Cidade/UF',
   'Tipo de imóvel',
-  'Valor médio da conta',
   'Distribuidora',
-  'Possui energia solar?',
-  'Imóvel próprio?',
-  'Conta no nome do cliente?',
-  'Interesse: leasing, venda, monitoramento, assistência ou dúvida',
+  'Valor médio da conta',
+  'Consumo médio, quando disponível',
+  'Número da Unidade Consumidora (UC)',
+  'A titularidade da UC está em nome do contratante?',
+  'Todas as UCs envolvidas no rateio estão em nome do contratante?',
+  'O imóvel é próprio?',
+  'Possui autorização do proprietário, se aplicável?',
+  'Possui energia solar instalada?',
+  'Interesse: Leasing, Venda, Monitoramento, Assistência ou Dúvida',
   'Conta de energia recebida?',
   'Lead qualificado?',
-  'Encaminhado para consultor?',
+  'Encaminhado ao consultor?',
 ];
 
 export const quickQualificationCriteria = [
@@ -41,7 +46,6 @@ export const quickQualificationCriteria = [
 export const sdrManual: SDRManualCategory[] = [
   { category: 'Visão geral da SolarInvest', description: 'Posicionamento, papel do SDR e limites comerciais.', items: [
     { id: 'o-que-e-a-solarinvest', question: 'O que é a SolarInvest?', shortAnswer: 'Empresa especializada em energia solar, com foco em Leasing Solar e soluções fotovoltaicas.', answer: 'A SolarInvest é uma empresa especializada em soluções de energia solar. Nosso principal modelo de negócio é o Leasing Solar, no qual a própria SolarInvest realiza o investimento no sistema fotovoltaico e o cliente passa a pagar uma mensalidade normalmente inferior ao que pagava anteriormente pela energia elétrica. Também atuamos com venda de sistemas fotovoltaicos, monitoramento, assistência técnica, ampliação e adequação de usinas já existentes.', tags: ['solarinvest', 'empresa', 'leasing solar', 'energia solar'], priority: 'qualified' },
-    { id: 'o-sdr-vende', question: 'O SDR vende?', shortAnswer: 'Não. O SDR qualifica, coleta informações e encaminha leads com potencial ao consultor.', answer: 'Não. O papel do SDR é fazer o primeiro atendimento, entender a necessidade do cliente, identificar se o lead possui perfil compatível, coletar as informações básicas, solicitar a conta de energia e encaminhar o atendimento para um consultor quando houver potencial real. O SDR não deve prometer aprovação, valores finais, prazos definitivos ou condições comerciais sem validação do consultor.', tags: ['sdr', 'venda', 'consultor', 'atendimento', 'promessa'], priority: 'review' },
   ]},
   { category: 'Leasing Solar', description: 'Conceitos, propriedade, manutenção e regras gerais do leasing.', items: [
     { id: 'o-que-e-leasing-solar', question: 'O que é Leasing Solar?', shortAnswer: 'A SolarInvest investe no sistema e o cliente paga uma mensalidade pelo uso da usina.', answer: 'No Leasing Solar, a SolarInvest realiza o investimento necessário para aquisição e instalação do sistema fotovoltaico. O cliente não precisa comprar os equipamentos e passa a utilizar a energia gerada pela usina mediante pagamento de uma mensalidade prevista em contrato. Durante a vigência contratual, a SolarInvest permanece responsável pela operação, monitoramento e manutenção previstos no contrato. Ao término do prazo contratual, a propriedade do sistema pode ser transferida ao cliente conforme as condições contratuais.', tags: ['leasing', 'aluguel solar', 'sem entrada', 'mensalidade', 'sistema solar'], priority: 'qualified' },
@@ -74,6 +78,13 @@ export const sdrManual: SDRManualCategory[] = [
   ]},
   { category: 'Conta de energia e distribuidora', description: 'Faturas, créditos e responsabilidades da distribuidora.', items: [
     { id: 'cliente-recebe-conta-distribuidora', question: 'O cliente continuará recebendo conta da distribuidora?', shortAnswer: 'Sim, poderá receber cobranças de disponibilidade, iluminação, tributos e consumo não compensado.', answer: 'Sim. Mesmo com energia solar, o cliente pode continuar recebendo faturas da distribuidora com cobranças como custo de disponibilidade, iluminação pública, tributos, encargos e eventual consumo não compensado, conforme o caso.', tags: ['conta', 'distribuidora', 'fatura', 'custo de disponibilidade'], priority: 'review' },
+    { id: 'titularidade-uc-contratante', question: 'A titularidade da UC precisa estar no nome do contratante?', shortAnswer: 'Sim. Para Leasing Solar, a Unidade Consumidora deve estar em nome do contratante.', answer: 'Sim. Para contratação do Leasing Solar, a titularidade da Unidade Consumidora (UC) deve estar em nome do contratante. Caso a conta de energia esteja em nome de outra pessoa física ou jurídica, a regularização da titularidade deverá ser realizada antes da formalização do contrato ou conforme orientação específica da SolarInvest. Essa verificação deve fazer parte do checklist obrigatório do SDR.', tags: ['titularidade', 'UC', 'unidade consumidora', 'contratante', 'conta de energia', 'leasing', 'checklist'], priority: 'qualified' },
+    { id: 'todas-ucs-nome-contratante', question: 'Todas as Unidades Consumidoras precisam estar no nome do contratante?', shortAnswer: 'Sim. As UCs utilizadas no contrato e no rateio devem estar em nome do contratante.', answer: 'Sim. Para utilização de créditos, rateio ou compensação vinculada ao contrato, as Unidades Consumidoras devem estar em nome do contratante ou atender às regras legais e regulatórias aplicáveis da distribuidora. Em regra, a SolarInvest deve orientar o cliente de que todas as UCs envolvidas precisam estar regularizadas em nome do contratante para evitar atrasos, recusas ou problemas de compensação.', tags: ['UC', 'unidades consumidoras', 'titularidade', 'rateio', 'créditos', 'compensação', 'contratante', 'distribuidora'], priority: 'qualified' },
+    { id: 'responsavel-alterar-rateio-creditos', question: 'Quem é responsável por solicitar ou alterar o rateio dos créditos?', shortAnswer: 'O contratante é responsável pelas solicitações e alterações de rateio.', answer: 'A solicitação de inclusão, exclusão ou alteração de rateio de créditos junto à distribuidora é de responsabilidade do contratante. A SolarInvest pode auxiliar com orientações, documentos e acompanhamento quando possível, mas não deve prometer controle sobre o prazo, aceitação ou processamento da solicitação pela distribuidora.', tags: ['rateio', 'alteração de rateio', 'créditos', 'compensação', 'distribuidora', 'contratante', 'responsabilidade'], priority: 'review' },
+    { id: 'garantia-compensacao-apos-rateio', question: 'A SolarInvest garante a compensação dos créditos após alteração de rateio?', shortAnswer: 'Não. A compensação depende do processamento da distribuidora.', answer: 'Não. A compensação dos créditos depende exclusivamente do processamento realizado pela distribuidora de energia. Alterações de rateio podem gerar atrasos na compensação e a SolarInvest não consegue garantir datas, valores ou ciclos exatos de compensação. O SDR deve explicar que a SolarInvest pode auxiliar o cliente, mas não controla os prazos internos da distribuidora.', tags: ['rateio', 'compensação', 'créditos', 'distribuidora', 'atraso', 'fatura', 'SolarInvest'], priority: 'review' },
+    { id: 'alteracoes-rateio-atrasam-compensacao', question: 'Alterações no rateio podem atrasar a compensação dos créditos?', shortAnswer: 'Sim. Alterações de rateio tendem a gerar atraso temporário na compensação.', answer: 'Sim. Solicitações ou alterações de rateio podem gerar atraso temporário na compensação dos créditos de energia, pois dependem da análise e processamento da distribuidora. A SolarInvest não pode garantir que os créditos sejam compensados no mesmo ciclo de faturamento em que o cliente solicitou a alteração.', tags: ['rateio', 'atraso', 'compensação', 'créditos', 'distribuidora', 'ciclo de faturamento'], priority: 'review' },
+    { id: 'cliente-pode-comprar-sistema-leasing', question: 'O cliente pode comprar o sistema depois de aderir ao Leasing Solar?', shortAnswer: 'Sim. O contrato pode prever aquisição antecipada conforme regras comerciais vigentes.', answer: 'Sim. O cliente pode solicitar a compra antecipada do sistema após aderir ao Leasing Solar, conforme as condições previstas no contrato e na política comercial vigente da SolarInvest. O valor de aquisição pode variar de acordo com o momento da solicitação, prazo já cumprido, saldo contratual, regras de buyout e condições específicas da proposta. O SDR não deve informar valor de compra por conta própria; deve encaminhar a solicitação ao consultor.', tags: ['comprar sistema', 'compra antecipada', 'leasing', 'buyout', 'aquisição', 'valor residual', 'contrato', 'comprar depois'], priority: 'review' },
+    { id: 'quando-comprar-sistema-leasing', question: 'Quando o cliente pode comprar o sistema no Leasing Solar?', shortAnswer: 'A compra antecipada depende das condições previstas no contrato.', answer: 'A possibilidade de compra antecipada depende das condições previstas no contrato de Leasing Solar e da política comercial vigente. O SDR deve informar que existe essa possibilidade, mas que a simulação de valor e o momento aplicável precisam ser confirmados por um consultor ou pela equipe responsável.', tags: ['comprar', 'leasing', 'compra antecipada', 'contrato', 'buyout', 'consultor', 'aquisição antecipada'], priority: 'review' },
     { id: 'solarinvest-controla-creditos', question: 'A SolarInvest controla a compensação de créditos?', shortAnswer: 'Não. Compensação, rateio e processamento na fatura são feitos pela distribuidora.', answer: 'Não. A compensação de energia, o rateio de créditos e o processamento na fatura são realizados pela distribuidora, conforme regras regulatórias. A SolarInvest pode acompanhar e orientar, mas não controla os prazos e critérios internos da distribuidora.', tags: ['créditos', 'creditos', 'compensação', 'rateio', 'distribuidora'], priority: 'review' },
   ]},
   { category: 'Monitoramento, Wi-Fi e manutenção', description: 'Conectividade, monitoramento remoto e impacto operacional.', items: [
