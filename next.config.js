@@ -16,7 +16,7 @@ module.exports = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/:path((?!fatura(?:/|$)).*)',
         headers: [
           {
             key: 'Content-Security-Policy',
@@ -70,6 +70,10 @@ module.exports = {
 
   async rewrites() {
     return [
+      {
+        source: '/fatura/:token',
+        destination: 'https://app.solarinvest.info/fatura/:token',
+      },
       {
         source: '/sitemap.xml',
         destination: '/sitemap',
