@@ -150,6 +150,9 @@ export default function Footer() {
             <p>
               <span className="font-semibold text-slate-200">Cidade/Estado:</span> Anápolis – GO
             </p>
+            <p>
+              <span className="font-semibold text-slate-200">CNPJ:</span> 60.434.015/0001-90
+            </p>
           </address>
         </div>
       </div>
