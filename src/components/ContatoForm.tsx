@@ -393,6 +393,13 @@ export default function ContatoForm() {
         {mensagemErroCampo('mensagem')}
       </div>
 
+      <p className="text-xs leading-5 text-gray-500">
+        Ao enviar, você concorda com o tratamento dos dados para responder à sua solicitação, conforme nossa{' '}
+        <a href="/politica-de-privacidade" className="font-semibold text-orange-700 underline">
+          Política de Privacidade
+        </a>.
+      </p>
+
       {/* 📤 Botão de envio */}
       <button
         type="submit"

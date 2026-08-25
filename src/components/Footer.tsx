@@ -155,7 +155,10 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto mt-10 max-w-7xl border-t border-slate-800 pt-5 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} SolarInvest. Todos os direitos reservados.
+        <p>© {new Date().getFullYear()} SolarInvest. Todos os direitos reservados.</p>
+        <Link href="/politica-de-privacidade" className="mt-2 inline-block transition hover:text-orange-300">
+          Política de Privacidade
+        </Link>
       </div>
     </footer>
   );

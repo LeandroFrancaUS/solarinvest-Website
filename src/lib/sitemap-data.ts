@@ -97,6 +97,12 @@ export const sitemapEntries: SitemapEntry[] = [
     ],
   },
   {
+    path: '/politica-de-privacidade',
+    changefreq: 'yearly',
+    priority: 0.5,
+    images: [{ loc: sharedLogoImage, title: 'Política de Privacidade SolarInvest' }],
+  },
+  {
     path: '/videos',
     changefreq: 'weekly',
     priority: 0.9,
