@@ -1,8 +1,9 @@
-import { BatteryCharging, ClipboardCheck, FileText, HelpCircle, MonitorDot, ShieldCheck, Sparkles, Wrench, Zap, Settings } from 'lucide-react';
+import { BatteryCharging, ClipboardCheck, FileText, HelpCircle, MonitorDot, ShieldCheck, Sparkles, Wrench, Zap, Settings, Percent } from 'lucide-react';
 
 export const quickTags = ['Limpeza dos Módulos', 'Garantias', 'Manutenção', 'Inversores', 'Suporte Técnico', 'Planos de O&M'];
 
 export const categories = [
+  { title: 'Alteração de Rateio', href: '/area-do-cliente/alteracao-de-rateio', icon: Percent, description: 'Inclua ou exclua unidades consumidoras e redistribua os percentuais de geração.' },
   { title: 'Limpeza dos Módulos', href: '/area-do-cliente/limpeza-modulos', icon: Sparkles, description: 'Frequência, materiais permitidos, horários seguros e checklist de inspeção.' },
   { title: 'Manutenção Preventiva', href: '/area-do-cliente/planos', icon: ClipboardCheck, description: 'Rotinas para preservar geração, segurança elétrica e vida útil da usina.' },
   { title: 'Manutenção Corretiva', href: '/area-do-cliente/suporte', icon: Wrench, description: 'Como agir diante de alarmes, falhas de geração e danos aparentes.' },
