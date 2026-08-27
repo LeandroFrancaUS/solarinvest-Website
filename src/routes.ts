@@ -16,6 +16,7 @@ export const siteRoutes = [
   '/area-do-cliente/monitoramento',
   '/area-do-cliente/suporte',
   '/area-do-cliente/alteracao-de-rateio',
+  '/rateio',
   '/leasing-energia-solar',
   '/economia-na-conta-de-luz',
   '/preco-energia-solar',
