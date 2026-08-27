@@ -180,6 +180,7 @@ export const sitemapEntries: SitemapEntry[] = [
   { path: '/area-do-cliente/planos', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Planos de manutenção SolarInvest' }] },
   { path: '/area-do-cliente/monitoramento', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Monitoramento de usina solar' }] },
   { path: '/area-do-cliente/suporte', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Suporte técnico SolarInvest' }] },
+  { path: '/rateio', changefreq: 'monthly', priority: 0.9, images: [{ loc: sharedLogoImage, title: 'Solicitação de alteração de rateio SolarInvest' }] },
   {
     path: '/leasing-energia-solar',
     changefreq: 'monthly',

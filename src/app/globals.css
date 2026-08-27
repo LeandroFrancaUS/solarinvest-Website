@@ -53,3 +53,31 @@ a:focus, button:focus {
 button {
   @apply font-semibold rounded-lg shadow hover:shadow-md transition-all;
 }
+/* Formulários móveis: evita zoom do iOS, preserva o campo focado e áreas de toque. */
+.rateio-control {
+  min-height: 44px;
+  scroll-margin-block: 7rem;
+}
+
+@media (max-width: 767px) {
+  .rateio-control {
+    font-size: 16px;
+  }
+
+  .rateio-mobile-actions {
+    max-height: min(7rem, 25dvh);
+  }
+}
+
+.rateio-form button,
+.rateio-form input[type='checkbox'] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.rateio-form label,
+.rateio-form dd,
+.rateio-form p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
