@@ -44,13 +44,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, code: 'INVALID_REQUEST_TYPE' }, { status: 400 });
   }
   const payload = body.payload && typeof body.payload === 'object' ? body.payload as Record<string, unknown> : {};
-  const shareUnits = Array.isArray(payload.shareUnits) ? payload.shareUnits : original.shareUnits;
+  // A titularidade confirmada no lookup é a única fonte confiável. Nunca
+  // encaminhamos o titular enviado pelo navegador no fluxo autenticado.
+  const requestedShareUnits = Array.isArray(payload.shareUnits) ? payload.shareUnits : original.shareUnits;
+  const shareUnits = requestedShareUnits.map((unit) => {
+    const fields = unit && typeof unit === 'object' ? unit as Record<string, unknown> : {};
+    return { ...fields, holderName: original.holder.name };
+  });
+  const safePayload = { ...payload, shareUnits };
   const submittedFields = { ...original, shareUnits };
   const upstream = await callRateioApp('/api/public/rateio/requests', {
     reference: original.reference,
     requestType,
     lookupToken: token,
-    payload: { ...payload, originalShareUnits: original.shareUnits },
+    payload: { ...safePayload, originalShareUnits: original.shareUnits },
     submittedFields,
     expectedFeeStatus: body.expectedFeeStatus,
   }, SUBMIT_TIMEOUT_MS, ip);

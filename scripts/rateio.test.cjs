@@ -27,7 +27,7 @@ test('geradora é rejeitada em GO e aceita em DF', () => {
   assert.equal(hasDuplicateUcs(items, generator, 'DF'), false);
 });
 
-test('interface cobre taxas, pendência, indisponibilidade, confirmação e campos importados sem input', () => {
+test('interface cobre taxas, falhas e dados do cadastro somente para leitura', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   const fee = fs.readFileSync('src/components/rateio/FeeAssessmentCard.tsx', 'utf8');
   for (const status of ['exempt', 'chargeable', 'indeterminate']) assert.match(fee, new RegExp(status));
@@ -36,9 +36,53 @@ test('interface cobre taxas, pendência, indisponibilidade, confirmação e camp
   assert.match(source, /PENDING_REQUEST_EXISTS/);
   assert.match(source, /data\.unavailable\) openManual/);
   assert.match(source, /else \{ const next = failures \+ 1/);
-  assert.match(source, /<Read label="Referência"[\s\S]* imported/);
+  assert.match(source, /Estes dados vieram do seu cadastro/);
+  assert.doesNotMatch(source, /Importado do sistema/);
   const read = source.slice(source.indexOf('function Read'), source.indexOf('function Field'));
   assert.doesNotMatch(read, /<input/);
+});
+
+test('interface começa com linha vazia, posterga o total e deduz o tipo da solicitação', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(source, /return units\.length \? units : \[blankUnit\(\)\]/);
+  assert.match(source, /showErrors \|\| units\.some/);
+  assert.match(source, /requestType: inferRequestType\(units, originalUnits\)/);
+  assert.doesNotMatch(source, />Tipo de solicitação</);
+});
+
+test('cancelamento protege alterações e limpa a consulta', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(source, /formDirty && !window\.confirm/);
+  assert.match(source, /function cancel\(\)[\s\S]*reset\(\)/);
+  assert.match(source, /setLookup\(null\)/);
+  assert.match(source, /rateio-cancel-mobile/);
+});
+
+test('titular é único na interface e imposto pelo servidor no fluxo consultado', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
+  assert.match(source, /Titular de todas as unidades/);
+  assert.match(source, /Esta unidade está em nome de outra pessoa/);
+  assert.match(route, /holderName: original\.holder\.name/);
+  assert.match(route, /safePayload/);
+});
+
+test('envio inválido mostra pendências, mensagens por campo e rola ao primeiro erro', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(source, /if \(!canSubmit\) \{ setShowErrors\(true\); focusFirstError\(\); return; \}/);
+  assert.match(source, /scrollIntoView\(\{ behavior: 'smooth'/);
+  assert.match(source, /Para enviar, confira:/);
+  assert.match(source, /Informe os 15 números da unidade consumidora/);
+  assert.match(source, /Informe o endereço da unidade/);
+  assert.match(source, /Informe um percentual maior que zero/);
+  assert.match(source, /<form noValidate onSubmit=\{submit\}/);
+});
+
+test('envio válido dispara a requisição e os botões de envio nunca são desabilitados', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(source, /if \(!canSubmit\)[\s\S]*fetch\('\/api\/rateio\/solicitacoes'/);
+  const finalForm = source.slice(source.indexOf('<form noValidate onSubmit={submit}'));
+  assert.doesNotMatch(finalForm, /<button disabled=\{loading\}/);
 });
 
 test('honeypot encerra antes de qualquer envio real', () => {

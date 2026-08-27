@@ -43,7 +43,8 @@ export async function callRateioApp(path: string, body: unknown, timeout: number
     let data: unknown = null;
     try { data = await response.json(); } catch { /* invalid upstream response */ }
     return { unavailable: response.status === 401 || response.status === 404 || response.status >= 500, status: response.status, data, headers: response.headers };
-  } catch {
+  } catch (error) {
+    console.error(`Falha ao chamar SolarInvest App em ${path}`, error);
     return { unavailable: true as const, status: 503, data: null, headers: new Headers() };
   } finally {
     clearTimeout(timer);
