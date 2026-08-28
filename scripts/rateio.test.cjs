@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { redistribute, hasDuplicateUcs, TOTAL_BASIS_POINTS } = require('../.test-build/allocation.js');
+const { compareUnits, initializeAllocation, redistribute, hasDuplicateUcs, TOTAL_BASIS_POINTS } = require('../.test-build/allocation.js');
 
 const unit = (id, points = 0, locked = false) => ({ id, ucNumber: id.padStart(15, '0'), holderName: 'Titular', address: '', basisPoints: points, locked, origin: 'current' });
 
@@ -27,6 +27,53 @@ test('geradora é rejeitada em GO e aceita em DF', () => {
   assert.equal(hasDuplicateUcs(items, generator, 'DF'), false);
 });
 
+const project = (state, shareUnits = [], generatorPercent = null) => ({
+  reference: 'L-0002', modality: 'leasing', state, installedAt: null,
+  holder: { name: 'Titular', documentMasked: '', email: '', phone: '' },
+  generatorUnit: { ucNumber: '999999999999999', address: 'Geradora', percent: generatorPercent }, shareUnits,
+});
+const ids = () => { let id = 0; return () => String(++id); };
+
+test('projeto sem beneficiárias abre uma linha vazia sem percentual', () => {
+  const result = initializeAllocation(project('GO'), ids());
+  assert.equal(result.units.length, 1);
+  assert.equal(result.units[0].origin, 'new');
+  assert.equal(result.units[0].basisPoints, null);
+});
+
+test('GO com uma beneficiária fixa cem por cento e adicionar outra permite edição', () => {
+  const result = initializeAllocation(project('GO', [{ ucNumber: '111111111111111', holderName: 'Titular', address: 'A', percent: null }]), ids());
+  assert.equal(result.units[0].basisPoints, 10000);
+  assert.equal(result.units[0].locked, true);
+  const withSecond = [...result.units.map(item => ({ ...item, locked: false })), unit('2')];
+  assert.equal(withSecond.every(item => !item.locked), true);
+  assert.equal(withSecond[1].basisPoints, 0);
+});
+
+test('DF não preenche percentuais nulos e inclui a geradora no total', () => {
+  const result = initializeAllocation(project('DF', [{ ucNumber: '111111111111111', holderName: 'Titular', address: 'A', percent: null }]), ids());
+  assert.equal(result.generator.basisPoints, null);
+  assert.equal(result.units[0].basisPoints, null);
+  result.generator.basisPoints = 4000; result.units[0].basisPoints = 6000;
+  assert.equal(result.generator.basisPoints + result.units[0].basisPoints, TOTAL_BASIS_POINTS);
+});
+
+test('comparativo conserva beneficiária importada removida', () => {
+  const original = [{ ...unit('1', 5000), address: 'A' }, { ...unit('2', 5000), address: 'B' }];
+  const comparison = compareUnits([original[0]], original);
+  assert.equal(comparison.find(item => item.id === '2').status, 'removed');
+  assert.equal(comparison.find(item => item.id === '1').status, 'maintained');
+});
+
+test('geradora é fixa em GO e só o percentual é editável em DF', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  const fixedBlock = source.slice(source.indexOf('Unidade geradora — fixa'), source.indexOf('{hasMissingPercent'));
+  assert.doesNotMatch(fixedBlock, /onChange=.*ucNumber/);
+  assert.doesNotMatch(fixedBlock, /onChange=.*address/);
+  assert.match(fixedBlock, /project\.state === 'DF'/);
+  assert.match(fixedBlock, /Percentual da unidade geradora/);
+});
+
 test('interface cobre taxas, falhas e dados do cadastro somente para leitura', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   const fee = fs.readFileSync('src/components/rateio/FeeAssessmentCard.tsx', 'utf8');
@@ -44,7 +91,8 @@ test('interface cobre taxas, falhas e dados do cadastro somente para leitura', (
 
 test('interface começa com linha vazia, posterga o total e deduz o tipo da solicitação', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
-  assert.match(source, /return units\.length \? units : \[blankUnit\(\)\]/);
+  assert.match(source, /initializeAllocation\(lookup\.project, uid\)/);
+  assert.match(source, /setUnits\(\[blankUnit\(\)\]\)/);
   assert.match(source, /showErrors \|\| units\.some/);
   assert.match(source, /requestType: inferRequestType\(units, originalUnits\)/);
   assert.doesNotMatch(source, />Tipo de solicitação</);
