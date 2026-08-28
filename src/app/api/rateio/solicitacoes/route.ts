@@ -11,8 +11,26 @@ export const runtime = 'nodejs';
 const RATEIO_FROM = 'Alteração de Rateio SolarInvest <contato@solarinvest.info>';
 const RATEIO_INBOX = 'brsolarinvest@gmail.com';
 
-function validationError(code: string, errors: Array<{ field: string; message: string }>) {
-  return NextResponse.json({ ok: false, code, errors }, { status: 400 });
+type ValidationIssue = { field: string; message: string };
+
+function validationError(code: string, issues: ValidationIssue[]) {
+  console.error('[rateio-submit] Falha de validação', { code, issues });
+  return NextResponse.json({ ok: false, code }, { status: 400 });
+}
+
+function upstreamValidationIssues(data: unknown): ValidationIssue[] {
+  if (!data || typeof data !== 'object') return [{ field: 'payload', message: 'A API do app recusou o payload sem informar detalhes.' }];
+  const response = data as Record<string, unknown>;
+  const rawIssues = Array.isArray(response.issues) ? response.issues : Array.isArray(response.errors) ? response.errors : [];
+  return rawIssues.map((issue, index) => {
+    if (!issue || typeof issue !== 'object') return { field: `payload.${index}`, message: String(issue) };
+    const item = issue as Record<string, unknown>;
+    const path = Array.isArray(item.path) ? item.path.join('.') : item.field;
+    return {
+      field: typeof path === 'string' && path ? path : `payload.${index}`,
+      message: typeof item.message === 'string' ? item.message : 'Valor inválido.',
+    };
+  });
 }
 
 async function sendRateioEmail(details: RateioEmailInput) {
