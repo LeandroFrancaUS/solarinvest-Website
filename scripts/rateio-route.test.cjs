@@ -62,10 +62,18 @@ test('segunda solicitação pendente é liberada somente para contas de teste do
   assert.match(lookupRoute, /hasPendingRequest: false/);
 
   const submitRoute = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
-  assert.match(submitRoute, /const testProject = isRateioTestProject\(original\)/);
-  assert.match(submitRoute, /testProject,/);
-  // The route-wide IP protection remains before project identification.
-  assert.ok(submitRoute.indexOf('limited(`submit:${ip}`, 3)') < submitRoute.indexOf('isRateioTestProject(original)'));
+  // A isenção é uma política do app. Enviar um campo novo daqui quebra o
+  // contrato estrito da API antes de a solicitação chegar ao processamento.
+  assert.doesNotMatch(submitRoute, /\btestProject\s*,/);
+  assert.match(submitRoute, /callRateioApp\('\/api\/public\/rateio\/requests'/);
+});
+
+test('falhas de validação registram campo e mensagem no log do servidor', () => {
+  const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
+  assert.match(route, /\[rateio-submit\] Falha de validação/);
+  assert.match(route, /issues: upstreamValidationIssues\(upstream\.data\)/);
+  assert.match(route, /field: 'lookupToken'/);
+  assert.match(route, /field: 'requestType'/);
 });
 
 test('projeto real continua exibindo o bloqueio de solicitação em análise', () => {
