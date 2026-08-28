@@ -14,9 +14,9 @@ export default function RateioPage({ searchParams }: { searchParams?: { ref?: st
   const initialReference = referenceFromUrl(searchParams?.ref);
 
   return (
-    <PageShell title="Alteração de rateio" description="Consulte seu projeto e monte a nova distribuição entre as unidades consumidoras com segurança.">
+    <PageShell title="Solicitação de rateio" description="Consulte seu projeto e monte a nova distribuição entre as unidades consumidoras com segurança.">
       <div className="mt-6 min-w-0 sm:mt-8">
-        <Breadcrumbs compact items={[{ label: 'Área do Cliente', href: '/area-do-cliente' }, { label: 'Alteração de rateio' }]} />
+        <Breadcrumbs compact items={[{ label: 'Área do Cliente', href: '/area-do-cliente' }, { label: 'Solicitação de rateio' }]} />
         <RateioForm initialReference={initialReference} />
       </div>
     </PageShell>
