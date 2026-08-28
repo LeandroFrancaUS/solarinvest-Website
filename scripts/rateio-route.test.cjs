@@ -32,3 +32,12 @@ test('proteções contra overflow móvel e área segura estão presentes', () =>
   assert.match(form, /min-w-0/);
   assert.match(form, /pb-32/);
 });
+
+test('solicitações de rateio confirmadas notificam o inbox operacional', () => {
+  const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
+  assert.match(route, /const RATEIO_INBOX = 'brsolarinvest@gmail.com'/);
+  assert.match(route, /upstream\.status >= 200 && upstream\.status < 300 && responseData\?\.ok === true/);
+  assert.match(route, /await sendRateioEmail\(\{/);
+  assert.match(route, /idempotencyKey: `rateio-\$\{protocol\}`/);
+  assert.ok(route.lastIndexOf('await sendRateioEmail') > route.indexOf('await callRateioApp'));
+});
