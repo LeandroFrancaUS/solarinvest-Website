@@ -121,10 +121,11 @@ test('cancelamento protege alterações e limpa a consulta', () => {
   assert.match(source, /rateio-cancel-mobile/);
 });
 
-test('titular é único na interface e imposto pelo servidor no fluxo consultado', () => {
+test('titular não é repetido na seção de UCs e é imposto pelo servidor no fluxo consultado', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
-  assert.match(source, /Titular de todas as unidades/);
+  assert.doesNotMatch(source, /Titular de todas as unidades/);
+  assert.match(source, /titular informado nos dados do projeto/);
   assert.match(source, /Esta unidade está em nome de outra pessoa/);
   assert.match(route, /holderName: original\.holder\.name/);
   assert.match(route, /safePayload/);
