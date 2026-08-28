@@ -34,20 +34,35 @@ const project = (state, shareUnits = [], generatorPercent = null) => ({
 });
 const ids = () => { let id = 0; return () => String(++id); };
 
-test('projeto sem beneficiárias abre uma linha vazia sem percentual', () => {
+test('projeto de GO sem beneficiárias abre a primeira linha com cem por cento', () => {
   const result = initializeAllocation(project('GO'), ids());
   assert.equal(result.units.length, 1);
   assert.equal(result.units[0].origin, 'new');
-  assert.equal(result.units[0].basisPoints, null);
+  assert.equal(result.units[0].basisPoints, TOTAL_BASIS_POINTS);
+  assert.equal(result.units[0].locked, true);
 });
 
 test('GO com uma beneficiária fixa cem por cento e adicionar outra permite edição', () => {
   const result = initializeAllocation(project('GO', [{ ucNumber: '111111111111111', holderName: 'Titular', address: 'A', percent: null }]), ids());
   assert.equal(result.units[0].basisPoints, 10000);
   assert.equal(result.units[0].locked, true);
-  const withSecond = [...result.units.map(item => ({ ...item, locked: false })), unit('2')];
+  const withSecond = redistribute([...result.units, unit('2')], true);
   assert.equal(withSecond.every(item => !item.locked), true);
-  assert.equal(withSecond[1].basisPoints, 0);
+  assert.deepEqual(withSecond.map(item => item.basisPoints), [5000, 5000]);
+});
+
+test('edição de um percentual em GO recalcula os demais e conserva cem por cento', () => {
+  const current = [unit('1', 5000), unit('2', 3000), unit('3', 2000)];
+  const edited = current.map(item => ({ ...item, basisPoints: item.id === '2' ? 2000 : item.basisPoints, locked: item.id === '2' }));
+  const result = redistribute(edited);
+  assert.deepEqual(result.map(item => item.basisPoints), [4000, 2000, 4000]);
+  assert.equal(result.reduce((sum, item) => sum + item.basisPoints, 0), TOTAL_BASIS_POINTS);
+});
+
+test('interface identifica o rateio de Goiás como Excedente (%)', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(source, /project\.state === 'GO' \? 'Excedente \(%\)'/);
+  assert.doesNotMatch(source, /Percentual do excedente/);
 });
 
 test('DF não preenche percentuais nulos e inclui a geradora no total', () => {
@@ -89,10 +104,10 @@ test('interface cobre taxas, falhas e dados do cadastro somente para leitura', (
   assert.doesNotMatch(read, /<input/);
 });
 
-test('interface começa com linha vazia, posterga o total e deduz o tipo da solicitação', () => {
+test('interface começa com a primeira linha de GO em 100%, posterga o total e deduz o tipo da solicitação', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   assert.match(source, /initializeAllocation\(lookup\.project, uid\)/);
-  assert.match(source, /setUnits\(\[blankUnit\(\)\]\)/);
+  assert.match(source, /setUnits\(\[\{ \.\.\.blankUnit\(\), basisPoints: TOTAL_BASIS_POINTS, locked: true \}\]\)/);
   assert.match(source, /showErrors \|\| units\.some/);
   assert.match(source, /requestType: inferRequestType\(units, originalUnits\)/);
   assert.doesNotMatch(source, />Tipo de solicitação</);

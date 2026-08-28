@@ -55,7 +55,7 @@ export function initializeAllocation(project: Project, makeId: () => string): { 
     }));
   const hasMissingPercent = (project.state === 'DF' && generator.basisPoints == null) || units.some((unit) => unit.basisPoints == null);
   if (!units.length) units = [{ id: makeId(), ucNumber: '', holderName: '', address: '', basisPoints: null, locked: false, origin: 'new', ownershipConfirmed: null }];
-  if (project.state === 'GO' && units.length === 1 && units[0].origin === 'current') units = [{ ...units[0], basisPoints: TOTAL_BASIS_POINTS, locked: true }];
+  if (project.state === 'GO' && units.length === 1) units = [{ ...units[0], basisPoints: TOTAL_BASIS_POINTS, locked: true }];
   return { generator, units, hasMissingPercent };
 }
 
