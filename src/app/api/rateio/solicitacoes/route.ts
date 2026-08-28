@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import { callRateioApp, getRememberedLookup, limited, SUBMIT_TIMEOUT_MS, visitorIp } from '@/lib/rateio/server';
 import { buildRateioEmail, classifyRateio, type RateioEmailInput } from '@/lib/rateio/email';
 import { buildRateioHistoryAttachment } from '@/lib/rateio/history';
+import { isRateioTestProject } from '@/lib/rateio/testProject';
 import type { ShareUnit } from '@/lib/rateio/types';
 
 export const runtime = 'nodejs';
@@ -88,6 +89,7 @@ export async function POST(request: Request) {
   // Derivada exclusivamente do estado retornado pelo app no lookup. O tipo
   // escolhido no navegador permanece apenas como apoio interno.
   const classification = classifyRateio(original);
+  const testProject = isRateioTestProject(original);
   const upstream = await callRateioApp('/api/public/rateio/requests', {
     reference: original.reference,
     requestType,
@@ -97,6 +99,10 @@ export async function POST(request: Request) {
     expectedFeeStatus: body.expectedFeeStatus,
     feeAccepted: Boolean(body.feeAccepted),
     classification,
+    // Calculated from the lookup result, never from a browser-supplied flag.
+    // The upstream route uses it only to skip its pending-request and
+    // per-reference attempt guards; request persistence remains unchanged.
+    testProject,
   }, SUBMIT_TIMEOUT_MS, ip);
   if (upstream.unavailable) return NextResponse.json({ ok: false, code: 'APP_UNAVAILABLE' }, { status: 503 });
   const responseData = upstream.data && typeof upstream.data === 'object' ? upstream.data as Record<string, unknown> : null;

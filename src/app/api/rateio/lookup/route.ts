@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { callRateioApp, limited, LOOKUP_TIMEOUT_MS, rememberLookup, visitorIp } from '@/lib/rateio/server';
+import { isRateioTestProject } from '@/lib/rateio/testProject';
 import type { LookupSuccess } from '@/lib/rateio/types';
 
 export const runtime = 'nodejs';
@@ -30,7 +31,12 @@ export async function POST(request: Request) {
   const data = upstream.data as Partial<LookupSuccess> | null;
   if (data?.ok === true && data.lookupToken && data.project && data.feeAssessment) {
     rememberLookup(data.lookupToken, data.project);
-    return NextResponse.json(data);
+    // The app keeps identifying pending requests, but they must not prevent the
+    // Solar Lab accounts from exercising the complete public flow repeatedly.
+    const feeAssessment = isRateioTestProject(data.project)
+      ? { ...data.feeAssessment, hasPendingRequest: false }
+      : data.feeAssessment;
+    return NextResponse.json({ ...data, feeAssessment });
   }
   return NextResponse.json({ ok: false });
 }

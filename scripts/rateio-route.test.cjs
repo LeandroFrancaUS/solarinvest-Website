@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { referenceFromUrl } = require('../.test-build/reference.js');
+const { isRateioTestProject } = require('../.test-build/testProject.js');
 
 test('rota /rateio renderiza a instância única do formulário', () => {
   const page = fs.readFileSync('src/app/rateio/page.tsx', 'utf8');
@@ -48,4 +49,28 @@ test('servidor classifica e registra anexo e atividade no histórico do projeto'
   assert.match(route, /buildRateioHistoryAttachment\(details\)/);
   assert.match(route, /\/api\/public\/rateio\/request-history/);
   assert.match(route, /activity: \{ description: historyAttachment\.activityDescription, attachmentFilename: historyAttachment\.filename \}/);
+});
+
+test('segunda solicitação pendente é liberada somente para contas de teste do Solar Lab', () => {
+  assert.equal(isRateioTestProject({ reference: 'L-0029' }), true);
+  assert.equal(isRateioTestProject({ reference: 'V-0029' }), true);
+  assert.equal(isRateioTestProject({ reference: 'M-0029' }), true);
+  assert.equal(isRateioTestProject({ reference: 'L-0002' }), false);
+
+  const lookupRoute = fs.readFileSync('src/app/api/rateio/lookup/route.ts', 'utf8');
+  assert.match(lookupRoute, /isRateioTestProject\(data\.project\)/);
+  assert.match(lookupRoute, /hasPendingRequest: false/);
+
+  const submitRoute = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
+  assert.match(submitRoute, /const testProject = isRateioTestProject\(original\)/);
+  assert.match(submitRoute, /testProject,/);
+  // The route-wide IP protection remains before project identification.
+  assert.ok(submitRoute.indexOf('limited(`submit:${ip}`, 3)') < submitRoute.indexOf('isRateioTestProject(original)'));
+});
+
+test('projeto real continua exibindo o bloqueio de solicitação em análise', () => {
+  const form = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(form, /if \(data\.feeAssessment\.hasPendingRequest\)/);
+  assert.match(form, /Já existe uma solicitação em análise para este projeto/);
+  assert.match(form, /PENDING_REQUEST_EXISTS/);
 });
