@@ -76,6 +76,27 @@ test('falhas de validação registram campo e mensagem no log do servidor', () =
   assert.match(route, /field: 'requestType'/);
 });
 
+test('confirmação do lookup funciona entre instâncias serverless e valida a UF', () => {
+  const lookupRoute = fs.readFileSync('src/app/api/rateio/lookup/route.ts', 'utf8');
+  const submitRoute = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
+  const server = fs.readFileSync('src/lib/rateio/server.ts', 'utf8');
+  assert.match(lookupRoute, /lookupProof: createLookupProof/);
+  assert.match(submitRoute, /getRememberedLookup\(token\) \|\| verifyLookupProof\(proof, token\)/);
+  assert.match(server, /createHmac\('sha256'/);
+  assert.match(server, /timingSafeEqual/);
+  assert.match(submitRoute, /validationError\('DIFFERENT_STATE'/);
+  assert.match(submitRoute, /const \{ state: _state, \.\.\.acceptedFields \} = fields/);
+});
+
+test('formulário oferece a lista de UFs e impede UF diferente da geradora', () => {
+  const form = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(form, /const BRAZILIAN_STATES = \['AC'.*'TO'\]/);
+  assert.match(form, /<StateSelect value=\{unit\.state\}/);
+  assert.match(form, /unit\.state === project\.state/);
+  assert.match(form, /Não é possível incluir UC de diferente UF no rateio/);
+  assert.match(form, /lookupProof: lookup\?\.lookupProof/);
+});
+
 test('projeto real continua exibindo o bloqueio de solicitação em análise', () => {
   const form = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   assert.match(form, /if \(data\.feeAssessment\.hasPendingRequest\)/);

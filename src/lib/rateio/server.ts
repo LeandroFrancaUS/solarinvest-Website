@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { Project } from './types';
 
 const APP_URL = process.env.SOLARINVEST_APP_URL || 'https://app.solarinvest.info';
@@ -21,6 +22,29 @@ export function getRememberedLookup(token: string) {
     return null;
   }
   return structuredClone(entry.project);
+}
+
+export function createLookupProof(token: string, project: Project) {
+  const secret = process.env.SITE_PUBLIC_API_KEY;
+  if (!secret) return '';
+  const payload = Buffer.from(JSON.stringify({ token, project, expiresAt: Date.now() + 30 * 60_000 })).toString('base64url');
+  const signature = createHmac('sha256', secret).update(payload).digest('base64url');
+  return `${payload}.${signature}`;
+}
+
+export function verifyLookupProof(proof: string, token: string): Project | null {
+  const secret = process.env.SITE_PUBLIC_API_KEY;
+  const [payload, suppliedSignature] = proof.split('.');
+  if (!secret || !payload || !suppliedSignature) return null;
+  const expectedSignature = createHmac('sha256', secret).update(payload).digest();
+  let actualSignature: Buffer;
+  try { actualSignature = Buffer.from(suppliedSignature, 'base64url'); } catch { return null; }
+  if (actualSignature.length !== expectedSignature.length || !timingSafeEqual(actualSignature, expectedSignature)) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(payload, 'base64url').toString()) as { token?: unknown; project?: unknown; expiresAt?: unknown };
+    if (parsed.token !== token || typeof parsed.expiresAt !== 'number' || parsed.expiresAt <= Date.now() || !parsed.project || typeof parsed.project !== 'object') return null;
+    return structuredClone(parsed.project as Project);
+  } catch { return null; }
 }
 
 export async function callRateioApp(path: string, body: unknown, timeout: number, visitorIp?: string) {

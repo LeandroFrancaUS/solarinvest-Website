@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { callRateioApp, getRememberedLookup, limited, SUBMIT_TIMEOUT_MS, visitorIp } from '@/lib/rateio/server';
+import { callRateioApp, getRememberedLookup, limited, SUBMIT_TIMEOUT_MS, verifyLookupProof, visitorIp } from '@/lib/rateio/server';
 import { buildRateioEmail, classifyRateio, type RateioEmailInput } from '@/lib/rateio/email';
 import { buildRateioHistoryAttachment } from '@/lib/rateio/history';
 import { buildRateioAppSubmission } from '@/lib/rateio/submission';
@@ -82,6 +82,11 @@ export async function POST(request: Request) {
   if (!beneficiaryConfirmations.length || beneficiaryConfirmations.some((unit) => (unit as Record<string, unknown>).ownershipConfirmed !== true)) {
     return NextResponse.json({ ok: false, code: 'OWNERSHIP_CONFIRMATION_REQUIRED' }, { status: 400 });
   }
+  const submittedProject = body.project && typeof body.project === 'object' ? body.project as Record<string, unknown> : {};
+  const submittedState = String(submittedProject.state || '').toUpperCase();
+  if (!submittedState || beneficiaryConfirmations.some((unit) => String((unit as Record<string, unknown>).state || '').toUpperCase() !== submittedState)) {
+    return validationError('DIFFERENT_STATE', [{ field: 'payload.shareUnits.state', message: 'Não é possível incluir UC de uma UF diferente da UC geradora.' }]);
+  }
 
   if (body.manual === true) {
     // A API pública exige lookupToken. O fluxo de contingência é recebido pelo site
@@ -102,7 +107,10 @@ export async function POST(request: Request) {
   }
 
   const token = typeof body.lookupToken === 'string' ? body.lookupToken : '';
-  const original = getRememberedLookup(token);
+  // A prova assinada torna a confirmação independente da memória de uma única
+  // instância serverless. O Map continua sendo um atalho para ambientes locais.
+  const proof = typeof body.lookupProof === 'string' ? body.lookupProof : '';
+  const original = getRememberedLookup(token) || verifyLookupProof(proof, token);
   if (!original) return validationError('LOOKUP_EXPIRED', [{ field: 'lookupToken', message: 'A confirmação do projeto está ausente, expirada ou não foi reconhecida nesta instância.' }]);
   const requestType = body.requestType;
   if (!['inclusion', 'exclusion', 'redistribution'].includes(String(requestType))) {
@@ -119,12 +127,22 @@ export async function POST(request: Request) {
   // A titularidade confirmada no lookup é a única fonte confiável. Nunca
   // encaminhamos o titular enviado pelo navegador no fluxo autenticado.
   const requestedShareUnits = Array.isArray(payload.shareUnits) ? payload.shareUnits : original.shareUnits;
+  const projectState = String(original.state || '').toUpperCase();
+  const invalidState = requestedShareUnits.some((unit) => {
+    const fields = unit && typeof unit === 'object' ? unit as Record<string, unknown> : {};
+    return fields.ucNumber !== original.generatorUnit.ucNumber && String(fields.state || '').toUpperCase() !== projectState;
+  });
+  if (invalidState) return validationError('DIFFERENT_STATE', [{ field: 'payload.shareUnits.state', message: 'Não é possível incluir UC de uma UF diferente da UC geradora.' }]);
   const shareUnits: ShareUnit[] = requestedShareUnits.map((unit) => {
     const fields = unit && typeof unit === 'object' ? unit as Record<string, unknown> : {};
-    return { ...fields, holderName: original.holder.name } as ShareUnit;
+    const { state: _state, ...acceptedFields } = fields;
+    return { ...acceptedFields, holderName: original.holder.name } as ShareUnit;
   });
   const comparison = payload.comparison && typeof payload.comparison === 'object' ? payload.comparison as Record<string, unknown> : {};
-  const beneficiaries = Array.isArray(comparison.beneficiaries) ? comparison.beneficiaries.map((unit) => ({ ...(unit as Record<string, unknown>), holderName: original.holder.name })) : [];
+  const beneficiaries = Array.isArray(comparison.beneficiaries) ? comparison.beneficiaries.map((unit) => {
+    const { state: _state, ...acceptedFields } = unit as Record<string, unknown>;
+    return { ...acceptedFields, holderName: original.holder.name };
+  }) : [];
   const safePayload = { ...payload, shareUnits, comparison: { ...comparison, beneficiaries } };
   const submittedFields = { ...original, shareUnits };
   // Derivada exclusivamente do estado retornado pelo app no lookup. O tipo
