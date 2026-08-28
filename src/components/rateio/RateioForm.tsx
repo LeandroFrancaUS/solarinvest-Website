@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, BadgeCheck, CheckCircle2, Plus, RotateCcw, Sparkles, Trash2 } from 'lucide-react';
+import { BadgeCheck, CheckCircle2, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { FeeAssessmentCard } from './FeeAssessmentCard';
 import { compareUnits, formatPercent, hasDuplicateUcs, initializeAllocation, parsePercent, redistribute, TOTAL_BASIS_POINTS } from '@/lib/rateio/allocation';
 import type { EditableUnit, FeeAssessment, GeneratorAllocation, LookupSuccess, Modality, Project, RequestType } from '@/lib/rateio/types';
@@ -196,7 +196,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
         {project.state === 'GO' && <p className="mt-3 text-sm leading-6 text-slate-500">Em Goiás, toda a geração atende primeiro o consumo da unidade geradora. Os percentuais abaixo valem somente para o excedente, que é o que sobra quando a geração é maior que o consumo total da geradora. Nos meses sem excedente, não há crédito para distribuir.</p>}
 
         <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-wide text-orange-800">Unidade geradora — fixa</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-orange-800">Unidade geradora fixa</p>
           <div className="mt-2 grid gap-3 md:grid-cols-[1fr_1.6fr_180px]"><Read label="Unidade consumidora" value={generator.ucNumber} /><Read label="Endereço" value={generator.address} />
             {project.state === 'DF' ? <label data-rateio-error={showErrors && (generator.basisPoints || 0) <= 0 ? 'true' : undefined} className="text-sm font-semibold">Percentual da geração<input inputMode="decimal" aria-label="Percentual da unidade geradora" key={`generator-${generator.basisPoints}`} defaultValue={generator.basisPoints == null ? '' : formatPercent(generator.basisPoints)} onBlur={(event) => { setFormDirty(true); setGenerator((current) => ({ ...current, basisPoints: parsePercent(event.target.value) })); }} className="rateio-control mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" />{showErrors && (generator.basisPoints || 0) <= 0 && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">Informe o percentual da geradora.</span>}</label> : <p className="text-sm text-slate-600">Toda a geração atende primeiro esta unidade; somente o excedente é distribuído.</p>}
           </div>
@@ -207,18 +207,21 @@ export default function RateioForm({ initialReference = '' }: { initialReference
 
         <div className="mt-4 space-y-3">
           {units.map((unit, index) => (
-            <div key={unit.id} className="grid min-w-0 scroll-mt-28 gap-3 border-b border-slate-200 pb-4 md:grid-cols-[1fr_1.6fr_180px_44px] md:items-end">
+            <div key={unit.id} className="grid min-w-0 scroll-mt-28 gap-3 border-b border-slate-200 pb-4 md:grid-cols-[1fr_1.6fr_180px_44px] md:items-start">
               <Field label="Unidade consumidora" inputMode="numeric" digitsOnly value={unit.ucNumber} hint="Se necessário, completaremos com zeros à esquerda." error={showErrors && !/^\d{15}$/.test(unit.ucNumber) ? 'Informe os 15 números da unidade consumidora.' : undefined} onChange={(value) => updateUnit(unit.id, 'ucNumber', value)} onBlur={(value) => completeUnitNumber(unit.id, value)} />
               <Field label="Endereço" value={unit.address} error={showErrors && !unit.address.trim() ? 'Informe o endereço da unidade.' : undefined} onChange={(value) => updateUnit(unit.id, 'address', value)} />
               <label data-rateio-error={showErrors && (unit.basisPoints || 0) <= 0 ? 'true' : undefined} className="text-sm font-semibold">{project.state === 'GO' ? 'Excedente (%)' : 'Percentual da geração'}
                 <PercentInput ariaLabel={`Percentual da unidade ${unit.ucNumber || index + 1}`} value={unit.basisPoints} onChange={(value) => updatePercent(unit.id, value)} disabled={unit.locked} />
                 {showErrors && (unit.basisPoints || 0) <= 0 && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">Informe um percentual maior que zero.</span>}
               </label>
-              <button aria-label="Remover unidade" type="button" onClick={() => removeUnit(unit.id)} className="justify-self-start border border-slate-300 bg-white text-slate-600 md:justify-self-auto"><Trash2 className="mx-auto h-4 w-4" /></button>
-              <fieldset data-rateio-error={showErrors && unit.ownershipConfirmed !== true ? 'true' : undefined} className="md:col-span-full">
-                <legend className="text-sm font-semibold text-slate-900">Você é o atual titular desta unidade consumidora?</legend>
-                <div className="mt-2 flex gap-5"><label className="flex items-center gap-2"><input type="radio" name={`ownership-${unit.id}`} checked={unit.ownershipConfirmed === true} onChange={() => confirmOwnership(unit, true)} className="accent-emerald-600" />Sim</label><label className="flex items-center gap-2"><input type="radio" name={`ownership-${unit.id}`} checked={unit.ownershipConfirmed === false} onChange={() => confirmOwnership(unit, false)} className="accent-orange-500" />Não</label></div>
-                {unit.ownershipConfirmed === true && <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-700"><BadgeCheck className="h-5 w-5" />Titularidade confirmada — unidade liberada para envio.</p>}
+              <button aria-label="Remover unidade" type="button" onClick={() => removeUnit(unit.id)} className="mt-6 justify-self-start border border-slate-300 bg-white text-slate-600 md:justify-self-auto"><Trash2 className="mx-auto h-4 w-4" /></button>
+              <fieldset data-rateio-error={showErrors && unit.ownershipConfirmed !== true ? 'true' : undefined} className={`rounded-xl border p-4 md:col-span-full ${showErrors && unit.ownershipConfirmed !== true ? 'border-red-300 bg-red-50' : 'border-orange-200 bg-orange-50/60'}`}>
+                <legend className="px-1 text-sm font-bold text-slate-900">Confirmação obrigatória</legend>
+                <p className="text-sm font-semibold text-slate-900">A conta desta unidade consumidora está no seu CPF ou CNPJ?</p>
+                <p className="mt-1 text-xs text-slate-600">Sem esta confirmação, a solicitação não pode ser enviada.</p>
+                <div className="mt-3 grid max-w-sm grid-cols-2 gap-3"><label className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2 font-semibold ${unit.ownershipConfirmed === true ? 'border-emerald-500 text-emerald-700 ring-1 ring-emerald-500' : 'border-slate-300'}`}><input type="radio" name={`ownership-${unit.id}`} checked={unit.ownershipConfirmed === true} onChange={() => confirmOwnership(unit, true)} className="accent-emerald-600" />Sim, está</label><label className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2 font-semibold ${unit.ownershipConfirmed === false ? 'border-red-500 text-red-700 ring-1 ring-red-500' : 'border-slate-300'}`}><input type="radio" name={`ownership-${unit.id}`} checked={unit.ownershipConfirmed === false} onChange={() => confirmOwnership(unit, false)} className="accent-red-600" />Não está</label></div>
+                {showErrors && unit.ownershipConfirmed === null && <p role="alert" className="mt-2 text-sm font-bold text-red-700">Selecione uma opção para continuar.</p>}
+                {unit.ownershipConfirmed === true && <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-700"><BadgeCheck className="h-5 w-5" />Titularidade confirmada. Unidade liberada para envio.</p>}
                 {unit.ownershipConfirmed === false && <p role="alert" className="mt-2 text-sm font-semibold text-red-700">Somente contas registradas no CPF ou CNPJ do titular da unidade geradora podem sofrer alteração de rateio. Corrija a unidade ou remova esta linha.</p>}
               </fieldset>
               {!manual && unit.holderName && normalizedName(unit.holderName) !== normalizedName(project.holder.name) && <p role="alert" className="text-sm font-semibold text-amber-800 md:col-span-full">Esta unidade está em nome de outra pessoa. Fale com nossa equipe pelo WhatsApp {SUPPORT}.</p>}
@@ -232,21 +235,25 @@ export default function RateioForm({ initialReference = '' }: { initialReference
           <button type="button" onClick={addUnit} disabled={units.length >= 20} className="border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 disabled:opacity-50"><Plus className="mr-1 inline h-4 w-4" />Adicionar unidade</button>
         </div>
 
-        {showTotal && <div aria-live="polite" data-rateio-error={showErrors && (!totalComplete || !validUnits) ? 'true' : undefined} tabIndex={-1} className={`mt-4 font-bold ${totalComplete ? 'text-emerald-700' : 'text-slate-600'}`}>Total: {formatPercent(total)}% — {totalComplete ? 'soma correta' : 'a soma precisa ser 100,00%'}{duplicate && <span className="block">Há uma unidade repetida ou uma unidade geradora indevida.</span>}</div>}
+        {showTotal && <div aria-live="polite" data-rateio-error={showErrors && (!totalComplete || !validUnits) ? 'true' : undefined} tabIndex={-1} className={`mt-4 font-bold ${totalComplete ? 'text-emerald-700' : 'text-slate-600'}`}>Total: {formatPercent(total)}%. {totalComplete ? 'Soma correta.' : 'A soma precisa ser 100,00%.'}{duplicate && <span className="block">Há uma unidade repetida ou uma unidade geradora indevida.</span>}</div>}
         <p className="mt-3 text-sm font-semibold text-slate-700">A soma deve ser exatamente 100%. A distribuidora recusa solicitações com total diferente.</p>
       </section>
 
       <section className="min-w-0 border-t border-slate-200 bg-white px-1 pt-6">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm">
-          <div className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
-            <div className="flex items-start gap-3"><span className="rounded-xl bg-orange-100 p-2 text-orange-600"><Sparkles className="h-5 w-5" /></span><div><h2 className="text-xl font-bold text-slate-900">Confira antes de enviar</h2><p className="mt-1 text-sm text-slate-600">Revise a distribuição final. As alterações solicitadas estão destacadas.</p></div></div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-slate-900">Confira antes de enviar</h2>
+          <p className="mt-1 text-sm text-slate-600">Verifique as unidades e os percentuais.</p>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[520px] text-left text-sm">
+              <thead className="border-b border-slate-200 text-xs uppercase text-slate-500"><tr><th className="py-2 pr-3">Unidade</th><th className="py-2 pr-3">Distribuição</th><th className="py-2">Situação</th></tr></thead>
+              <tbody>
+                <ReviewTableRow label="Geradora" ucNumber={generator.ucNumber || 'Não informada'} value={project.state === 'DF' ? `${formatPercent(generator.basisPoints || 0)}% da geração` : 'Prioridade na geração'} status={generator.basisPoints === originalGenerator.basisPoints ? 'maintained' : 'changed'} />
+                {comparison.map((unit, index) => <ReviewTableRow key={`${unit.id}-${unit.status}`} label="Beneficiária" ucNumber={unit.ucNumber || String(index + 1)} value={`${formatPercent(unit.basisPoints || 0)}% ${project.state === 'GO' ? 'do excedente' : 'da geração'}`} status={unit.status} />)}
+              </tbody>
+            </table>
           </div>
-          <div className="space-y-3 p-4 sm:p-6">
-            <ReviewRow label="Unidade geradora" ucNumber={generator.ucNumber || 'Não informada'} value={project.state === 'DF' ? `${formatPercent(generator.basisPoints || 0)}% da geração` : 'Prioridade sobre toda a geração'} status={generator.basisPoints === originalGenerator.basisPoints ? 'maintained' : 'changed'} />
-            {comparison.map((unit, index) => <ReviewRow key={`${unit.id}-${unit.status}`} label="Unidade beneficiária" ucNumber={unit.ucNumber || String(index + 1)} value={`${formatPercent(unit.basisPoints || 0)}% ${project.state === 'GO' ? 'do excedente' : 'da geração'}`} status={unit.status} />)}
-            <div className={`flex flex-col gap-2 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${totalComplete ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'}`}><span className="flex items-center gap-2 font-semibold text-slate-800">{totalComplete && <CheckCircle2 className="h-5 w-5 text-emerald-600" />}Total da distribuição</span><strong className={`text-xl ${totalComplete ? 'text-emerald-700' : 'text-amber-800'}`}>{formatPercent(total)}%</strong></div>
-            {project.state === 'GO' && <p className="flex items-center gap-2 text-sm text-slate-600"><ArrowRight className="h-4 w-4 shrink-0 text-orange-500" />Esta distribuição se aplica somente ao excedente da geração.</p>}
-          </div>
+          <div className={`mt-3 flex items-center justify-between border-t pt-3 ${totalComplete ? 'text-emerald-700' : 'text-amber-800'}`}><span className="flex items-center gap-2 font-semibold">{totalComplete && <CheckCircle2 className="h-5 w-5" />}Total</span><strong>{formatPercent(total)}%</strong></div>
+          {project.state === 'GO' && <p className="mt-2 text-xs text-slate-600">Os percentuais se aplicam somente ao excedente da geração.</p>}
         </div>
 
         {fee && <div className="mt-5"><FeeAssessmentCard fee={fee} accepted={feeAccepted} showError={showErrors} onAccepted={(value) => { setFormDirty(true); setFeeAccepted(value); }} /></div>}
@@ -254,11 +261,11 @@ export default function RateioForm({ initialReference = '' }: { initialReference
         <label data-rateio-error={showErrors && !consent ? 'true' : undefined} className="mt-5 flex min-h-11 cursor-pointer scroll-mt-28 items-start gap-3 font-semibold text-slate-900"><input type="checkbox" required checked={consent} onChange={(event) => { setFormDirty(true); setConsent(event.target.checked); }} className="mt-0.5 h-5 w-5 shrink-0 accent-orange-500" /><span>Autorizo o uso destes dados para enviar a solicitação à distribuidora.</span></label>
         {showErrors && !consent && <p role="alert" className="mt-1 text-sm font-semibold text-red-700">Confirme a autorização para continuar.</p>}
         {showErrors && pendingItems.length > 0 && <div role="alert" className="mt-5 border-l-2 border-slate-400 pl-4 text-sm text-slate-700"><p className="font-bold">Para enviar, confira:</p><ul className="mt-1 list-disc space-y-1 pl-5">{pendingItems.map((item) => <li key={item}>{item}</li>)}</ul></div>}
-        <div className="mt-6 hidden items-center gap-4 md:flex"><button disabled={!canSubmit || loading} className="min-h-11 rounded-full bg-orange-500 px-7 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Enviando…' : 'Enviar solicitação'}</button><button type="button" onClick={cancel} className="border border-slate-300 bg-white px-4 py-2 text-sm text-slate-600">Cancelar</button></div>
+        <div className="mt-6 hidden items-center gap-4 md:flex"><button disabled={loading} className="min-h-11 rounded-full bg-orange-500 px-7 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Enviando…' : 'Enviar solicitação'}</button><button type="button" onClick={cancel} className="border border-slate-300 bg-white px-4 py-2 text-sm text-slate-600">Cancelar</button></div>
       </section>
 
       <div className="rateio-mobile-actions fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(15,23,42,0.14)] backdrop-blur md:hidden">
-        <div className="mx-auto flex max-w-[1320px] items-center gap-2"><div className={`min-w-0 flex-1 text-sm font-bold ${totalComplete ? 'text-emerald-700' : 'text-slate-600'}`}>Total: {formatPercent(total)}%</div><button type="button" onClick={cancel} className="rateio-cancel-mobile shrink-0 border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-600">Cancelar</button><button disabled={!canSubmit || loading} className="min-h-11 shrink-0 rounded-full bg-orange-500 px-5 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Enviando…' : 'Enviar'}</button></div>
+        <div className="mx-auto flex max-w-[1320px] items-center gap-2"><div className={`min-w-0 flex-1 text-sm font-bold ${totalComplete ? 'text-emerald-700' : 'text-slate-600'}`}>Total: {formatPercent(total)}%</div><button type="button" onClick={cancel} className="rateio-cancel-mobile shrink-0 border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-600">Cancelar</button><button disabled={loading} className="min-h-11 shrink-0 rounded-full bg-orange-500 px-5 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Enviando…' : 'Enviar'}</button></div>
       </div>
     </form>
   );
@@ -266,10 +273,8 @@ export default function RateioForm({ initialReference = '' }: { initialReference
 
 function Read({ label, value }: { label: string; value: string | null | undefined }) { return <div><dt className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</dt><dd className="mt-0.5 break-words text-slate-900">{value || 'Não informado'}</dd></div>; }
 function statusLabel(status: 'maintained' | 'changed' | 'new' | 'removed') { return ({ maintained: 'Mantida', changed: 'Alterada', new: 'Nova', removed: 'Removida' } as const)[status]; }
-function ReviewRow({ label, ucNumber, value, status }: { label: string; ucNumber: string; value: string; status: 'maintained' | 'changed' | 'new' | 'removed' }) {
-  const emphasized = status !== 'maintained';
-  const tone = status === 'removed' ? 'border-red-200 bg-red-50 text-red-700' : emphasized ? 'border-orange-200 bg-orange-50 text-orange-700' : 'border-slate-200 bg-white text-slate-600';
-  return <div className={`rounded-xl border px-4 py-3 ${tone}`}><div className="flex flex-wrap items-center justify-between gap-2"><div><span className="text-xs font-bold uppercase tracking-wide opacity-75">{label}</span><p className={`mt-0.5 font-mono font-bold ${status === 'removed' ? 'line-through' : ''}`}>{ucNumber}</p></div><span className={`rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide ${emphasized ? 'bg-white shadow-sm' : 'bg-slate-100'}`}>{statusLabel(status)}</span></div><p className={`mt-2 text-sm font-semibold ${status === 'removed' ? 'line-through' : ''}`}>{value}</p>{emphasized && <p className="mt-1 text-xs font-bold">Alteração solicitada</p>}</div>;
+function ReviewTableRow({ label, ucNumber, value, status }: { label: string; ucNumber: string; value: string; status: 'maintained' | 'changed' | 'new' | 'removed' }) {
+  return <tr className={`border-b border-slate-100 last:border-0 ${status === 'removed' ? 'text-red-700' : ''}`}><td className="py-3 pr-3"><span className="block text-xs text-slate-500">{label}</span><span className={`font-mono font-semibold ${status === 'removed' ? 'line-through' : ''}`}>{ucNumber}</span></td><td className={`py-3 pr-3 ${status === 'removed' ? 'line-through' : ''}`}>{value}</td><td className="py-3 font-semibold">{statusLabel(status)}</td></tr>;
 }
 function Field({ label, value, onChange, onBlur, type = "text", inputMode, autoComplete, digitsOnly = false, error, hint }: { label: string; value: string; onChange: (value: string) => void; onBlur?: (value: string) => void; type?: React.HTMLInputTypeAttribute; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; autoComplete?: string; digitsOnly?: boolean; error?: string; hint?: string }) { return <label data-rateio-error={error ? "true" : undefined} className="min-w-0 text-sm font-semibold">{label}<input type={type} inputMode={inputMode} autoComplete={autoComplete} value={value} onChange={(e) => onChange(digitsOnly ? e.target.value.replace(/\D/g, "") : e.target.value)} onBlur={(e) => onBlur?.(e.target.value)} className="rateio-control mt-1 w-full min-w-0 rounded-xl border border-slate-200 px-3 py-2" />{hint && !error && <span className="mt-1 block text-xs font-normal text-slate-500">{hint}</span>}{error && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">{error}</span>}</label>; }
 function PercentInput({ ariaLabel, value, onChange, disabled }: { ariaLabel: string; value: number | null; onChange: (value: string) => void; disabled?: boolean }) {
