@@ -236,7 +236,7 @@ export default function ContatoForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="space-y-6 bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto text-left"
+      className="space-y-6 bg-white p-6 rounded-xl shadow-lg max-w-measure mx-auto text-left"
     >
       {/* ✅ Mensagem de sucesso */}
       {enviado && (

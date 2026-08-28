@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import clsx from 'clsx';
+import { Container } from '@/components/layout/Container';
 
 export default function Header() {
   const pathname = usePathname();
@@ -40,7 +41,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-b from-white/70 to-orange-50/30 backdrop-blur-xl shadow-md border-b border-orange-100">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
+      <Container className="flex items-center justify-between py-2">
 
         {/* 🔆 Logo + nome fixo e profissional */}
         <Link
@@ -96,7 +97,7 @@ export default function Header() {
         >
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
-      </div>
+      </Container>
 
       {/* 📱 Menu mobile dropdown visível quando aberto */}
       {menuOpen && (

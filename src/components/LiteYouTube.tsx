@@ -28,7 +28,7 @@ const LiteYouTubeComponent: FC<LiteYouTubeProps> = ({ videoId }) => {
             alt="Prévia do vídeo"
             fill
             className="absolute inset-0 object-cover"
-            sizes="(max-width: 768px) 100vw, 640px"
+            sizes="(max-width: 768px) calc(100% - 2rem), 50%"
           />
           <div className="z-10">
             <svg

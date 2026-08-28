@@ -88,7 +88,7 @@ export default function EnergiaRuralPage() {
 
       {/* Hero */}
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">Home</Link>
             <span className="mx-2">›</span>
@@ -97,7 +97,7 @@ export default function EnergiaRuralPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Energia Solar Rural
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             Soluções fotovoltaicas para propriedades rurais, fazendas, sistemas de irrigação e agroindustrial. Reduza
             o custo de energia no campo com instalação profissional, suporte técnico e opções de leasing ou compra
             direta.
@@ -115,7 +115,7 @@ export default function EnergiaRuralPage() {
 
       {/* Para quem faz sentido */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Quem deve considerar energia solar rural</h2>
           <p className="text-gray-700 mb-4">
             Propriedades rurais são excelentes candidatas para energia solar por combinarem alto consumo energético
@@ -140,7 +140,7 @@ export default function EnergiaRuralPage() {
 
       {/* Tipos de sistema */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Tipos de sistema para área rural</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
@@ -168,7 +168,7 @@ export default function EnergiaRuralPage() {
 
       {/* Vantagens */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Principais vantagens da energia solar rural</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
@@ -190,7 +190,7 @@ export default function EnergiaRuralPage() {
 
       {/* FAQ */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Perguntas frequentes sobre energia solar rural</h2>
           <div className="space-y-4">
             {faqItems.map((item) => (
@@ -207,7 +207,7 @@ export default function EnergiaRuralPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-600 text-white">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-measure mx-auto text-center">
           <h2 className="text-2xl font-bold mb-3">Economize na propriedade rural com energia solar</h2>
           <p className="text-orange-100 mb-6">Análise gratuita, dimensionamento personalizado.</p>
           <Link href="/contato" className="inline-block bg-white text-orange-600 font-semibold px-8 py-3 rounded-xl shadow hover:bg-orange-50 transition-colors">
@@ -217,7 +217,7 @@ export default function EnergiaRuralPage() {
       </section>
 
       <section className="py-10 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-lg font-bold text-slate-900 mb-4">Saiba mais</h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/energia-solar-parana" className="rounded-lg border border-orange-200 px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 transition-colors">Energia solar no Paraná</Link>

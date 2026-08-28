@@ -43,7 +43,7 @@ export default function HomeWithSplash() {
               width={320}
               height={320}
               priority
-              className="h-auto w-full max-w-[240px] sm:max-w-[280px]"
+              className="h-auto w-full max-w-measure sm:w-1/2"
               onError={handleSplashError}
             />
           </div>
@@ -87,7 +87,7 @@ export default function HomeWithSplash() {
 
       {/* 💬 Central de feedback integrado */}
       <section className="bg-gradient-to-br from-orange-50 via-white to-orange-100 px-4 py-16 text-slate-900 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-5xl flex-col gap-6 rounded-3xl border border-orange-200/60 bg-white/80 p-8 text-center shadow-[0_20px_45px_-25px_rgba(253,186,116,0.55)] backdrop-blur-sm sm:flex-row sm:items-center sm:text-left">
+        <div className="mx-auto flex max-w-content flex-col gap-6 rounded-3xl border border-orange-200/60 bg-white/80 p-8 text-center shadow-[0_20px_45px_-25px_rgba(253,186,116,0.55)] backdrop-blur-sm sm:flex-row sm:items-center sm:text-left">
           <div className="flex-1 space-y-4">
             <span className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-orange-600">
               Ouça nossos clientes
@@ -109,7 +109,7 @@ export default function HomeWithSplash() {
 
       {/* 🟡 Mensagem final com padding ajustado */}
       <section className="bg-gradient-to-br from-yellow-100 to-orange-200 text-gray-800 px-4 sm:px-6 lg:px-8 py-12 sm:py-20 mt-12 sm:mt-16">
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-measure mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl font-bold">
             Bem-vindo à SolarInvest Solutions
           </h1>

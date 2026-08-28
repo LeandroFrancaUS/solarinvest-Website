@@ -99,7 +99,7 @@ export default function EnergiaGoiasPage() {
 
       {/* Hero */}
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">Home</Link>
             <span className="mx-2">›</span>
@@ -108,7 +108,7 @@ export default function EnergiaGoiasPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Energia Solar em Goiás
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             A SolarInvest oferece soluções completas de energia solar para residências e empresas em Goiás. Com alta
             irradiação solar e atendimento regional especializado, a economia na conta de luz é real e imediata.
           </p>
@@ -125,7 +125,7 @@ export default function EnergiaGoiasPage() {
 
       {/* Por que Goiás é ideal */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             Por que Goiás é um dos melhores estados para energia solar
           </h2>
@@ -151,7 +151,7 @@ export default function EnergiaGoiasPage() {
 
       {/* Soluções para residências */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Energia solar para residências em Goiás</h2>
           <p className="text-gray-700 mb-3">
             Moradores de Goiás podem reduzir a conta de luz com instalação fotovoltaica ou com leasing solar, sem
@@ -173,7 +173,7 @@ export default function EnergiaGoiasPage() {
 
       {/* Soluções para empresas */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Energia solar para empresas em Goiás</h2>
           <p className="text-gray-700 mb-3">
             Empresas em Goiás com alto consumo de energia podem transformar esse custo fixo em uma vantagem
@@ -194,7 +194,7 @@ export default function EnergiaGoiasPage() {
 
       {/* Cidades */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Cidades atendidas em Goiás</h2>
           <div className="flex flex-wrap gap-3">
             {[
@@ -216,7 +216,7 @@ export default function EnergiaGoiasPage() {
 
       {/* FAQ */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Perguntas frequentes sobre energia solar em Goiás
           </h2>
@@ -238,7 +238,7 @@ export default function EnergiaGoiasPage() {
 
       {/* CTA */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-600 text-white">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-measure mx-auto text-center">
           <h2 className="text-2xl font-bold mb-3">Pronto para economizar em Goiás?</h2>
           <p className="text-orange-100 mb-6">
             Solicite uma análise gratuita e descubra quanto você pode economizar com energia solar.

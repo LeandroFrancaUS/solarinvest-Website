@@ -1116,7 +1116,7 @@ export default function PreApprovalForm({ onSubmitted, utmParams }: PreApprovalF
         <div>
           <p className="text-sm uppercase tracking-wide text-orange-500 font-semibold">Pré-aprovação de leasing</p>
           <h2 className="text-2xl md:text-3xl font-heading font-bold text-gray-900 mt-1">Faça uma análise rápida e gratuita</h2>
-          <p className="text-gray-700 mt-2 max-w-3xl">
+          <p className="text-gray-700 mt-2 max-w-measure">
             Preencha os dados para receber um retorno personalizado. O resultado automático não substitui a análise humana.
           </p>
         </div>

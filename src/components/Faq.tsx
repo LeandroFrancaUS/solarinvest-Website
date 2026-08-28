@@ -320,7 +320,7 @@ export default function Faq() {
 
   return (
     <section className="bg-gradient-to-b from-white via-orange-50/40 to-white py-20 px-6 md:px-16 lg:px-28">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-measure mx-auto">
         <h2 className="text-4xl md:text-5xl font-extrabold text-orange-600 mb-10 text-center">
           Perguntas Frequentes
         </h2>

@@ -138,7 +138,7 @@ export default function AnalisePageClient() {
         {JSON.stringify(faqStructuredData)}
       </Script>
 
-      <section className="max-w-5xl mx-auto text-center space-y-6">
+      <section className="max-w-content mx-auto text-center space-y-6">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -152,7 +152,7 @@ export default function AnalisePageClient() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg text-gray-700 max-w-3xl mx-auto"
+          className="text-lg text-gray-700 max-w-measure mx-auto"
         >
           Confirme seus dados para avaliarmos rapidamente a elegibilidade do leasing SolarInvest.
         </motion.p>
@@ -190,13 +190,13 @@ export default function AnalisePageClient() {
 
       {mostrarFormulario && (
         // ✅ Deixe o ID AQUI (no wrapper) e REMOVA do PreApprovalForm, se ele ainda tiver
-        <section className="max-w-7xl mx-auto" id="pre-aprovacao">
+        <section className="max-w-content mx-auto" id="pre-aprovacao">
           <PreApprovalForm onSubmitted={handleSubmitted} utmParams={utmParams} />
         </section>
       )}
 
       {resultado && (
-        <section id="resultado-analise" className="max-w-3xl mx-auto text-center space-y-4">
+        <section id="resultado-analise" className="max-w-measure mx-auto text-center space-y-4">
           <div
             className={`rounded-2xl border p-6 shadow-lg ${
               statusVisuals[resultado.status].styles

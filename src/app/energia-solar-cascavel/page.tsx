@@ -80,7 +80,7 @@ export default function EnergiaCascavelPage() {
       <Script id="cascavel-breadcrumb-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">Home</Link>
             <span className="mx-2">›</span>
@@ -91,7 +91,7 @@ export default function EnergiaCascavelPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Energia Solar em Cascavel
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             A SolarInvest atende Cascavel com soluções completas de energia solar: leasing sem entrada, compra direta,
             atendimento a residências, comércios, empresas e área rural no oeste do Paraná.
           </p>
@@ -107,7 +107,7 @@ export default function EnergiaCascavelPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Energia solar em Cascavel: por que faz sentido</h2>
           <p className="text-gray-700 mb-4">
             Cascavel, no oeste paranaense, tem ótimas condições para energia solar. A cidade está entre as mais
@@ -130,7 +130,7 @@ export default function EnergiaCascavelPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Soluções disponíveis em Cascavel</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
@@ -149,7 +149,7 @@ export default function EnergiaCascavelPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Perguntas frequentes sobre energia solar em Cascavel
           </h2>
@@ -168,7 +168,7 @@ export default function EnergiaCascavelPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-600 text-white">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-measure mx-auto text-center">
           <h2 className="text-2xl font-bold mb-3">Pronto para economizar em Cascavel?</h2>
           <p className="text-orange-100 mb-6">Análise gratuita, sem compromisso.</p>
           <Link href="/contato" className="inline-block bg-white text-orange-600 font-semibold px-8 py-3 rounded-xl shadow hover:bg-orange-50 transition-colors">
@@ -178,7 +178,7 @@ export default function EnergiaCascavelPage() {
       </section>
 
       <section className="py-10 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-lg font-bold text-slate-900 mb-4">Veja também</h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/energia-solar-parana" className="rounded-lg border border-orange-200 px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 transition-colors">Energia solar no Paraná</Link>

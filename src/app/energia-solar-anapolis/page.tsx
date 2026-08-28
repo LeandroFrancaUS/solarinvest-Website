@@ -76,7 +76,7 @@ export default function EnergiaAnapolisPage() {
       <Script id="anapolis-breadcrumb-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">Home</Link>
             <span className="mx-2">›</span>
@@ -87,7 +87,7 @@ export default function EnergiaAnapolisPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Energia Solar em Anápolis
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             A SolarInvest atende Anápolis com soluções completas de energia solar para residências e empresas.
             Reduza sua conta de luz com instalação profissional, suporte técnico e opções de leasing sem entrada.
           </p>
@@ -103,7 +103,7 @@ export default function EnergiaAnapolisPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             Por que contratar energia solar em Anápolis
           </h2>
@@ -129,7 +129,7 @@ export default function EnergiaAnapolisPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Perguntas frequentes sobre energia solar em Anápolis
           </h2>
@@ -148,7 +148,7 @@ export default function EnergiaAnapolisPage() {
       </section>
 
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-600 text-white">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-measure mx-auto text-center">
           <h2 className="text-2xl font-bold mb-3">Economize em Anápolis com energia solar</h2>
           <p className="text-orange-100 mb-6">Análise gratuita, sem compromisso.</p>
           <Link
@@ -161,7 +161,7 @@ export default function EnergiaAnapolisPage() {
       </section>
 
       <section className="py-10 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-lg font-bold text-slate-900 mb-4">Veja também</h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/energia-solar-goias" className="rounded-lg border border-orange-200 px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 transition-colors">Energia solar em Goiás</Link>

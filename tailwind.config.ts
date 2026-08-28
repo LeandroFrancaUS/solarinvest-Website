@@ -4,6 +4,13 @@ const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
+      screens: { '3xl': '1920px' },
+      maxWidth: {
+        content: 'var(--si-content-max)',
+        wide: 'var(--si-content-wide)',
+        measure: 'var(--si-measure)',
+      },
+      spacing: { gutter: 'var(--si-gutter)' },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         heading: ['"DM Sans"', 'sans-serif'],

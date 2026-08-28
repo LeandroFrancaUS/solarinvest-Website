@@ -22,7 +22,7 @@ export function Breadcrumbs({ items, compact = false }: { items: { label: string
   );
 }
 
-export const clientAreaContainerClass = 'mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8';
+export const clientAreaContainerClass = 'mx-auto w-full max-w-content px-4 sm:px-6 lg:px-8';
 
 export function PageShell({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
@@ -37,7 +37,7 @@ export function PageShell({ title, description, children }: { title: string; des
               <h1 className="mt-4 break-words text-3xl font-black tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
                 {title}
               </h1>
-              <p className="mt-3 max-w-[860px] text-lg leading-relaxed text-slate-700">
+              <p className="mt-3 max-w-measure text-lg leading-relaxed text-slate-700">
                 {description}
               </p>
             </div>

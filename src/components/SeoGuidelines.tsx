@@ -3,7 +3,7 @@
 export default function SeoGuidelines() {
   return (
     <section className="bg-white py-16 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl space-y-10 rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-8 shadow-[0_25px_45px_-30px_rgba(251,146,60,0.45)]">
+      <div className="mx-auto max-w-content space-y-10 rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-8 shadow-[0_25px_45px_-30px_rgba(251,146,60,0.45)]">
         <div className="space-y-3 text-center">
           <p className="inline-flex items-center gap-2 rounded-full bg-orange-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-orange-600">
             SEO e Conteúdo

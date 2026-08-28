@@ -2,6 +2,7 @@
 
 import { CheckCircleIcon, ShieldCheckIcon, BoltIcon } from '@heroicons/react/24/outline';
 import Script from 'next/script';
+import { Section } from '@/components/layout/Section';
 import { seoConstants } from '@/lib/seo';
 
 export default function Beneficios() {
@@ -52,18 +53,18 @@ export default function Beneficios() {
   };
 
   return (
-    <section className="w-full bg-white py-16 px-4" id="beneficios" itemScope itemType="https://schema.org/ItemList">
-      <div className="max-w-7xl mx-auto text-center">
+    <Section className="bg-white py-16" id="beneficios" innerClassName="text-center">
+      <>
         {/* 🧱 Título da seção */}
         <h2 className="text-3xl sm:text-4xl font-bold text-orange-500 mb-4">
           Por que escolher a SolarInvest?
         </h2>
-        <p className="text-gray-700 text-base sm:text-lg mb-12 max-w-2xl mx-auto">
+        <p className="text-gray-700 text-base sm:text-lg mb-12 max-w-measure mx-auto">
           Oferecemos benefícios reais para sua casa ou empresa com energia solar inteligente e acessível.
         </p>
 
         {/* 📦 Grid dos cards de benefícios */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {beneficios.map((beneficio, index) => (
             <div
               key={index}
@@ -88,7 +89,7 @@ export default function Beneficios() {
             </div>
           ))}
         </div>
-      </div>
+      </>
 
       <Script
         id="beneficios-jsonld"
@@ -96,6 +97,6 @@ export default function Beneficios() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(beneficiosJsonLd) }}
       />
-    </section>
+    </Section>
   );
 }
