@@ -7,9 +7,10 @@ import { compareUnits, formatPercent, hasDuplicateUcs, initializeAllocation, par
 import type { EditableUnit, FeeAssessment, GeneratorAllocation, LookupSuccess, Modality, Project, RequestType } from '@/lib/rateio/types';
 
 const SUPPORT = '62 99116 7558';
+const BRAZILIAN_STATES = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 const emptyProject = (): Project => ({ reference: '', modality: 'leasing', state: 'GO', installedAt: null, holder: { name: '', documentMasked: '', email: '', phone: '' }, generatorUnit: { ucNumber: '', address: '' }, shareUnits: [] });
 const uid = () => crypto.randomUUID();
-const blankUnit = (): EditableUnit => ({ id: uid(), ucNumber: '', holderName: '', address: '', basisPoints: null, locked: false, origin: 'new', ownershipConfirmed: null });
+const blankUnit = (state = ''): EditableUnit => ({ id: uid(), ucNumber: '', holderName: '', state, address: '', basisPoints: null, locked: false, origin: 'new', ownershipConfirmed: null });
 
 export function normalizeUcNumber(value: string) {
   const digits = value.replace(/\D/g, '').slice(0, 15);
@@ -28,7 +29,7 @@ function unitsMatch(units: EditableUnit[], original: EditableUnit[]) {
   if (units.length !== original.length) return false;
   return units.every((unit, index) => {
     const old = original[index];
-    return old && unit.ucNumber === old.ucNumber && unit.holderName === old.holderName && unit.address === old.address && unit.basisPoints === old.basisPoints;
+    return old && unit.ucNumber === old.ucNumber && unit.holderName === old.holderName && unit.state === old.state && unit.address === old.address && unit.basisPoints === old.basisPoints;
   });
 }
 
@@ -64,13 +65,13 @@ export default function RateioForm({ initialReference = '' }: { initialReference
 
   const total = units.reduce((sum, unit) => sum + (unit.basisPoints || 0), project.state === 'DF' ? generator.basisPoints || 0 : 0);
   const duplicate = hasDuplicateUcs(units, project.generatorUnit.ucNumber, project.state);
-  const validUnits = units.length > 0 && units.length <= 20 && units.every((unit) => /^\d{15}$/.test(unit.ucNumber) && unit.address.trim() && (unit.basisPoints || 0) > 0) && (project.state !== 'DF' || (generator.basisPoints || 0) > 0);
+  const validUnits = units.length > 0 && units.length <= 20 && units.every((unit) => /^\d{15}$/.test(unit.ucNumber) && unit.state === project.state && unit.address.trim() && (unit.basisPoints || 0) > 0) && (project.state !== 'DF' || (generator.basisPoints || 0) > 0);
   const ownershipConfirmed = units.length > 0 && units.every((unit) => unit.ownershipConfirmed === true);
   const manualProjectComplete = !manual || Boolean(project.reference.trim() && project.state?.trim() && project.holder.name?.trim() && project.holder.documentMasked?.trim() && project.holder.email?.trim() && project.holder.phone?.trim() && project.generatorUnit.ucNumber?.trim() && project.generatorUnit.address?.trim());
   const pendingItems = [
     ...(!manualProjectComplete ? ['Complete os dados do projeto e informe o titular das unidades.'] : []),
     ...(units.length === 0 ? ['Adicione pelo menos uma unidade consumidora.'] : []),
-    ...(!validUnits ? ['Preencha o número, o endereço e o percentual de todas as unidades.'] : []),
+    ...(!validUnits ? ['Preencha o número, a UF, o endereço e o percentual de todas as unidades. A UF deve ser a mesma da UC geradora.'] : []),
     ...(!ownershipConfirmed ? ['Confirme que você é o atual titular de todas as unidades beneficiárias.'] : []),
     ...(duplicate ? ['Remova unidades repetidas ou a unidade geradora indevida.'] : []),
     ...(total !== TOTAL_BASIS_POINTS ? [`A soma precisa ser 100,00% (${total < TOTAL_BASIS_POINTS ? `faltam ${formatPercent(TOTAL_BASIS_POINTS - total)}%` : `retire ${formatPercent(total - TOTAL_BASIS_POINTS)}%`}).`] : []),
@@ -104,7 +105,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
     const imported = initializeAllocation(lookup.project, uid); setUnits(imported.units); setOriginalUnits(imported.units.filter((unit) => unit.origin === 'current').map((unit) => ({ ...unit }))); setGenerator(imported.generator); setOriginalGenerator({ ...imported.generator }); setHasMissingPercent(imported.hasMissingPercent); setMountedAt(Date.now()); setFormDirty(false); setStage('form'); setMessage('');
   }
 
-  function updateUnit(id: string, field: 'ucNumber' | 'holderName' | 'address', value: string) { setFormDirty(true); setUnits((current) => current.map((unit) => unit.id === id ? { ...unit, [field]: field === 'ucNumber' ? value.replace(/\D/g, '').slice(0, 15) : value, ...(field === 'ucNumber' || field === 'address' ? { ownershipConfirmed: null } : {}) } : unit)); }
+  function updateUnit(id: string, field: 'ucNumber' | 'holderName' | 'state' | 'address', value: string) { setFormDirty(true); setUnits((current) => current.map((unit) => unit.id === id ? { ...unit, [field]: field === 'ucNumber' ? value.replace(/\D/g, '').slice(0, 15) : value, ...(field === 'ucNumber' || field === 'address' ? { ownershipConfirmed: null } : {}) } : unit)); }
   function completeUnitNumber(id: string, value: string) { updateUnit(id, 'ucNumber', normalizeUcNumber(value)); }
   function confirmOwnership(unit: EditableUnit, value: boolean) {
     setFormDirty(true);
@@ -118,7 +119,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
       ? redistribute(current.map((unit) => ({ ...unit, basisPoints: unit.id === id ? parsed : unit.basisPoints, locked: unit.id === id })))
       : current.map((unit) => unit.id === id ? { ...unit, basisPoints: parsed, locked: true } : unit));
   }
-  function addUnit() { if (units.length < 20) { setFormDirty(true); setUnits((current) => { const added = [...current, blankUnit()]; return project.state === 'GO' ? redistribute(added, true) : added; }); } }
+  function addUnit() { if (units.length < 20) { setFormDirty(true); setUnits((current) => { const added = [...current, blankUnit(project.state || '')]; return project.state === 'GO' ? redistribute(added, true) : added; }); } }
   function removeUnit(id: string) { setFormDirty(true); setUnits((current) => { const remaining = current.filter((unit) => unit.id !== id); if (!remaining.length) return project.state === 'GO' ? [{ ...blankUnit(), basisPoints: TOTAL_BASIS_POINTS, locked: true }] : [blankUnit()]; return project.state === 'GO' ? redistribute(remaining, true) : remaining; }); }
 
   function cancel() {
@@ -139,16 +140,16 @@ export default function RateioForm({ initialReference = '' }: { initialReference
     if (!canSubmit) { setShowErrors(true); focusFirstError(); return; }
     if (loading) { setMessage('A solicitação já está sendo enviada. Aguarde.'); return; }
     setLoading(true); setMessage(''); setShowErrors(false);
-    const beneficiaryUnits = units.map((unit) => ({ ucNumber: unit.ucNumber, holderName: project.holder.name, address: unit.address || null, percent: (unit.basisPoints || 0) / 100, ownershipConfirmed: unit.ownershipConfirmed }));
+    const beneficiaryUnits = units.map((unit) => ({ ucNumber: unit.ucNumber, holderName: project.holder.name, state: unit.state, address: unit.address || null, percent: (unit.basisPoints || 0) / 100, ownershipConfirmed: unit.ownershipConfirmed }));
     const shareUnits = project.state === 'DF' ? [{ ucNumber: generator.ucNumber, holderName: project.holder.name, address: generator.address || null, percent: (generator.basisPoints || 0) / 100 }, ...beneficiaryUnits] : beneficiaryUnits;
     const comparison = compareUnits(units, originalUnits);
     const generatorComparison = { ...generator, status: generator.basisPoints === originalGenerator.basisPoints ? 'maintained' : 'changed' };
     try {
-      const response = await fetch('/api/rateio/solicitacoes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ manual, website, mountedAt, lookupToken: lookup?.lookupToken, requestType: inferRequestType(units, originalUnits), expectedFeeStatus: fee?.status, feeAccepted, project, payload: { shareUnits, comparison: { generator: generatorComparison, beneficiaries: comparison }, ownershipInconsistencies, consent } }) });
+      const response = await fetch('/api/rateio/solicitacoes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ manual, website, mountedAt, lookupToken: lookup?.lookupToken, lookupProof: lookup?.lookupProof, requestType: inferRequestType(units, originalUnits), expectedFeeStatus: fee?.status, feeAccepted, project, payload: { shareUnits, comparison: { generator: generatorComparison, beneficiaries: comparison }, ownershipInconsistencies, consent } }) });
       const data = await response.json();
       if (response.status === 409 && data.code === 'FEE_VERDICT_CHANGED') { setFee(data.feeAssessment); setFeeAccepted(false); setMessage('O veredito da taxa foi atualizado. Revise a informação abaixo e confirme novamente para concluir.'); return; }
       if (response.status === 409 && data.code === 'PENDING_REQUEST_EXISTS') { setMessage(`Já existe uma solicitação em análise${data.protocol ? ` (${data.protocol})` : ''}. Fale conosco pelo WhatsApp ${SUPPORT}.`); return; }
-      if (!response.ok || !data.ok) { setMessage(data.code === 'LOOKUP_EXPIRED' ? 'A confirmação expirou. Volte e faça uma nova busca.' : 'Não foi possível enviar agora. Seus dados foram mantidos; tente novamente.'); return; }
+      if (!response.ok || !data.ok) { setMessage(data.code === 'LOOKUP_EXPIRED' ? 'A confirmação expirou. Volte e faça uma nova busca.' : data.code === 'DIFFERENT_STATE' ? 'Não é possível incluir UC de uma UF diferente da UC geradora.' : 'Não foi possível enviar agora. Seus dados foram mantidos; tente novamente.'); return; }
       setProtocol(data.protocol); setFee(data.feeAssessment || fee); setStage('success');
     } catch (error) { console.error('Falha ao enviar solicitação de distribuição de créditos', error); setMessage('Falha de comunicação ao enviar. Seus dados foram mantidos; tente novamente.'); }
     finally { setLoading(false); }
@@ -203,12 +204,13 @@ export default function RateioForm({ initialReference = '' }: { initialReference
         <div className="mt-5 rounded-2xl border-2 border-orange-400 bg-orange-50/70 p-3 shadow-sm sm:p-5">
           <div className="mb-4">
             <p className="text-base font-black text-orange-900">Preencha aqui as informações das UCs</p>
-            <p className="mt-1 text-sm text-orange-900/80">Informe o número da unidade consumidora, o endereço e o percentual de distribuição.</p>
+            <p className="mt-1 text-sm text-orange-900/80">Informe o número da unidade consumidora, a UF, o endereço e o percentual de distribuição.</p>
           </div>
           <div className="space-y-3">
           {units.map((unit, index) => (
-            <div key={unit.id} className="grid min-w-0 scroll-mt-28 gap-3 rounded-xl border border-orange-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_1.6fr_180px_44px] md:items-start">
+            <div key={unit.id} className="grid min-w-0 scroll-mt-28 gap-3 rounded-xl border border-orange-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_100px_1.4fr_180px_44px] md:items-start">
               <Field label="Número da unidade consumidora (UC)" inputMode="numeric" digitsOnly value={unit.ucNumber} emphasized error={showErrors && !/^\d{15}$/.test(unit.ucNumber) ? 'Informe os 15 números da unidade consumidora.' : undefined} onChange={(value) => updateUnit(unit.id, 'ucNumber', value)} onBlur={(value) => completeUnitNumber(unit.id, value)} />
+              <StateSelect value={unit.state} generatorState={project.state || ''} showError={showErrors} onChange={(value) => updateUnit(unit.id, 'state', value)} />
               <Field label="Endereço" value={unit.address} error={showErrors && !unit.address.trim() ? 'Informe o endereço da unidade.' : undefined} onChange={(value) => updateUnit(unit.id, 'address', value)} />
               <label data-rateio-error={showErrors && (unit.basisPoints || 0) <= 0 ? 'true' : undefined} className="text-sm font-semibold">{project.state === 'GO' ? 'Excedente (%)' : 'Percentual da geração'}
                 <PercentInput ariaLabel={`Percentual da unidade ${unit.ucNumber || index + 1}`} value={unit.basisPoints} onChange={(value) => updatePercent(unit.id, value)} disabled={unit.locked} />
@@ -275,6 +277,11 @@ function Read({ label, value }: { label: string; value: string | null | undefine
 function statusLabel(status: 'maintained' | 'changed' | 'new' | 'removed') { return ({ maintained: 'Mantida', changed: 'Alterada', new: 'Nova', removed: 'Removida' } as const)[status]; }
 function ReviewTableRow({ label, ucNumber, value, status }: { label: string; ucNumber: string; value: string; status: 'maintained' | 'changed' | 'new' | 'removed' }) {
   return <tr className={`border-b border-slate-100 last:border-0 ${status === 'removed' ? 'text-red-700' : ''}`}><td className="py-3 pr-3"><span className="block text-xs text-slate-500">{label}</span><span className={`font-mono font-semibold ${status === 'removed' ? 'line-through' : ''}`}>{ucNumber}</span></td><td className={`py-3 pr-3 ${status === 'removed' ? 'line-through' : ''}`}>{value}</td><td className="py-3 font-semibold">{statusLabel(status)}</td></tr>;
+}
+function StateSelect({ value, generatorState, showError, onChange }: { value: string; generatorState: string; showError: boolean; onChange: (value: string) => void }) {
+  const different = Boolean(value && generatorState && value !== generatorState);
+  const error = showError && !value ? 'Selecione a UF.' : different ? 'Não é possível incluir UC de diferente UF no rateio.' : undefined;
+  return <label data-rateio-error={error ? "true" : undefined} className="min-w-0 text-sm font-semibold">UF<select value={value} onChange={(event) => onChange(event.target.value)} className={`rateio-control mt-1 w-full min-w-0 rounded-xl border px-3 py-2 ${error ? 'border-red-400 bg-red-50' : 'border-slate-200'}`}><option value="">UF</option>{BRAZILIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}</select>{error && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">{error}</span>}</label>;
 }
 function Field({ label, value, onChange, onBlur, type = "text", inputMode, autoComplete, digitsOnly = false, error, emphasized = false }: { label: string; value: string; onChange: (value: string) => void; onBlur?: (value: string) => void; type?: React.HTMLInputTypeAttribute; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; autoComplete?: string; digitsOnly?: boolean; error?: string; emphasized?: boolean }) { return <label data-rateio-error={error ? "true" : undefined} className={`min-w-0 text-sm font-semibold ${emphasized ? 'text-orange-950' : ''}`}>{label}<input type={type} inputMode={inputMode} autoComplete={autoComplete} value={value} onChange={(e) => onChange(digitsOnly ? e.target.value.replace(/\D/g, "") : e.target.value)} onBlur={(e) => onBlur?.(e.target.value)} className={`rateio-control mt-1 w-full min-w-0 rounded-xl border px-3 py-2 ${emphasized ? 'border-orange-400 bg-orange-50 ring-2 ring-orange-200 focus:border-orange-500' : 'border-slate-200'}`} />{error && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">{error}</span>}</label>; }
 function PercentInput({ ariaLabel, value, onChange, disabled }: { ariaLabel: string; value: number | null; onChange: (value: string) => void; disabled?: boolean }) {

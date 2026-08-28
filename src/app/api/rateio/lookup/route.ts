@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { callRateioApp, limited, LOOKUP_TIMEOUT_MS, rememberLookup, visitorIp } from '@/lib/rateio/server';
+import { callRateioApp, createLookupProof, limited, LOOKUP_TIMEOUT_MS, rememberLookup, visitorIp } from '@/lib/rateio/server';
 import { isRateioTestProject } from '@/lib/rateio/testProject';
 import type { LookupSuccess } from '@/lib/rateio/types';
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     const feeAssessment = isRateioTestProject(data.project)
       ? { ...data.feeAssessment, hasPendingRequest: false }
       : data.feeAssessment;
-    return NextResponse.json({ ...data, feeAssessment });
+    return NextResponse.json({ ...data, lookupProof: createLookupProof(data.lookupToken, data.project), feeAssessment });
   }
   return NextResponse.json({ ok: false });
 }
