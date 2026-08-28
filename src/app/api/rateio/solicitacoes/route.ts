@@ -103,6 +103,11 @@ export async function POST(request: Request) {
   const token = typeof body.lookupToken === 'string' ? body.lookupToken : '';
   const original = getRememberedLookup(token);
   if (!original) return validationError('LOOKUP_EXPIRED', [{ field: 'lookupToken', message: 'A confirmação do projeto está ausente, expirada ou não foi reconhecida nesta instância.' }]);
+  const requestType = body.requestType;
+  if (!['inclusion', 'exclusion', 'redistribution'].includes(String(requestType))) {
+    return validationError('INVALID_REQUEST_TYPE', [{ field: 'requestType', message: 'Use inclusion, exclusion ou redistribution.' }]);
+  }
+  const payload = body.payload && typeof body.payload === 'object' ? body.payload as Record<string, unknown> : {};
   const authenticatedBeneficiaries = submittedUnits.filter((unit) => {
     const fields = unit && typeof unit === 'object' ? unit as Record<string, unknown> : {};
     return fields.ucNumber !== original.generatorUnit.ucNumber;
@@ -110,11 +115,6 @@ export async function POST(request: Request) {
   if (!authenticatedBeneficiaries.length || authenticatedBeneficiaries.some((unit) => (unit as Record<string, unknown>).ownershipConfirmed !== true)) {
     return validationError('OWNERSHIP_CONFIRMATION_REQUIRED', [{ field: 'payload.shareUnits', message: 'Confirme a titularidade de todas as unidades beneficiárias.' }]);
   }
-  const requestType = body.requestType;
-  if (!['inclusion', 'exclusion', 'redistribution'].includes(String(requestType))) {
-    return validationError('INVALID_REQUEST_TYPE', [{ field: 'requestType', message: 'Use inclusion, exclusion ou redistribution.' }]);
-  }
-  const payload = body.payload && typeof body.payload === 'object' ? body.payload as Record<string, unknown> : {};
   // A titularidade confirmada no lookup é a única fonte confiável. Nunca
   // encaminhamos o titular enviado pelo navegador no fluxo autenticado.
   const requestedShareUnits = Array.isArray(payload.shareUnits) ? payload.shareUnits : original.shareUnits;
