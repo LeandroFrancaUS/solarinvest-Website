@@ -3,13 +3,35 @@ import { Resend } from 'resend';
 import { callRateioApp, getRememberedLookup, limited, SUBMIT_TIMEOUT_MS, visitorIp } from '@/lib/rateio/server';
 import { buildRateioEmail, classifyRateio, type RateioEmailInput } from '@/lib/rateio/email';
 import { buildRateioHistoryAttachment } from '@/lib/rateio/history';
-import { isRateioTestProject } from '@/lib/rateio/testProject';
+import { buildRateioAppSubmission } from '@/lib/rateio/submission';
 import type { ShareUnit } from '@/lib/rateio/types';
 
 export const runtime = 'nodejs';
 
 const RATEIO_FROM = 'Alteração de Rateio SolarInvest <contato@solarinvest.info>';
 const RATEIO_INBOX = 'brsolarinvest@gmail.com';
+
+type ValidationIssue = { field: string; message: string };
+
+function validationError(code: string, issues: ValidationIssue[]) {
+  console.error('[rateio-submit] Falha de validação', { code, issues });
+  return NextResponse.json({ ok: false, code }, { status: 400 });
+}
+
+function upstreamValidationIssues(data: unknown): ValidationIssue[] {
+  if (!data || typeof data !== 'object') return [{ field: 'payload', message: 'A API do app recusou o payload sem informar detalhes.' }];
+  const response = data as Record<string, unknown>;
+  const rawIssues = Array.isArray(response.issues) ? response.issues : Array.isArray(response.errors) ? response.errors : [];
+  return rawIssues.map((issue, index) => {
+    if (!issue || typeof issue !== 'object') return { field: `payload.${index}`, message: String(issue) };
+    const item = issue as Record<string, unknown>;
+    const path = Array.isArray(item.path) ? item.path.join('.') : item.field;
+    return {
+      field: typeof path === 'string' && path ? path : `payload.${index}`,
+      message: typeof item.message === 'string' ? item.message : 'Valor inválido.',
+    };
+  });
+}
 
 async function sendRateioEmail(details: RateioEmailInput) {
   const apiKey = process.env.RESEND_API_KEY;
@@ -40,10 +62,11 @@ async function sendRateioEmail(details: RateioEmailInput) {
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>;
-  try { body = await request.json(); } catch { return NextResponse.json({ ok: false, code: 'INVALID_BODY' }, { status: 400 }); }
+  try { body = await request.json(); } catch { return validationError('INVALID_BODY', [{ field: 'body', message: 'O corpo da requisição não é um JSON válido.' }]); }
   if (body.website) return NextResponse.json({ ok: true, protocol: 'SOLICITAÇÃO-RECEBIDA', manual: Boolean(body.manual) });
   const mountedAt = Number(body.mountedAt);
   if (!Number.isFinite(mountedAt) || Date.now() - mountedAt < 3_000) {
+    console.error('[rateio-submit] Falha de validação', { code: 'TOO_FAST', issues: [{ field: 'mountedAt', message: 'O formulário foi enviado antes do intervalo mínimo de 3 segundos.' }] });
     return NextResponse.json({ ok: false, code: 'TOO_FAST', message: 'Aguarde alguns segundos e tente novamente.' }, { status: 400 });
   }
   const ip = visitorIp(request);
@@ -69,10 +92,10 @@ export async function POST(request: Request) {
 
   const token = typeof body.lookupToken === 'string' ? body.lookupToken : '';
   const original = getRememberedLookup(token);
-  if (!original) return NextResponse.json({ ok: false, code: 'LOOKUP_EXPIRED' }, { status: 400 });
+  if (!original) return validationError('LOOKUP_EXPIRED', [{ field: 'lookupToken', message: 'A confirmação do projeto está ausente, expirada ou não foi reconhecida nesta instância.' }]);
   const requestType = body.requestType;
   if (!['inclusion', 'exclusion', 'redistribution'].includes(String(requestType))) {
-    return NextResponse.json({ ok: false, code: 'INVALID_REQUEST_TYPE' }, { status: 400 });
+    return validationError('INVALID_REQUEST_TYPE', [{ field: 'requestType', message: 'Use inclusion, exclusion ou redistribution.' }]);
   }
   const payload = body.payload && typeof body.payload === 'object' ? body.payload as Record<string, unknown> : {};
   // A titularidade confirmada no lookup é a única fonte confiável. Nunca
@@ -89,21 +112,22 @@ export async function POST(request: Request) {
   // Derivada exclusivamente do estado retornado pelo app no lookup. O tipo
   // escolhido no navegador permanece apenas como apoio interno.
   const classification = classifyRateio(original);
-  const testProject = isRateioTestProject(original);
-  const upstream = await callRateioApp('/api/public/rateio/requests', {
-    reference: original.reference,
-    requestType,
+  const upstream = await callRateioApp('/api/public/rateio/requests', buildRateioAppSubmission({
+    original,
+    requestType: requestType as 'inclusion' | 'exclusion' | 'redistribution',
     lookupToken: token,
-    payload: { ...safePayload, originalShareUnits: original.shareUnits },
-    submittedFields,
+    safePayload,
+    shareUnits,
     expectedFeeStatus: body.expectedFeeStatus,
     feeAccepted: Boolean(body.feeAccepted),
     classification,
-    // Calculated from the lookup result, never from a browser-supplied flag.
-    // The upstream route uses it only to skip its pending-request and
-    // per-reference attempt guards; request persistence remains unchanged.
-    testProject,
-  }, SUBMIT_TIMEOUT_MS, ip);
+  }), SUBMIT_TIMEOUT_MS, ip);
+  if (upstream.status === 400) {
+    console.error('[rateio-submit] A API do app recusou a validação', {
+      code: 'UPSTREAM_VALIDATION_ERROR',
+      issues: upstreamValidationIssues(upstream.data),
+    });
+  }
   if (upstream.unavailable) return NextResponse.json({ ok: false, code: 'APP_UNAVAILABLE' }, { status: 503 });
   const responseData = upstream.data && typeof upstream.data === 'object' ? upstream.data as Record<string, unknown> : null;
   if (upstream.status >= 200 && upstream.status < 300 && responseData?.ok === true) {
