@@ -97,7 +97,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
   }
 
   function openManual() {
-    setManual(true); setProject({ ...emptyProject(), reference }); setFee({ status: 'indeterminate' }); setUnits([blankUnit()]); setOriginalUnits([]); setGenerator({ ucNumber: '', address: '', basisPoints: null }); setOriginalGenerator({ ucNumber: '', address: '', basisPoints: null }); setHasMissingPercent(false); setMountedAt(Date.now()); setFormDirty(false); setStage('form'); setMessage('Não foi possível confirmar automaticamente o projeto. Preencha todos os dados; a equipe fará uma conferência manual.');
+    setManual(true); setProject({ ...emptyProject(), reference }); setFee({ status: 'indeterminate' }); setUnits([{ ...blankUnit(), basisPoints: TOTAL_BASIS_POINTS, locked: true }]); setOriginalUnits([]); setGenerator({ ucNumber: '', address: '', basisPoints: null }); setOriginalGenerator({ ucNumber: '', address: '', basisPoints: null }); setHasMissingPercent(false); setMountedAt(Date.now()); setFormDirty(false); setStage('form'); setMessage('Não foi possível confirmar automaticamente o projeto. Preencha todos os dados; a equipe fará uma conferência manual.');
   }
 
   function confirmLookup() {
@@ -115,10 +115,12 @@ export default function RateioForm({ initialReference = '' }: { initialReference
   function updatePercent(id: string, value: string) {
     setFormDirty(true);
     const parsed = parsePercent(value);
-    setUnits((current) => current.map((unit) => unit.id === id ? { ...unit, basisPoints: parsed, locked: true } : unit));
+    setUnits((current) => project.state === 'GO' && parsed != null
+      ? redistribute(current.map((unit) => ({ ...unit, basisPoints: unit.id === id ? parsed : unit.basisPoints, locked: unit.id === id })))
+      : current.map((unit) => unit.id === id ? { ...unit, basisPoints: parsed, locked: true } : unit));
   }
-  function addUnit() { if (units.length < 20) { setFormDirty(true); setUnits((current) => [...current.map((unit) => project.state === 'GO' ? { ...unit, locked: false } : unit), blankUnit()]); } }
-  function removeUnit(id: string) { setFormDirty(true); setUnits((current) => { const remaining = current.filter((unit) => unit.id !== id); if (!remaining.length) return [blankUnit()]; return project.state === 'GO' && remaining.length === 1 ? [{ ...remaining[0], basisPoints: TOTAL_BASIS_POINTS, locked: true }] : remaining; }); }
+  function addUnit() { if (units.length < 20) { setFormDirty(true); setUnits((current) => { const added = [...current, blankUnit()]; return project.state === 'GO' ? redistribute(added, true) : added; }); } }
+  function removeUnit(id: string) { setFormDirty(true); setUnits((current) => { const remaining = current.filter((unit) => unit.id !== id); if (!remaining.length) return project.state === 'GO' ? [{ ...blankUnit(), basisPoints: TOTAL_BASIS_POINTS, locked: true }] : [blankUnit()]; return project.state === 'GO' ? redistribute(remaining, true) : remaining; }); }
 
   function cancel() {
     if (formDirty && !window.confirm('Cancelar esta solicitação? Os dados preenchidos serão perdidos.')) return;
@@ -208,7 +210,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
             <div key={unit.id} className="grid min-w-0 scroll-mt-28 gap-3 border-b border-slate-200 pb-4 md:grid-cols-[1fr_1.6fr_180px_44px] md:items-end">
               <Field label="Unidade consumidora" inputMode="numeric" digitsOnly value={unit.ucNumber} hint="Se necessário, completaremos com zeros à esquerda." error={showErrors && !/^\d{15}$/.test(unit.ucNumber) ? 'Informe os 15 números da unidade consumidora.' : undefined} onChange={(value) => updateUnit(unit.id, 'ucNumber', value)} onBlur={(value) => completeUnitNumber(unit.id, value)} />
               <Field label="Endereço" value={unit.address} error={showErrors && !unit.address.trim() ? 'Informe o endereço da unidade.' : undefined} onChange={(value) => updateUnit(unit.id, 'address', value)} />
-              <label data-rateio-error={showErrors && (unit.basisPoints || 0) <= 0 ? 'true' : undefined} className="text-sm font-semibold">{project.state === 'GO' ? 'Percentual do excedente' : 'Percentual da geração'}
+              <label data-rateio-error={showErrors && (unit.basisPoints || 0) <= 0 ? 'true' : undefined} className="text-sm font-semibold">{project.state === 'GO' ? 'Excedente (%)' : 'Percentual da geração'}
                 <PercentInput ariaLabel={`Percentual da unidade ${unit.ucNumber || index + 1}`} value={unit.basisPoints} onChange={(value) => updatePercent(unit.id, value)} disabled={unit.locked} />
                 {showErrors && (unit.basisPoints || 0) <= 0 && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">Informe um percentual maior que zero.</span>}
               </label>
