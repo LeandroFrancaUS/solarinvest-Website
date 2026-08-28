@@ -129,7 +129,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
     const comparison = compareUnits(units, originalUnits);
     const generatorComparison = { ...generator, status: generator.basisPoints === originalGenerator.basisPoints ? 'maintained' : 'changed' };
     try {
-      const response = await fetch('/api/rateio/solicitacoes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ manual, website, mountedAt, lookupToken: lookup?.lookupToken, requestType: inferRequestType(units, originalUnits), expectedFeeStatus: fee?.status, project, payload: { shareUnits, comparison: { generator: generatorComparison, beneficiaries: comparison }, observations, consent } }) });
+      const response = await fetch('/api/rateio/solicitacoes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ manual, website, mountedAt, lookupToken: lookup?.lookupToken, requestType: inferRequestType(units, originalUnits), expectedFeeStatus: fee?.status, feeAccepted, project, payload: { shareUnits, comparison: { generator: generatorComparison, beneficiaries: comparison }, observations, consent } }) });
       const data = await response.json();
       if (response.status === 409 && data.code === 'FEE_VERDICT_CHANGED') { setFee(data.feeAssessment); setFeeAccepted(false); setMessage('O veredito da taxa foi atualizado. Revise a informação abaixo e confirme novamente para concluir.'); return; }
       if (response.status === 409 && data.code === 'PENDING_REQUEST_EXISTS') { setMessage(`Já existe uma solicitação em análise${data.protocol ? ` (${data.protocol})` : ''}. Fale conosco pelo WhatsApp ${SUPPORT}.`); return; }
