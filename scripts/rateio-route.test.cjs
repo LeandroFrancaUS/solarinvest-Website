@@ -38,6 +38,6 @@ test('solicitações de rateio confirmadas notificam o inbox operacional', () =>
   assert.match(route, /const RATEIO_INBOX = 'brsolarinvest@gmail.com'/);
   assert.match(route, /upstream\.status >= 200 && upstream\.status < 300 && responseData\?\.ok === true/);
   assert.match(route, /await sendRateioEmail\(\{/);
-  assert.match(route, /idempotencyKey: `rateio-\$\{protocol\}`/);
+  assert.match(route, /idempotencyKey: `rateio-\$\{details\.protocol\}`/);
   assert.ok(route.lastIndexOf('await sendRateioEmail') > route.indexOf('await callRateioApp'));
 });
