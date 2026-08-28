@@ -87,6 +87,7 @@ test('envio válido dispara a requisição e os botões de envio nunca são desa
 
 test('honeypot encerra antes de qualquer envio real', () => {
   const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
-  assert.ok(route.indexOf('if (body.website)') < route.indexOf('await callRateioApp'));
-  assert.ok(route.indexOf('if (body.website)') < route.indexOf('new Resend'));
+  const postHandler = route.slice(route.indexOf('export async function POST'));
+  assert.ok(postHandler.indexOf('if (body.website)') < postHandler.indexOf('await callRateioApp'));
+  assert.ok(postHandler.indexOf('if (body.website)') < postHandler.indexOf('await sendRateioEmail'));
 });
