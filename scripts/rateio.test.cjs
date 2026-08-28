@@ -124,10 +124,20 @@ test('cancelamento protege alterações e limpa a consulta', () => {
 test('titular é único na interface e imposto pelo servidor no fluxo consultado', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
-  assert.match(source, /Titular de todas as unidades/);
+  assert.doesNotMatch(source, /Titular de todas as unidades/);
+  assert.match(source, /Field label="Titular"/);
   assert.match(source, /Esta unidade está em nome de outra pessoa/);
   assert.match(route, /holderName: original\.holder\.name/);
   assert.match(route, /safePayload/);
+});
+
+test('área de preenchimento das UCs fica destacada e sem campos redundantes', () => {
+  const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
+  assert.match(source, /Preencha aqui as informações das UCs/);
+  assert.match(source, /Número da unidade consumidora \(UC\)/);
+  assert.match(source, /emphasized/);
+  assert.doesNotMatch(source, /Se necessário, completaremos com zeros à esquerda/);
+  assert.doesNotMatch(source, /Observações \(opcional\)/);
 });
 
 test('envio inválido mostra pendências, mensagens por campo e rola ao primeiro erro', () => {
