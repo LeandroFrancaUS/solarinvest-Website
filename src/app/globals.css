@@ -69,10 +69,19 @@ button {
   }
 }
 
-.rateio-form button,
-.rateio-form input[type='checkbox'] {
+.rateio-form button {
   min-height: 44px;
   min-width: 44px;
+}
+
+.rateio-form input[type='checkbox'] {
+  min-height: 20px;
+  min-width: 20px;
+}
+
+.rateio-form .rateio-cancel-mobile {
+  min-height: 36px;
+  min-width: 0;
 }
 
 .rateio-form label,
