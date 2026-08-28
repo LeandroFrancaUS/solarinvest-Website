@@ -122,7 +122,7 @@ export default function LeasingEnergiaPage() {
 
       {/* Hero */}
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">
               Home
@@ -133,7 +133,7 @@ export default function LeasingEnergiaPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Leasing de Energia Solar no Brasil
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             Use energia solar sem precisar comprar o sistema. Com o leasing da SolarInvest, você paga uma mensalidade
             menor do que a sua conta de luz atual e recebe a usina no final do contrato.
           </p>
@@ -150,7 +150,7 @@ export default function LeasingEnergiaPage() {
 
       {/* Resumo rápido */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             Resposta rápida: leasing de energia solar faz sentido para quem?
           </h2>
@@ -171,7 +171,7 @@ export default function LeasingEnergiaPage() {
 
       {/* Como funciona */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Como funciona o leasing de energia solar</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
@@ -212,7 +212,7 @@ export default function LeasingEnergiaPage() {
 
       {/* Comparação */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Comparação: compra, financiamento e leasing de energia solar
           </h2>
@@ -250,7 +250,7 @@ export default function LeasingEnergiaPage() {
 
       {/* Vantagens */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Principais vantagens do leasing de energia solar</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
@@ -274,7 +274,7 @@ export default function LeasingEnergiaPage() {
 
       {/* Pontos de atenção */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Limitações e pontos de atenção</h2>
           <ul className="space-y-3 text-gray-700">
             <li className="flex items-start gap-2">
@@ -301,7 +301,7 @@ export default function LeasingEnergiaPage() {
 
       {/* FAQ */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Perguntas frequentes sobre leasing de energia solar</h2>
           <div className="space-y-4">
             {faqItems.map((item) => (
@@ -321,7 +321,7 @@ export default function LeasingEnergiaPage() {
 
       {/* Internal links */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-xl font-bold text-slate-900 mb-4">Saiba mais</h2>
           <div className="flex flex-wrap gap-3">
             <Link

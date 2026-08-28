@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Container } from '@/components/layout/Container';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 
 const navigationLinks = [
@@ -73,8 +74,8 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-[#0B1622] px-4 py-12 text-slate-300 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+    <footer className="w-full bg-[#0B1622] py-12 text-slate-300">
+      <Container className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
         <div className="space-y-5">
           <div>
             <p className="text-2xl font-black text-orange-500">SolarInvest</p>
@@ -155,14 +156,14 @@ export default function Footer() {
             </p>
           </address>
         </div>
-      </div>
+      </Container>
 
-      <div className="mx-auto mt-10 max-w-7xl border-t border-slate-800 pt-5 text-center text-xs text-slate-500">
+      <Container className="mt-10 border-t border-slate-800 pt-5 text-center text-xs text-slate-500">
         <p>© {new Date().getFullYear()} SolarInvest. Todos os direitos reservados.</p>
         <Link href="/politica-de-privacidade" className="mt-2 inline-block transition hover:text-orange-300">
           Política de Privacidade
         </Link>
-      </div>
+      </Container>
     </footer>
   );
 }

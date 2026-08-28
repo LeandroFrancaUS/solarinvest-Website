@@ -88,7 +88,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* Hero */}
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">
               Home
@@ -99,7 +99,7 @@ export default function EconomiaContaLuzPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Como Reduzir a Conta de Luz com Energia Solar
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             Se a sua conta de luz está alta, a energia solar pode ser a solução mais inteligente para residências e
             empresas. Entenda como funciona e descubra alternativas com ou sem investimento inicial.
           </p>
@@ -116,7 +116,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* Resposta rápida */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             Resposta rápida: vale a pena energia solar?
           </h2>
@@ -135,7 +135,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* O que fazer com conta alta */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             O que fazer quando a conta de luz está muito cara
           </h2>
@@ -169,7 +169,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* Quanto economiza */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Quanto economiza com energia solar</h2>
           <p className="text-gray-700 mb-4">
             A economia depende de fatores como consumo mensal, tarifa da distribuidora e radiação solar na região. No
@@ -197,7 +197,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* Alternativas residenciais */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Alternativas para residências</h2>
           <p className="text-gray-700 mb-3">
             Residências com conta de luz acima de R$ 400/mês são excelentes candidatas para a energia solar. As
@@ -229,7 +229,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* Alternativas empresariais */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Alternativas para empresas</h2>
           <p className="text-gray-700 mb-3">
             Empresas com alta demanda energética conseguem reduzir significativamente o custo fixo com energia solar.
@@ -259,7 +259,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* FAQ */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Perguntas frequentes</h2>
           <div className="space-y-4">
             {faqItems.map((item) => (
@@ -279,7 +279,7 @@ export default function EconomiaContaLuzPage() {
 
       {/* Internal links */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-xl font-bold text-slate-900 mb-4">Saiba mais</h2>
           <div className="flex flex-wrap gap-3">
             <Link

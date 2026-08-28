@@ -85,7 +85,7 @@ export default function PrecoEnergiaPage() {
 
       {/* Hero */}
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">
               Home
@@ -96,7 +96,7 @@ export default function PrecoEnergiaPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Quanto Custa Energia Solar?
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             O preço da energia solar varia conforme o consumo, o tipo de instalação e o modelo escolhido. Veja as
             principais referências e descubra quando a compra, o financiamento ou o leasing fazem mais sentido.
           </p>
@@ -113,7 +113,7 @@ export default function PrecoEnergiaPage() {
 
       {/* O que influencia o preço */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">O que influencia o preço da energia solar</h2>
           <p className="text-gray-700 mb-4">
             O custo de um sistema fotovoltaico não é fixo. Cada projeto é dimensionado de acordo com as necessidades
@@ -138,7 +138,7 @@ export default function PrecoEnergiaPage() {
 
       {/* Faixas de preço */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Referência de preço: energia solar para residência
           </h2>
@@ -177,7 +177,7 @@ export default function PrecoEnergiaPage() {
 
       {/* Quando compra faz sentido */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h2 className="text-xl font-bold text-slate-900 mb-3">Quando a compra direta faz sentido</h2>
@@ -221,7 +221,7 @@ export default function PrecoEnergiaPage() {
 
       {/* FAQ */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Perguntas frequentes sobre custo e economia
           </h2>
@@ -243,7 +243,7 @@ export default function PrecoEnergiaPage() {
 
       {/* Internal links */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-xl font-bold text-slate-900 mb-4">Saiba mais</h2>
           <div className="flex flex-wrap gap-3">
             <Link

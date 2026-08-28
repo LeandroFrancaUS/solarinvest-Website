@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================================
+   SolarInvest — tokens de layout
+   Fonte única da verdade para largura de conteúdo e respiro lateral.
+   ========================================================================= */
+:root {
+  --si-content-max: 1440px;
+  --si-content-wide: 1760px;
+  --si-gutter: clamp(1rem, 4vw, 4rem);
+  --si-measure: 68ch;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+#__next,
+main {
+  width: 100%;
+}
+
 /* 🌐 Variáveis de cor para temas claro/escuro */
 :root {
   --foreground-rgb: 17, 24, 39;

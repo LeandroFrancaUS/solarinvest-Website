@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { FaRegFileAlt, FaTools, FaPiggyBank, FaSolarPanel } from 'react-icons/fa';
 import Script from 'next/script';
+import { Section } from '@/components/layout/Section';
 import { seoConstants } from '@/lib/seo';
 
 export default function ComoFunciona() {
@@ -66,13 +67,15 @@ export default function ComoFunciona() {
   };
 
   return (
-    <section
-      className="bg-white py-20 px-6 md:px-16 lg:px-28"
+    <Section
+      size="wide"
+      className="bg-white py-20"
+      innerClassName="text-center"
       id="como-funciona"
       itemScope
       itemType="https://schema.org/HowTo"
     >
-      <div className="max-w-7xl mx-auto text-center">
+      <>
         {/* Título principal com animação */}
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
@@ -90,13 +93,13 @@ export default function ComoFunciona() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-16"
+          className="text-lg md:text-xl text-gray-600 max-w-measure mx-auto mb-16"
         >
           Entenda como a SolarInvest oferece energia solar sem investimento inicial e com transferência de propriedade ao final do contrato.
         </motion.p>
 
         {/* Etapas com ícones e animações */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {etapas.map((etapa, index) => (
             <motion.div
               key={index}
@@ -125,7 +128,7 @@ export default function ComoFunciona() {
             </motion.div>
           ))}
         </div>
-      </div>
+      </>
 
       <Script
         id="como-funciona-jsonld"
@@ -133,6 +136,6 @@ export default function ComoFunciona() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(comoFuncionaJsonLd) }}
       />
-    </section>
+    </Section>
   );
 }

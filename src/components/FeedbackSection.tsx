@@ -58,7 +58,7 @@ export default function FeedbackSection() {
       id="feedback"
       className="bg-gradient-to-br from-orange-50 via-white to-orange-100 py-20 px-4 text-slate-900 sm:px-6 lg:px-8"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-content">
         <div className="grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
           <div className="space-y-8">
             <div>

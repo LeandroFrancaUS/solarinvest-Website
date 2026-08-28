@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 export default function SobrePageClient() {
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8">
-      <section className="max-w-5xl mx-auto text-center">
+      <section className="max-w-content mx-auto text-center">
         {/* 🎯 Título com animação */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -22,7 +22,7 @@ export default function SobrePageClient() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg text-gray-700 max-w-3xl mx-auto mb-8"
+          className="text-lg text-gray-700 max-w-measure mx-auto mb-8"
         >
           A SolarInvest nasceu com o propósito de democratizar o acesso à energia solar no Brasil.
           Nosso compromisso é oferecer soluções inteligentes, acessíveis e sustentáveis, permitindo que famílias e empresas economizem e contribuam para um futuro mais limpo.

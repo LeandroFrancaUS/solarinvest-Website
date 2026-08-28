@@ -39,11 +39,11 @@ export default function VideoDetalhePage() {
 
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8">
-      <section className="max-w-5xl mx-auto space-y-8">
+      <section className="max-w-content mx-auto space-y-8">
         <header className="space-y-3 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">Vídeo</p>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-gray-900">{video.title}</h1>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto">{video.description}</p>
+          <p className="text-lg text-gray-700 max-w-measure mx-auto">{video.description}</p>
         </header>
 
         <div className="aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-lg">

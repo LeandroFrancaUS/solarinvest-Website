@@ -125,7 +125,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* Hero */}
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">Home</Link>
             <span className="mx-2">›</span>
@@ -134,7 +134,7 @@ export default function LimpezaPlacasSolaresPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Limpeza de Placas Solares
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             Placas solares sujas geram menos energia. Saiba com que frequência limpar, quais produtos usar, como fazer
             com segurança e quando contratar um serviço profissional de limpeza de painéis fotovoltaicos.
           </p>
@@ -151,7 +151,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* Resposta rápida */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             Resposta rápida: placa solar suja perde geração?
           </h2>
@@ -170,7 +170,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* Como limpar */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Como limpar painéis solares corretamente: passo a passo
           </h2>
@@ -211,7 +211,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* Produtos permitidos e proibidos */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             O que usar (e o que evitar) na limpeza de placas solares
           </h2>
@@ -245,7 +245,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* Segurança */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             Segurança: dá choque ao lavar placa solar?
           </h2>
@@ -264,7 +264,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* Manutenção inclusa no leasing */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">
             Com o leasing SolarInvest, limpeza e manutenção estão inclusos
           </h2>
@@ -284,7 +284,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* FAQ */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">
             Perguntas frequentes sobre limpeza de placas solares
           </h2>
@@ -304,7 +304,7 @@ export default function LimpezaPlacasSolaresPage() {
 
       {/* Internal links */}
       <section className="py-10 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-lg font-bold text-slate-900 mb-4">Saiba mais</h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/leasing-energia-solar" className="rounded-lg border border-orange-200 px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 transition-colors">Leasing com manutenção inclusa</Link>

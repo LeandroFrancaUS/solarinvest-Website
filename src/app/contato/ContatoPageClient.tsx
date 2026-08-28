@@ -6,7 +6,7 @@ import ContatoForm from '@/components/ContatoForm';
 export default function ContatoPageClient() {
   return (
     <main className="min-h-screen bg-white py-16 px-4 md:px-8">
-      <section className="max-w-3xl mx-auto text-center">
+      <section className="max-w-measure mx-auto text-center">
         {/* 🎯 Título com animação */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
@@ -22,7 +22,7 @@ export default function ContatoPageClient() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg text-gray-700 max-w-2xl mx-auto mb-10"
+          className="text-lg text-gray-700 max-w-measure mx-auto mb-10"
         >
           Está pronto para transformar sua energia em economia? Preencha o formulário abaixo e entraremos em contato rapidamente.
         </motion.p>

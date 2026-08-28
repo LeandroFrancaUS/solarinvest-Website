@@ -22,11 +22,11 @@ const sections = [
 export default function PoliticaDePrivacidadePage() {
   return (
     <main className="bg-slate-50 pb-20 pt-28 text-slate-700 sm:pt-32">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-content px-4 sm:px-6 lg:px-8">
         <header className="overflow-hidden rounded-3xl bg-[#0B1622] px-6 py-12 text-white shadow-xl sm:px-12">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-400">Privacidade e transparência</p>
           <h1 className="mt-3 text-3xl font-black text-white sm:text-5xl">Política de Privacidade</h1>
-          <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg">
+          <p className="mt-5 max-w-measure text-base leading-7 text-slate-300 sm:text-lg">
             Esta política explica como a SolarInvest Solutions trata seus dados pessoais ao usar nosso site,
             formulários, canais de atendimento e integrações com plataformas da Meta.
           </p>

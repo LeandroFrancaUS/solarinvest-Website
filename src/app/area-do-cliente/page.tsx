@@ -42,10 +42,10 @@ export default function AreaDoClientePage() {
               <span className="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold uppercase tracking-[0.2em] text-orange-700">
                 Área do Cliente
               </span>
-              <h1 className="mt-5 max-w-2xl text-4xl font-black tracking-tight text-slate-900 md:text-5xl">
+              <h1 className="mt-5 max-w-measure text-4xl font-black tracking-tight text-slate-900 md:text-5xl">
                 Central do Cliente SolarInvest
               </h1>
-              <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-700">
+              <p className="mt-4 max-w-measure text-lg leading-relaxed text-slate-700">
                 Tudo o que você precisa para manter seu sistema fotovoltaico operando com máxima eficiência, segurança e economia.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">

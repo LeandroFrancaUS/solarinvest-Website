@@ -83,7 +83,7 @@ export default function EmpresasPage() {
       <Script id="empresas-breadcrumb-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       <section className="bg-gradient-to-br from-yellow-50 to-orange-100 py-16 px-6 md:px-16 lg:px-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-orange-600">Home</Link>
             <span className="mx-2">›</span>
@@ -92,7 +92,7 @@ export default function EmpresasPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-orange-600 leading-tight mb-4">
             Energia Solar para Empresas
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl">
+          <p className="text-lg text-gray-700 max-w-measure">
             Reduza o custo operacional de energia da sua empresa com soluções fotovoltaicas. Com leasing solar, você
             elimina o investimento inicial e transforma um gasto crescente em uma mensalidade previsível e menor.
           </p>
@@ -109,7 +109,7 @@ export default function EmpresasPage() {
 
       {/* Para quem faz sentido */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Quem deve considerar energia solar para empresa</h2>
           <p className="text-gray-700 mb-4">
             A energia solar faz sentido para empresas que buscam reduzir custos operacionais e ter previsibilidade
@@ -134,7 +134,7 @@ export default function EmpresasPage() {
 
       {/* Como funciona */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Como a SolarInvest atende empresas</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
@@ -173,7 +173,7 @@ export default function EmpresasPage() {
 
       {/* Benefícios */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Principais vantagens para empresas</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
@@ -197,7 +197,7 @@ export default function EmpresasPage() {
 
       {/* FAQ */}
       <section className="py-12 px-6 md:px-16 lg:px-28 bg-orange-50">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6">Perguntas frequentes</h2>
           <div className="space-y-4">
             {faqItems.map((item) => (
@@ -214,7 +214,7 @@ export default function EmpresasPage() {
       </section>
 
       <section className="py-10 px-6 md:px-16 lg:px-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-measure mx-auto">
           <h2 className="text-lg font-bold text-slate-900 mb-4">Saiba mais</h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/leasing-energia-solar" className="rounded-lg border border-orange-200 px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 transition-colors">Leasing de energia solar sem entrada</Link>
