@@ -41,3 +41,11 @@ test('solicitações de rateio confirmadas notificam o inbox operacional', () =>
   assert.match(route, /idempotencyKey: `rateio-\$\{details\.protocol\}`/);
   assert.ok(route.lastIndexOf('await sendRateioEmail') > route.indexOf('await callRateioApp'));
 });
+
+test('servidor classifica e registra anexo e atividade no histórico do projeto', () => {
+  const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
+  assert.match(route, /const classification = classifyRateio\(original\)/);
+  assert.match(route, /buildRateioHistoryAttachment\(details\)/);
+  assert.match(route, /\/api\/public\/rateio\/request-history/);
+  assert.match(route, /activity: \{ description: historyAttachment\.activityDescription, attachmentFilename: historyAttachment\.filename \}/);
+});

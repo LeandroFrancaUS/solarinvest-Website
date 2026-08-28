@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { callRateioApp, getRememberedLookup, limited, SUBMIT_TIMEOUT_MS, visitorIp } from '@/lib/rateio/server';
-import { buildRateioEmail, type RateioEmailInput } from '@/lib/rateio/email';
+import { buildRateioEmail, classifyRateio, type RateioEmailInput } from '@/lib/rateio/email';
+import { buildRateioHistoryAttachment } from '@/lib/rateio/history';
 import type { ShareUnit } from '@/lib/rateio/types';
 
 export const runtime = 'nodejs';
@@ -84,6 +85,9 @@ export async function POST(request: Request) {
   const beneficiaries = Array.isArray(comparison.beneficiaries) ? comparison.beneficiaries.map((unit) => ({ ...(unit as Record<string, unknown>), holderName: original.holder.name })) : [];
   const safePayload = { ...payload, shareUnits, comparison: { ...comparison, beneficiaries } };
   const submittedFields = { ...original, shareUnits };
+  // Derivada exclusivamente do estado retornado pelo app no lookup. O tipo
+  // escolhido no navegador permanece apenas como apoio interno.
+  const classification = classifyRateio(original);
   const upstream = await callRateioApp('/api/public/rateio/requests', {
     reference: original.reference,
     requestType,
@@ -92,12 +96,13 @@ export async function POST(request: Request) {
     submittedFields,
     expectedFeeStatus: body.expectedFeeStatus,
     feeAccepted: Boolean(body.feeAccepted),
+    classification,
   }, SUBMIT_TIMEOUT_MS, ip);
   if (upstream.unavailable) return NextResponse.json({ ok: false, code: 'APP_UNAVAILABLE' }, { status: 503 });
   const responseData = upstream.data && typeof upstream.data === 'object' ? upstream.data as Record<string, unknown> : null;
   if (upstream.status >= 200 && upstream.status < 300 && responseData?.ok === true) {
     const protocol = typeof responseData.protocol === 'string' ? responseData.protocol : `RAT-${crypto.randomUUID()}`;
-    await sendRateioEmail({
+    const details: RateioEmailInput = {
       protocol,
       manual: false,
       project: submittedFields,
@@ -105,7 +110,17 @@ export async function POST(request: Request) {
       payload: { ...safePayload, originalShareUnits: original.shareUnits },
       feeAssessment: responseData.feeAssessment as RateioEmailInput['feeAssessment'],
       feeAccepted: Boolean(body.feeAccepted), submittedAt: new Date(), ip, userAgent: request.headers.get('user-agent') || 'não informado',
-    });
+      classification,
+    };
+    const historyAttachment = buildRateioHistoryAttachment(details);
+    await callRateioApp('/api/public/rateio/request-history', {
+      reference: original.reference,
+      protocol,
+      lookupToken: token,
+      attachment: historyAttachment,
+      activity: { description: historyAttachment.activityDescription, attachmentFilename: historyAttachment.filename },
+    }, SUBMIT_TIMEOUT_MS, ip);
+    await sendRateioEmail(details);
   }
   return NextResponse.json(upstream.data ?? { ok: false }, { status: upstream.status, headers: upstream.status === 429 ? { 'Retry-After': upstream.headers.get('retry-after') || '600' } : undefined });
 }
