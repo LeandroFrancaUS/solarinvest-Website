@@ -82,7 +82,7 @@ test('comparativo conserva beneficiária importada removida', () => {
 
 test('geradora é fixa em GO e só o percentual é editável em DF', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
-  const fixedBlock = source.slice(source.indexOf('Unidade geradora — fixa'), source.indexOf('{hasMissingPercent'));
+  const fixedBlock = source.slice(source.indexOf('Unidade geradora fixa'), source.indexOf('{hasMissingPercent'));
   assert.doesNotMatch(fixedBlock, /onChange=.*ucNumber/);
   assert.doesNotMatch(fixedBlock, /onChange=.*address/);
   assert.match(fixedBlock, /project\.state === 'DF'/);
@@ -142,12 +142,13 @@ test('envio inválido mostra pendências, mensagens por campo e rola ao primeiro
   assert.match(source, /<form noValidate onSubmit=\{submit\}/);
 });
 
-test('envio só é habilitado após todas as confirmações de titularidade', () => {
+test('envio explica confirmações de titularidade pendentes ao tentar continuar', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   assert.match(source, /if \(!canSubmit\)[\s\S]*fetch\('\/api\/rateio\/solicitacoes'/);
   const finalForm = source.slice(source.indexOf('<form noValidate onSubmit={submit}'));
-  assert.match(finalForm, /disabled=\{!canSubmit \|\| loading\}/);
-  assert.match(finalForm, /Você é o atual titular desta unidade consumidora/);
+  assert.doesNotMatch(finalForm, /disabled=\{!canSubmit \|\| loading\}/);
+  assert.match(finalForm, /A conta desta unidade consumidora está no seu CPF ou CNPJ/);
+  assert.match(finalForm, /Sem esta confirmação, a solicitação não pode ser enviada/);
   assert.match(source, /ownershipConfirmed: null/);
   assert.match(finalForm, /Titularidade confirmada/);
   assert.match(finalForm, /Somente contas registradas no CPF ou CNPJ/);
