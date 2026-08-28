@@ -70,6 +70,7 @@ export function buildRateioEmail(input: RateioEmailInput) {
   // parcela da geradora: ele é a fonte correta para o total final do rateio.
   const total = shareUnits.reduce((sum, unit) => sum + Number(unit.percent ?? 0), 0);
   const observations = value(payload.observations, '');
+  const ownershipInconsistencies = Array.isArray(payload.ownershipInconsistencies) ? payload.ownershipInconsistencies.map((uc) => value(uc, '')).filter(Boolean) : [];
   const consent = payload.consent === true ? 'Sim, o cliente autorizou o uso dos dados.' : 'Não consta autorização do uso dos dados.';
   const tableRows = rows.map((item) => `<tr style="${item.removed ? 'text-decoration:line-through;color:#991b1b;background:#fef2f2' : ''}"><td style="padding:9px;border:1px solid #cbd5e1">${escapeEmailHtml(item.uc)}</td><td style="padding:9px;border:1px solid #cbd5e1">${escapeEmailHtml(item.address)}</td><td style="padding:9px;border:1px solid #cbd5e1;white-space:nowrap">${item.allocation}</td><td style="padding:9px;border:1px solid #cbd5e1"><strong>${item.status}</strong></td></tr>`).join('');
   const html = `<!doctype html><html><body style="margin:0;background:#f1f5f9;font-family:Arial,sans-serif;color:#0f172a"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f1f5f9"><tr><td align="center" style="padding:24px 10px"><table role="presentation" width="680" cellspacing="0" cellpadding="0" style="width:100%;max-width:680px;background:#ffffff;border-collapse:collapse"><tr><td style="padding:28px">
@@ -80,7 +81,7 @@ export function buildRateioEmail(input: RateioEmailInput) {
   <h2 style="font-size:18px;margin:24px 0 8px">Unidade geradora</h2><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${row('Unidade consumidora', escapeEmailHtml(project.generatorUnit.ucNumber))}${row('Endereço', escapeEmailHtml(project.generatorUnit.address))}</table>
   <h2 style="font-size:18px;margin:24px 0 8px">Rateio solicitado</h2><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-size:14px"><thead><tr style="background:#e2e8f0"><th align="left" style="padding:9px;border:1px solid #cbd5e1">Unidade consumidora</th><th align="left" style="padding:9px;border:1px solid #cbd5e1">Endereço</th><th align="left" style="padding:9px;border:1px solid #cbd5e1">Percentual</th><th align="left" style="padding:9px;border:1px solid #cbd5e1">Situação</th></tr></thead><tbody>${tableRows}<tr style="background:#f8fafc;font-weight:bold"><td colspan="2" align="right" style="padding:10px;border:1px solid #cbd5e1">Total</td><td style="padding:10px;border:1px solid #cbd5e1">${percent(total)}</td><td style="padding:10px;border:1px solid #cbd5e1"></td></tr></tbody></table>
   ${project.state === 'GO' ? '<p style="padding:10px;background:#eff6ff;color:#1e3a8a"><strong>Goiás:</strong> os percentuais referem-se apenas ao excedente; a unidade geradora consome primeiro a própria geração.</p>' : ''}
-  ${observations ? `<h2 style="font-size:18px;margin:24px 0 8px">Observações do cliente</h2><p style="white-space:pre-wrap">${escapeEmailHtml(observations)}</p>` : ''}<p><strong>Autorização:</strong> ${escapeEmailHtml(consent)}</p>
+  ${ownershipInconsistencies.length ? `<h2 style="font-size:18px;margin:24px 0 8px;color:#b45309">Alerta de inconsistência cadastral</h2><p>O cliente respondeu “não” para a titularidade de unidade(s) importada(s): ${escapeEmailHtml(ownershipInconsistencies.join(', '))}. A linha foi corrigida ou removida antes do envio.</p>` : ''}${observations ? `<h2 style="font-size:18px;margin:24px 0 8px">Observações do cliente</h2><p style="white-space:pre-wrap">${escapeEmailHtml(observations)}</p>` : ''}<p><strong>Autorização:</strong> ${escapeEmailHtml(consent)}</p>
   </td></tr></table></td></tr></table></body></html>`;
 
   const textRows = rows.map((item) => `- ${item.uc} | ${item.address} | ${item.allocation.replace(/<[^>]+>/g, '')} | ${item.status}`).join('\n');
@@ -104,7 +105,7 @@ Endereço: ${value(project.generatorUnit.address)}
 RATEIO SOLICITADO
 ${textRows}
 Total: ${percent(total)}
-${project.state === 'GO' ? '\nGoiás: os percentuais referem-se apenas ao excedente; a geradora consome primeiro a própria geração.\n' : ''}${observations ? `\nOBSERVAÇÕES DO CLIENTE\n${observations}\n` : ''}
+${project.state === 'GO' ? '\nGoiás: os percentuais referem-se apenas ao excedente; a geradora consome primeiro a própria geração.\n' : ''}${ownershipInconsistencies.length ? `\nALERTA DE INCONSISTÊNCIA CADASTRAL\nO cliente negou a titularidade das unidades importadas: ${ownershipInconsistencies.join(', ')}. A linha foi corrigida ou removida antes do envio.\n` : ''}${observations ? `\nOBSERVAÇÕES DO CLIENTE\n${observations}\n` : ''}
 Autorização: ${consent}`;
   return { subject: `${classificationLabel} — ${project.reference} — ${value(project.holder.name)}`, html, text };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BadgeCheck, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { FeeAssessmentCard } from './FeeAssessmentCard';
 import { compareUnits, formatPercent, hasDuplicateUcs, initializeAllocation, parsePercent, redistribute, TOTAL_BASIS_POINTS } from '@/lib/rateio/allocation';
@@ -9,7 +9,7 @@ import type { EditableUnit, FeeAssessment, GeneratorAllocation, LookupSuccess, M
 const SUPPORT = '62 99116 7558';
 const emptyProject = (): Project => ({ reference: '', modality: 'leasing', state: 'GO', installedAt: null, holder: { name: '', documentMasked: '', email: '', phone: '' }, generatorUnit: { ucNumber: '', address: '' }, shareUnits: [] });
 const uid = () => crypto.randomUUID();
-const blankUnit = (): EditableUnit => ({ id: uid(), ucNumber: '', holderName: '', address: '', basisPoints: null, locked: false, origin: 'new' });
+const blankUnit = (): EditableUnit => ({ id: uid(), ucNumber: '', holderName: '', address: '', basisPoints: null, locked: false, origin: 'new', ownershipConfirmed: null });
 
 export function inferRequestType(units: EditableUnit[], originalUnits: EditableUnit[]): RequestType {
   const originalUcs = new Set(originalUnits.map((unit) => unit.ucNumber).filter(Boolean));
@@ -56,15 +56,18 @@ export default function RateioForm({ initialReference = '' }: { initialReference
   const [protocol, setProtocol] = useState('');
   const [showErrors, setShowErrors] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
+  const [ownershipInconsistencies, setOwnershipInconsistencies] = useState<string[]>([]);
 
   const total = units.reduce((sum, unit) => sum + (unit.basisPoints || 0), project.state === 'DF' ? generator.basisPoints || 0 : 0);
   const duplicate = hasDuplicateUcs(units, project.generatorUnit.ucNumber, project.state);
   const validUnits = units.length > 0 && units.length <= 20 && units.every((unit) => /^\d{15}$/.test(unit.ucNumber) && unit.address.trim() && (unit.basisPoints || 0) > 0) && (project.state !== 'DF' || (generator.basisPoints || 0) > 0);
+  const ownershipConfirmed = units.length > 0 && units.every((unit) => unit.ownershipConfirmed === true);
   const manualProjectComplete = !manual || Boolean(project.reference.trim() && project.state?.trim() && project.holder.name?.trim() && project.holder.documentMasked?.trim() && project.holder.email?.trim() && project.holder.phone?.trim() && project.generatorUnit.ucNumber?.trim() && project.generatorUnit.address?.trim());
   const pendingItems = [
     ...(!manualProjectComplete ? ['Complete os dados do projeto e informe o titular das unidades.'] : []),
     ...(units.length === 0 ? ['Adicione pelo menos uma unidade consumidora.'] : []),
     ...(!validUnits ? ['Preencha o número, o endereço e o percentual de todas as unidades.'] : []),
+    ...(!ownershipConfirmed ? ['Confirme que você é o atual titular de todas as unidades beneficiárias.'] : []),
     ...(duplicate ? ['Remova unidades repetidas ou a unidade geradora indevida.'] : []),
     ...(total !== TOTAL_BASIS_POINTS ? [`A soma precisa ser 100,00% (${total < TOTAL_BASIS_POINTS ? `faltam ${formatPercent(TOTAL_BASIS_POINTS - total)}%` : `retire ${formatPercent(total - TOTAL_BASIS_POINTS)}%`}).`] : []),
     ...(fee?.status === 'chargeable' && !feeAccepted ? ['Confirme que está ciente da taxa.'] : []),
@@ -97,7 +100,12 @@ export default function RateioForm({ initialReference = '' }: { initialReference
     const imported = initializeAllocation(lookup.project, uid); setUnits(imported.units); setOriginalUnits(imported.units.filter((unit) => unit.origin === 'current').map((unit) => ({ ...unit }))); setGenerator(imported.generator); setOriginalGenerator({ ...imported.generator }); setHasMissingPercent(imported.hasMissingPercent); setMountedAt(Date.now()); setFormDirty(false); setStage('form'); setMessage('');
   }
 
-  function updateUnit(id: string, field: 'ucNumber' | 'holderName' | 'address', value: string) { setFormDirty(true); setUnits((current) => current.map((unit) => unit.id === id ? { ...unit, [field]: field === 'ucNumber' ? value.replace(/\D/g, '').slice(0, 15) : value } : unit)); }
+  function updateUnit(id: string, field: 'ucNumber' | 'holderName' | 'address', value: string) { setFormDirty(true); setUnits((current) => current.map((unit) => unit.id === id ? { ...unit, [field]: field === 'ucNumber' ? value.replace(/\D/g, '').slice(0, 15) : value, ...(field === 'ucNumber' || field === 'address' ? { ownershipConfirmed: null } : {}) } : unit)); }
+  function confirmOwnership(unit: EditableUnit, value: boolean) {
+    setFormDirty(true);
+    setUnits((current) => current.map((item) => item.id === unit.id ? { ...item, ownershipConfirmed: value } : item));
+    if (!value && unit.origin === 'current') setOwnershipInconsistencies((current) => current.includes(unit.ucNumber) ? current : [...current, unit.ucNumber]);
+  }
   function updatePercent(id: string, value: string) {
     setFormDirty(true);
     const parsed = parsePercent(value);
@@ -124,12 +132,12 @@ export default function RateioForm({ initialReference = '' }: { initialReference
     if (!canSubmit) { setShowErrors(true); focusFirstError(); return; }
     if (loading) { setMessage('A solicitação já está sendo enviada. Aguarde.'); return; }
     setLoading(true); setMessage(''); setShowErrors(false);
-    const beneficiaryUnits = units.map((unit) => ({ ucNumber: unit.ucNumber, holderName: project.holder.name, address: unit.address || null, percent: (unit.basisPoints || 0) / 100 }));
+    const beneficiaryUnits = units.map((unit) => ({ ucNumber: unit.ucNumber, holderName: project.holder.name, address: unit.address || null, percent: (unit.basisPoints || 0) / 100, ownershipConfirmed: unit.ownershipConfirmed }));
     const shareUnits = project.state === 'DF' ? [{ ucNumber: generator.ucNumber, holderName: project.holder.name, address: generator.address || null, percent: (generator.basisPoints || 0) / 100 }, ...beneficiaryUnits] : beneficiaryUnits;
     const comparison = compareUnits(units, originalUnits);
     const generatorComparison = { ...generator, status: generator.basisPoints === originalGenerator.basisPoints ? 'maintained' : 'changed' };
     try {
-      const response = await fetch('/api/rateio/solicitacoes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ manual, website, mountedAt, lookupToken: lookup?.lookupToken, requestType: inferRequestType(units, originalUnits), expectedFeeStatus: fee?.status, feeAccepted, project, payload: { shareUnits, comparison: { generator: generatorComparison, beneficiaries: comparison }, observations, consent } }) });
+      const response = await fetch('/api/rateio/solicitacoes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ manual, website, mountedAt, lookupToken: lookup?.lookupToken, requestType: inferRequestType(units, originalUnits), expectedFeeStatus: fee?.status, feeAccepted, project, payload: { shareUnits, comparison: { generator: generatorComparison, beneficiaries: comparison }, ownershipInconsistencies, observations, consent } }) });
       const data = await response.json();
       if (response.status === 409 && data.code === 'FEE_VERDICT_CHANGED') { setFee(data.feeAssessment); setFeeAccepted(false); setMessage('O veredito da taxa foi atualizado. Revise a informação abaixo e confirme novamente para concluir.'); return; }
       if (response.status === 409 && data.code === 'PENDING_REQUEST_EXISTS') { setMessage(`Já existe uma solicitação em análise${data.protocol ? ` (${data.protocol})` : ''}. Fale conosco pelo WhatsApp ${SUPPORT}.`); return; }
@@ -139,7 +147,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
     finally { setLoading(false); }
   }
 
-  function reset() { setStage('lookup'); setReference(initialReference); setVerifier(''); setLookup(null); setManual(false); setProject(emptyProject()); setUnits([]); setOriginalUnits([]); setGenerator({ ucNumber: '', address: '', basisPoints: null }); setOriginalGenerator({ ucNumber: '', address: '', basisPoints: null }); setHasMissingPercent(false); setFee(null); setConsent(false); setFeeAccepted(false); setObservations(''); setMessage(''); setProtocol(''); setFailures(0); setShowErrors(false); setFormDirty(false); }
+  function reset() { setStage('lookup'); setReference(initialReference); setVerifier(''); setLookup(null); setManual(false); setProject(emptyProject()); setUnits([]); setOriginalUnits([]); setGenerator({ ucNumber: '', address: '', basisPoints: null }); setOriginalGenerator({ ucNumber: '', address: '', basisPoints: null }); setHasMissingPercent(false); setFee(null); setConsent(false); setFeeAccepted(false); setObservations(''); setOwnershipInconsistencies([]); setMessage(''); setProtocol(''); setFailures(0); setShowErrors(false); setFormDirty(false); }
 
   if (stage === 'success') return <section className="min-w-0 rounded-3xl border border-emerald-200 bg-white p-4 text-center sm:p-6 shadow-lg md:p-10"><BadgeCheck className="mx-auto h-14 w-14 text-emerald-600" /><h2 className="mt-4 break-words text-2xl sm:text-3xl">Solicitação enviada com sucesso</h2><p className="mt-3 text-slate-600">Protocolo</p><p className="mt-1 select-all break-all text-xl font-black text-orange-600 sm:text-2xl">{protocol}</p><p className="mx-auto mt-4 max-w-2xl text-slate-700">A solicitação será analisada pela equipe. O prazo depende do processamento da distribuidora e normalmente vale a partir do próximo ciclo de faturamento.</p>{manual && <p className="mx-auto mt-3 max-w-2xl font-semibold text-amber-800">Como não houve confirmação automática, os dados serão conferidos manualmente antes de qualquer alteração.</p>}{fee?.status === 'chargeable' && <p className="mt-3 font-semibold">A equipe entrará em contato com as instruções de pagamento.</p>}<button onClick={reset} className="mt-6 rounded-full bg-orange-500 px-6 py-3 text-white hover:bg-orange-600">Fazer nova solicitação</button></section>;
 
@@ -163,7 +171,7 @@ export default function RateioForm({ initialReference = '' }: { initialReference
         {manual ? <ManualProject project={project} showErrors={showErrors} onChange={(value) => { setFormDirty(true); setProject(value); setGenerator((current) => ({ ...current, ucNumber: value.generatorUnit.ucNumber || '', address: value.generatorUnit.address || '' })); }} /> : (
           <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
             <Read label="Referência" value={project.reference} /><Read label="Modalidade" value={modalityLabel(project.modality)} /><Read label="UF" value={project.state} />
-            <Read label="Documento" value={project.holder.documentMasked} /><Read label="UC geradora" value={project.generatorUnit.ucNumber} />
+            <Read label="Titular" value={project.holder.name} /><Read label="Documento" value={project.holder.documentMasked} /><Read label="UC geradora" value={project.generatorUnit.ucNumber} />
             <Read label="Endereço" value={project.generatorUnit.address} />
           </dl>
         )}
@@ -195,10 +203,16 @@ export default function RateioForm({ initialReference = '' }: { initialReference
               <Field label="Unidade consumidora" inputMode="numeric" digitsOnly value={unit.ucNumber} error={showErrors && !/^\d{15}$/.test(unit.ucNumber) ? 'Informe os 15 números da unidade consumidora.' : undefined} onChange={(value) => updateUnit(unit.id, 'ucNumber', value)} />
               <Field label="Endereço" value={unit.address} error={showErrors && !unit.address.trim() ? 'Informe o endereço da unidade.' : undefined} onChange={(value) => updateUnit(unit.id, 'address', value)} />
               <label data-rateio-error={showErrors && (unit.basisPoints || 0) <= 0 ? 'true' : undefined} className="text-sm font-semibold">{project.state === 'GO' ? 'Percentual do excedente' : 'Percentual da geração'}
-                <input inputMode="decimal" aria-label={`Percentual da unidade ${unit.ucNumber || index + 1}`} key={`${unit.id}-${unit.basisPoints}`} defaultValue={unit.basisPoints == null ? '' : formatPercent(unit.basisPoints)} onBlur={(event) => updatePercent(unit.id, event.target.value)} disabled={unit.locked} className="rateio-control mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 disabled:bg-slate-100" />
+                <PercentInput ariaLabel={`Percentual da unidade ${unit.ucNumber || index + 1}`} value={unit.basisPoints} onChange={(value) => updatePercent(unit.id, value)} disabled={unit.locked} />
                 {showErrors && (unit.basisPoints || 0) <= 0 && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">Informe um percentual maior que zero.</span>}
               </label>
               <button aria-label="Remover unidade" type="button" onClick={() => removeUnit(unit.id)} className="justify-self-start border border-slate-300 bg-white text-slate-600 md:justify-self-auto"><Trash2 className="mx-auto h-4 w-4" /></button>
+              <fieldset data-rateio-error={showErrors && unit.ownershipConfirmed !== true ? 'true' : undefined} className="md:col-span-full">
+                <legend className="text-sm font-semibold text-slate-900">Você é o atual titular desta unidade consumidora?</legend>
+                <div className="mt-2 flex gap-5"><label className="flex items-center gap-2"><input type="radio" name={`ownership-${unit.id}`} checked={unit.ownershipConfirmed === true} onChange={() => confirmOwnership(unit, true)} className="accent-emerald-600" />Sim</label><label className="flex items-center gap-2"><input type="radio" name={`ownership-${unit.id}`} checked={unit.ownershipConfirmed === false} onChange={() => confirmOwnership(unit, false)} className="accent-orange-500" />Não</label></div>
+                {unit.ownershipConfirmed === true && <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-700"><BadgeCheck className="h-5 w-5" />Titularidade confirmada — unidade liberada para envio.</p>}
+                {unit.ownershipConfirmed === false && <p role="alert" className="mt-2 text-sm font-semibold text-red-700">Somente contas registradas no CPF ou CNPJ do titular da unidade geradora podem sofrer alteração de rateio. Corrija a unidade ou remova esta linha.</p>}
+              </fieldset>
               {!manual && unit.holderName && normalizedName(unit.holderName) !== normalizedName(project.holder.name) && <p role="alert" className="text-sm font-semibold text-amber-800 md:col-span-full">Esta unidade está em nome de outra pessoa. Fale com nossa equipe pelo WhatsApp {SUPPORT}.</p>}
             </div>
           ))}
@@ -225,11 +239,11 @@ export default function RateioForm({ initialReference = '' }: { initialReference
         <label data-rateio-error={showErrors && !consent ? 'true' : undefined} className="mt-5 flex min-h-11 cursor-pointer scroll-mt-28 items-start gap-3 font-semibold text-slate-900"><input type="checkbox" required checked={consent} onChange={(event) => { setFormDirty(true); setConsent(event.target.checked); }} className="mt-0.5 h-5 w-5 shrink-0 accent-orange-500" /><span>Autorizo o uso destes dados para enviar a solicitação à distribuidora.</span></label>
         {showErrors && !consent && <p role="alert" className="mt-1 text-sm font-semibold text-red-700">Confirme a autorização para continuar.</p>}
         {showErrors && pendingItems.length > 0 && <div role="alert" className="mt-5 border-l-2 border-slate-400 pl-4 text-sm text-slate-700"><p className="font-bold">Para enviar, confira:</p><ul className="mt-1 list-disc space-y-1 pl-5">{pendingItems.map((item) => <li key={item}>{item}</li>)}</ul></div>}
-        <div className="mt-6 hidden items-center gap-4 md:flex"><button className="min-h-11 rounded-full bg-orange-500 px-7 py-3 text-white">{loading ? 'Enviando…' : 'Enviar solicitação'}</button><button type="button" onClick={cancel} className="border border-slate-300 bg-white px-4 py-2 text-sm text-slate-600">Cancelar</button></div>
+        <div className="mt-6 hidden items-center gap-4 md:flex"><button disabled={!canSubmit || loading} className="min-h-11 rounded-full bg-orange-500 px-7 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Enviando…' : 'Enviar solicitação'}</button><button type="button" onClick={cancel} className="border border-slate-300 bg-white px-4 py-2 text-sm text-slate-600">Cancelar</button></div>
       </section>
 
       <div className="rateio-mobile-actions fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(15,23,42,0.14)] backdrop-blur md:hidden">
-        <div className="mx-auto flex max-w-[1320px] items-center gap-2"><div className={`min-w-0 flex-1 text-sm font-bold ${totalComplete ? 'text-emerald-700' : 'text-slate-600'}`}>Total: {formatPercent(total)}%</div><button type="button" onClick={cancel} className="rateio-cancel-mobile shrink-0 border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-600">Cancelar</button><button className="min-h-11 shrink-0 rounded-full bg-orange-500 px-5 py-3 text-white">{loading ? 'Enviando…' : 'Enviar'}</button></div>
+        <div className="mx-auto flex max-w-[1320px] items-center gap-2"><div className={`min-w-0 flex-1 text-sm font-bold ${totalComplete ? 'text-emerald-700' : 'text-slate-600'}`}>Total: {formatPercent(total)}%</div><button type="button" onClick={cancel} className="rateio-cancel-mobile shrink-0 border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-600">Cancelar</button><button disabled={!canSubmit || loading} className="min-h-11 shrink-0 rounded-full bg-orange-500 px-5 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Enviando…' : 'Enviar'}</button></div>
       </div>
     </form>
   );
@@ -238,6 +252,13 @@ export default function RateioForm({ initialReference = '' }: { initialReference
 function Read({ label, value }: { label: string; value: string | null | undefined }) { return <div><dt className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</dt><dd className="mt-0.5 break-words text-slate-900">{value || 'Não informado'}</dd></div>; }
 function statusLabel(status: 'maintained' | 'changed' | 'new' | 'removed') { return ({ maintained: 'mantida', changed: 'alterada', new: 'nova', removed: 'removida' } as const)[status]; }
 function Field({ label, value, onChange, type = "text", inputMode, autoComplete, digitsOnly = false, error }: { label: string; value: string; onChange: (value: string) => void; type?: React.HTMLInputTypeAttribute; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]; autoComplete?: string; digitsOnly?: boolean; error?: string }) { return <label data-rateio-error={error ? "true" : undefined} className="min-w-0 text-sm font-semibold">{label}<input type={type} inputMode={inputMode} autoComplete={autoComplete} value={value} onChange={(e) => onChange(digitsOnly ? e.target.value.replace(/\D/g, "") : e.target.value)} className="rateio-control mt-1 w-full min-w-0 rounded-xl border border-slate-200 px-3 py-2" />{error && <span role="alert" className="mt-1 block text-xs font-semibold text-red-700">{error}</span>}</label>; }
+function PercentInput({ ariaLabel, value, onChange, disabled }: { ariaLabel: string; value: number | null; onChange: (value: string) => void; disabled?: boolean }) {
+  const plain = value == null ? '' : (value / 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+  const [display, setDisplay] = useState(plain ? `${plain}%` : '');
+  const preserveTypedFormatting = useRef(false);
+  useEffect(() => { if (preserveTypedFormatting.current) preserveTypedFormatting.current = false; else setDisplay(plain ? `${plain}%` : ''); }, [plain]);
+  return <input inputMode="decimal" aria-label={ariaLabel} value={display} onFocus={() => setDisplay((current) => current.replace(/\s*%$/, ''))} onChange={(event) => setDisplay(event.target.value)} onBlur={() => { const raw = display.replace(/\s*%$/, '').trim(); preserveTypedFormatting.current = true; onChange(raw); setDisplay(parsePercent(raw) == null ? raw : `${raw.replace('.', ',')}%`); }} disabled={disabled} className="rateio-control mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 disabled:bg-slate-100" />;
+}
 function modalityLabel(value: Modality | null) { return ({ leasing: 'Leasing', sale: 'Venda', monitoring: 'Monitoramento', buyout: 'Compra definitiva' } as Record<string, string>)[value || ''] || 'Não informada'; }
 function ManualProject({ project, onChange, showErrors }: { project: Project; onChange: (project: Project) => void; showErrors: boolean }) {
   const set = (path: string, value: string) => { const next = structuredClone(project); const [group, field] = path.split('.'); if (field) (next[group as 'holder' | 'generatorUnit'] as unknown as Record<string, string | null>)[field] = value; else (next as unknown as Record<string, string | null>)[group] = value; onChange(next); };

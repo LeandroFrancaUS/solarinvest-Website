@@ -31,7 +31,7 @@ export type FeeAssessment = {
 export type LookupSuccess = { ok: true; lookupToken: string; project: Project; feeAssessment: FeeAssessment };
 export type LookupResponse = LookupSuccess | { ok: false; unavailable?: boolean; rateLimited?: boolean; retryAfter?: string };
 
-export type EditableUnit = { id: string; ucNumber: string; holderName: string; address: string; basisPoints: number | null; locked: boolean; origin: 'current' | 'new' };
+export type EditableUnit = { id: string; ucNumber: string; holderName: string; address: string; basisPoints: number | null; locked: boolean; origin: 'current' | 'new'; ownershipConfirmed: boolean | null };
 export type GeneratorAllocation = { ucNumber: string; address: string; basisPoints: number | null };
 export type ComparisonStatus = 'maintained' | 'changed' | 'new' | 'removed';
 export type ComparedUnit = EditableUnit & { status: ComparisonStatus };

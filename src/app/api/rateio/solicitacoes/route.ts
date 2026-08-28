@@ -71,6 +71,17 @@ export async function POST(request: Request) {
   }
   const ip = visitorIp(request);
   if (limited(`submit:${ip}`, 3)) return NextResponse.json({ ok: false, code: 'RATE_LIMITED' }, { status: 429, headers: { 'Retry-After': '600' } });
+  const submittedPayload = body.payload && typeof body.payload === 'object' ? body.payload as Record<string, unknown> : {};
+  const submittedUnits = Array.isArray(submittedPayload.shareUnits) ? submittedPayload.shareUnits : [];
+  const beneficiaryConfirmations = submittedUnits.filter((unit) => {
+    const fields = unit && typeof unit === 'object' ? unit as Record<string, unknown> : {};
+    const project = body.project && typeof body.project === 'object' ? body.project as Record<string, unknown> : {};
+    const generator = project.generatorUnit && typeof project.generatorUnit === 'object' ? project.generatorUnit as Record<string, unknown> : {};
+    return fields.ucNumber !== generator.ucNumber;
+  });
+  if (!beneficiaryConfirmations.length || beneficiaryConfirmations.some((unit) => (unit as Record<string, unknown>).ownershipConfirmed !== true)) {
+    return NextResponse.json({ ok: false, code: 'OWNERSHIP_CONFIRMATION_REQUIRED' }, { status: 400 });
+  }
 
   if (body.manual === true) {
     // A API pública exige lookupToken. O fluxo de contingência é recebido pelo site
@@ -98,6 +109,13 @@ export async function POST(request: Request) {
     return validationError('INVALID_REQUEST_TYPE', [{ field: 'requestType', message: 'Use inclusion, exclusion ou redistribution.' }]);
   }
   const payload = body.payload && typeof body.payload === 'object' ? body.payload as Record<string, unknown> : {};
+  const authenticatedBeneficiaries = submittedUnits.filter((unit) => {
+    const fields = unit && typeof unit === 'object' ? unit as Record<string, unknown> : {};
+    return fields.ucNumber !== original.generatorUnit.ucNumber;
+  });
+  if (!authenticatedBeneficiaries.length || authenticatedBeneficiaries.some((unit) => (unit as Record<string, unknown>).ownershipConfirmed !== true)) {
+    return validationError('OWNERSHIP_CONFIRMATION_REQUIRED', [{ field: 'payload.shareUnits', message: 'Confirme a titularidade de todas as unidades beneficiárias.' }]);
+  }
   // A titularidade confirmada no lookup é a única fonte confiável. Nunca
   // encaminhamos o titular enviado pelo navegador no fluxo autenticado.
   const requestedShareUnits = Array.isArray(payload.shareUnits) ? payload.shareUnits : original.shareUnits;
