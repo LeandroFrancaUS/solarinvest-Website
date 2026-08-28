@@ -11,6 +11,10 @@ export const runtime = 'nodejs';
 const RATEIO_FROM = 'Alteração de Rateio SolarInvest <contato@solarinvest.info>';
 const RATEIO_INBOX = 'brsolarinvest@gmail.com';
 
+function validationError(code: string, errors: Array<{ field: string; message: string }>) {
+  return NextResponse.json({ ok: false, code, errors }, { status: 400 });
+}
+
 async function sendRateioEmail(details: RateioEmailInput) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -80,17 +84,17 @@ export async function POST(request: Request) {
 
   const token = typeof body.lookupToken === 'string' ? body.lookupToken : '';
   const original = getRememberedLookup(token);
-  if (!original) return NextResponse.json({ ok: false, code: 'LOOKUP_EXPIRED' }, { status: 400 });
+  if (!original) return validationError('LOOKUP_EXPIRED', [{ field: 'lookupToken', message: 'A confirmação do projeto está ausente, expirada ou não foi reconhecida nesta instância.' }]);
   const authenticatedBeneficiaries = submittedUnits.filter((unit) => {
     const fields = unit && typeof unit === 'object' ? unit as Record<string, unknown> : {};
     return fields.ucNumber !== original.generatorUnit.ucNumber;
   });
   if (!authenticatedBeneficiaries.length || authenticatedBeneficiaries.some((unit) => (unit as Record<string, unknown>).ownershipConfirmed !== true)) {
-    return NextResponse.json({ ok: false, code: 'OWNERSHIP_CONFIRMATION_REQUIRED' }, { status: 400 });
+    return validationError('OWNERSHIP_CONFIRMATION_REQUIRED', [{ field: 'payload.shareUnits', message: 'Confirme a titularidade de todas as unidades beneficiárias.' }]);
   }
   const requestType = body.requestType;
   if (!['inclusion', 'exclusion', 'redistribution'].includes(String(requestType))) {
-    return NextResponse.json({ ok: false, code: 'INVALID_REQUEST_TYPE' }, { status: 400 });
+    return validationError('INVALID_REQUEST_TYPE', [{ field: 'requestType', message: 'Use inclusion, exclusion ou redistribution.' }]);
   }
   const payload = body.payload && typeof body.payload === 'object' ? body.payload as Record<string, unknown> : {};
   // A titularidade confirmada no lookup é a única fonte confiável. Nunca
