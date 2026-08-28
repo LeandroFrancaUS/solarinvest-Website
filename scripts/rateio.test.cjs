@@ -126,11 +126,21 @@ test('envio inválido mostra pendências, mensagens por campo e rola ao primeiro
   assert.match(source, /<form noValidate onSubmit=\{submit\}/);
 });
 
-test('envio válido dispara a requisição e os botões de envio nunca são desabilitados', () => {
+test('envio só é habilitado após todas as confirmações de titularidade', () => {
   const source = fs.readFileSync('src/components/rateio/RateioForm.tsx', 'utf8');
   assert.match(source, /if \(!canSubmit\)[\s\S]*fetch\('\/api\/rateio\/solicitacoes'/);
   const finalForm = source.slice(source.indexOf('<form noValidate onSubmit={submit}'));
-  assert.doesNotMatch(finalForm, /<button disabled=\{loading\}/);
+  assert.match(finalForm, /disabled=\{!canSubmit \|\| loading\}/);
+  assert.match(finalForm, /Você é o atual titular desta unidade consumidora/);
+  assert.match(source, /ownershipConfirmed: null/);
+  assert.match(finalForm, /Titularidade confirmada/);
+  assert.match(finalForm, /Somente contas registradas no CPF ou CNPJ/);
+});
+
+test('servidor rejeita beneficiária sem titularidade confirmada', () => {
+  const route = fs.readFileSync('src/app/api/rateio/solicitacoes/route.ts', 'utf8');
+  assert.match(route, /ownershipConfirmed !== true/);
+  assert.match(route, /OWNERSHIP_CONFIRMATION_REQUIRED/);
 });
 
 test('honeypot encerra antes de qualquer envio real', () => {

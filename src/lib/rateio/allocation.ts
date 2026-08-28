@@ -51,10 +51,10 @@ export function initializeAllocation(project: Project, makeId: () => string): { 
     .filter((unit) => !(project.state === 'DF' && unit.ucNumber && unit.ucNumber === project.generatorUnit.ucNumber))
     .map((unit) => ({
       id: makeId(), ucNumber: unit.ucNumber || '', holderName: unit.holderName || '', address: unit.address || '',
-      basisPoints: unit.percent == null ? null : Math.round(unit.percent * 100), locked: false, origin: 'current' as const,
+      basisPoints: unit.percent == null ? null : Math.round(unit.percent * 100), locked: false, origin: 'current' as const, ownershipConfirmed: null,
     }));
   const hasMissingPercent = (project.state === 'DF' && generator.basisPoints == null) || units.some((unit) => unit.basisPoints == null);
-  if (!units.length) units = [{ id: makeId(), ucNumber: '', holderName: '', address: '', basisPoints: null, locked: false, origin: 'new' }];
+  if (!units.length) units = [{ id: makeId(), ucNumber: '', holderName: '', address: '', basisPoints: null, locked: false, origin: 'new', ownershipConfirmed: null }];
   if (project.state === 'GO' && units.length === 1 && units[0].origin === 'current') units = [{ ...units[0], basisPoints: TOTAL_BASIS_POINTS, locked: true }];
   return { generator, units, hasMissingPercent };
 }
