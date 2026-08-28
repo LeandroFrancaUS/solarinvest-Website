@@ -30,13 +30,23 @@ export async function POST(request: Request) {
   if (upstream.status !== 200) return NextResponse.json({ ok: false }, { status: upstream.status });
   const data = upstream.data as Partial<LookupSuccess> | null;
   if (data?.ok === true && data.lookupToken && data.project && data.feeAssessment) {
-    rememberLookup(data.lookupToken, data.project);
+    // O lacre viaja de volta com a resposta e o formulário o reenvia no submit.
+    // É ele, e não a memória desta instância, que faz o submit reconhecer o
+    // lookup — ver o cabeçalho de lib/rateio/lookupSeal.ts.
+    const lookupSeal = rememberLookup(data.lookupToken, data.project);
+    if (!lookupSeal) {
+      // Sem lacre o envio volta a depender de cair na mesma instância desta
+      // consulta, que é exatamente a falha corrigida. O aviso é para o operador:
+      // falta um segredo de 32 caracteres em RATEIO_LOOKUP_SEAL_SECRET (ou uma
+      // SITE_PUBLIC_API_KEY desse tamanho, que serve de origem para a derivação).
+      console.warn('[rateio-lookup] lacre indisponível: sem segredo configurado, o envio depende da instância');
+    }
     // The app keeps identifying pending requests, but they must not prevent the
     // Solar Lab accounts from exercising the complete public flow repeatedly.
     const feeAssessment = isRateioTestProject(data.project)
       ? { ...data.feeAssessment, hasPendingRequest: false }
       : data.feeAssessment;
-    return NextResponse.json({ ...data, feeAssessment });
+    return NextResponse.json({ ...data, feeAssessment, ...(lookupSeal ? { lookupSeal } : {}) });
   }
   return NextResponse.json({ ok: false });
 }

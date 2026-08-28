@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "rm -rf .test-build && tsc src/lib/rateio/types.ts src/lib/rateio/allocation.ts src/lib/rateio/reference.ts src/lib/rateio/email.ts src/lib/rateio/history.ts src/lib/rateio/testProject.ts src/lib/rateio/submission.ts --outDir .test-build --module commonjs --target es2020 --esModuleInterop --skipLibCheck && node --test scripts/rateio.test.cjs scripts/rateio-route.test.cjs scripts/rateio-email.test.cjs scripts/rateio-direct-route.test.cjs && rm -rf .test-build",
+    "test": "rm -rf .test-build && tsc src/lib/rateio/types.ts src/lib/rateio/allocation.ts src/lib/rateio/reference.ts src/lib/rateio/email.ts src/lib/rateio/history.ts src/lib/rateio/testProject.ts src/lib/rateio/submission.ts src/lib/rateio/lookupSeal.ts --outDir .test-build --module commonjs --target es2020 --esModuleInterop --skipLibCheck && node --test scripts/rateio.test.cjs scripts/rateio-route.test.cjs scripts/rateio-email.test.cjs scripts/rateio-direct-route.test.cjs scripts/rateio-seal.test.cjs && rm -rf .test-build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { callRateioApp, getRememberedLookup, limited, SUBMIT_TIMEOUT_MS, visitorIp } from '@/lib/rateio/server';
+import { callRateioApp, limited, resolveLookupSnapshot, SUBMIT_TIMEOUT_MS, visitorIp } from '@/lib/rateio/server';
 import { buildRateioEmail, classifyRateio, type RateioEmailInput } from '@/lib/rateio/email';
 import { buildRateioHistoryAttachment } from '@/lib/rateio/history';
 import { buildRateioAppSubmission } from '@/lib/rateio/submission';
@@ -91,8 +91,11 @@ export async function POST(request: Request) {
   }
 
   const token = typeof body.lookupToken === 'string' ? body.lookupToken : '';
-  const original = getRememberedLookup(token);
-  if (!original) return validationError('LOOKUP_EXPIRED', [{ field: 'lookupToken', message: 'A confirmação do projeto está ausente, expirada ou não foi reconhecida nesta instância.' }]);
+  // O lacre reenviado pelo formulário é a fonte que vale em qualquer instância.
+  // A memória do processo continua atendendo quando o submit calha de cair na
+  // mesma instância do lookup, mas não é mais dela que a correção depende.
+  const original = resolveLookupSnapshot(token, body.lookupSeal);
+  if (!original) return validationError('LOOKUP_EXPIRED', [{ field: 'lookupToken', message: 'A confirmação do projeto está ausente, expirada ou não pôde ser conferida.' }]);
   const requestType = body.requestType;
   if (!['inclusion', 'exclusion', 'redistribution'].includes(String(requestType))) {
     return validationError('INVALID_REQUEST_TYPE', [{ field: 'requestType', message: 'Use inclusion, exclusion ou redistribution.' }]);

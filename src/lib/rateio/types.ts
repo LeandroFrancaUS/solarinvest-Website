@@ -28,7 +28,9 @@ export type FeeAssessment = {
   hasPendingRequest?: boolean;
 };
 
-export type LookupSuccess = { ok: true; lookupToken: string; project: Project; feeAssessment: FeeAssessment };
+// `lookupSeal` é o retrato do projeto cifrado pelo site, que o formulário
+// devolve no submit. Opcional porque só existe quando há segredo configurado.
+export type LookupSuccess = { ok: true; lookupToken: string; project: Project; feeAssessment: FeeAssessment; lookupSeal?: string };
 export type LookupResponse = LookupSuccess | { ok: false; unavailable?: boolean; rateLimited?: boolean; retryAfter?: string };
 
 export type EditableUnit = { id: string; ucNumber: string; holderName: string; address: string; basisPoints: number | null; locked: boolean; origin: 'current' | 'new' };
