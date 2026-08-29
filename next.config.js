@@ -75,6 +75,10 @@ module.exports = {
         destination: 'https://app.solarinvest.info/fatura/:token',
       },
       {
+        source: '/relatorio/:token',
+        destination: 'https://app.solarinvest.info/api/relatorio/:token',
+      },
+      {
         source: '/sitemap.xml',
         destination: '/sitemap',
       },
