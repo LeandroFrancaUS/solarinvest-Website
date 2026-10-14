@@ -68,19 +68,19 @@ module.exports = {
     ],
   },
 
-  // Portal do Investidor: URL divulgada é solarinvest.info/investidor, mas o
-  // portal vive no app (login e sessão no domínio dele). O hash do convite
-  // (#token) atravessa o redirect pelo navegador.
+  // Portal do Investidor: mora em portal.solarinvest.info (subdomínio do app).
+  // Links antigos para solarinvest.info/investidor seguem para lá; o hash do
+  // convite (#token) atravessa o redirect pelo navegador.
   async redirects() {
     return [
       {
         source: '/investidor',
-        destination: 'https://app.solarinvest.info/investidor',
+        destination: 'https://portal.solarinvest.info/investidor',
         permanent: false,
       },
       {
         source: '/investidor/:path*',
-        destination: 'https://app.solarinvest.info/investidor/:path*',
+        destination: 'https://portal.solarinvest.info/investidor/:path*',
         permanent: false,
       },
     ];
